@@ -10,7 +10,8 @@
 
 type RoleLevel = 'fresher' | 'intern' | 'entry' | 'junior' | 'mid' | 'senior' | 'lead';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '../utils/api-config';
+const API_BASE_URL = getApiBaseUrl();
 
 /**
  * Assess bullet complexity (0-4 score)

@@ -25,7 +25,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
     const isResumeIncomplete = !data.basics.fullName?.trim() || !data.basics.email?.trim() || !data.summary?.trim();
 
     // Preview state
-    const [zoom, setZoom] = useState(0.55);
+    const [zoom, setZoom] = useState(window.innerWidth < 768 ? 0.35 : 0.55); // Smaller zoom on mobile
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
@@ -54,7 +54,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
     });
 
     // ===== CONTEXT-AWARE AI REWRITING ENGINE =====
-    const CARD_SCALE = 0.37;
+    const CARD_SCALE = window.innerWidth < 768 ? 0.25 : 0.37; // Smaller scale on mobile
 
     // STEP 1: Detect role level from CV context
     type RoleLevel = 'fresher' | 'intern' | 'entry' | 'junior' | 'mid' | 'senior' | 'lead';
@@ -224,12 +224,30 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
         // Detect role level for fallback rule-based rewriting
         const roleLevel = detectRoleLevel(originalData);
 
-        // Extract JD keywords if available
+        // Extract JD keywords if available (ENHANCED for better matching)
         const jdKeywords: string[] = [];
         if (originalData.jobDescription) {
             try {
                 const { extractJDKeywords } = await import('../services/openaiService');
-                jdKeywords.push(...extractJDKeywords(originalData.jobDescription));
+                const extracted = extractJDKeywords(originalData.jobDescription);
+                jdKeywords.push(...extracted);
+                
+                // Also parse JD using universal parser for better role/keyword extraction
+                try {
+                    const { parseJobDescription } = await import('../universal-jd-parser');
+                    const parsedJD = parseJobDescription(originalData.jobDescription);
+                    if (parsedJD.detectedRole && !jdKeywords.includes(parsedJD.detectedRole.toLowerCase())) {
+                        jdKeywords.push(parsedJD.detectedRole.toLowerCase());
+                    }
+                    // Add hard skills from JD
+                    parsedJD.hardSkills.forEach(skill => {
+                        if (!jdKeywords.includes(skill.keyword.toLowerCase())) {
+                            jdKeywords.push(skill.keyword.toLowerCase());
+                        }
+                    });
+                } catch (parseErr) {
+                    console.warn('JD parsing failed:', parseErr);
+                }
             } catch (err) {
                 console.warn('JD keyword extraction failed:', err);
             }
@@ -268,7 +286,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
             (originalData.experience || []).map(async (exp) => {
                 const rewrittenHighlights = await Promise.all(
                     (exp.highlights || []).map(async (bullet) => {
-                        // Use honest AI rewrite service - analyzes grammar, role, exp, ATS structure
+                        // Use honest AI rewrite service - ADVANCED ATS OPTIMIZATION with JD matching
                         try {
                             const { rewriteWithConstraints } = await import('../services/honestAIRewriteService');
                             const result = await rewriteWithConstraints({
@@ -276,14 +294,27 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
                                 role: targetRole,
                                 market: targetMarket,
                                 experienceLevel,
-                                jdKeywords: jdKeywords.length > 0 ? jdKeywords : undefined,
+                                jdKeywords: jdKeywords.length > 0 ? jdKeywords : undefined, // Pass JD keywords for ATS matching
                                 originalText: bullet
                             });
+                            
+                            // Validate rewrite quality - ensure JD keywords are matched when relevant
+                            if (jdKeywords.length > 0 && result.rewritten) {
+                                const rewrittenLower = result.rewritten.toLowerCase();
+                                const matchedKeywords = jdKeywords.filter(kw => rewrittenLower.includes(kw.toLowerCase()));
+                                // If no JD keywords matched and they're relevant, try to improve
+                                if (matchedKeywords.length === 0 && bullet.toLowerCase().includes(jdKeywords[0]?.toLowerCase() || '')) {
+                                    // Keep original if JD keywords are already there
+                                    return bullet;
+                                }
+                            }
+                            
                             return result.rewritten;
                         } catch (err) {
-                            // Fallback to rule-based rewrite
+                            // Fallback to rule-based rewrite with JD keyword matching
                             console.warn('Honest rewrite failed, using rule-based:', err);
-                            return rewriteBulletContextAware(bullet, roleLevel, resumeKeywords);
+                            const fallback = rewriteBulletContextAware(bullet, roleLevel, [...resumeKeywords, ...jdKeywords]);
+                            return fallback;
                         }
                     })
                 );
@@ -580,7 +611,19 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
                 setShowPaymentSuccess(true);
             }
         } catch (error: any) {
-            alert(error.message || 'Payment failed. Please try again.');
+            // Improved error handling with user-friendly messages
+            const errorMessage = error.message || 'Payment failed. Please try again.';
+            console.error('Payment error:', error);
+            
+            // Show more helpful error messages
+            if (errorMessage.includes('timeout') || errorMessage.includes('Network')) {
+                alert('Connection timeout. Please check your internet connection and try again.');
+            } else if (errorMessage.includes('cancelled')) {
+                // User cancelled - no need to show error
+                console.log('Payment cancelled by user');
+            } else {
+                alert(errorMessage);
+            }
         } finally {
             setProcessing(false);
         }
@@ -651,7 +694,8 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
             console.log('Feedback submitted:', feedback, 'Template:', selectedTemplate.id);
 
             // Send feedback to backend API
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/feedback`, {
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.hexacv.online');
+            await fetch(`${apiBase}/api/feedback`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1022,7 +1066,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
                                                                             <span className="text-blue-400 text-xs font-semibold mt-0.5">AI-Enhanced Version:</span>
                                                                         </div>
                                                                         <p className="text-xs text-white font-medium leading-relaxed pl-2 border-l-2 border-blue-600">
-                                                                            {highlightKeywords(aiRewrittenBullet)}
+                                                                            {aiRewrittenBullet}
                                                                         </p>
                                                                         <p className="text-[10px] text-slate-400 italic mt-1">
                                                                             🔍 Blue highlights = Keywords recruiters scan in first 6 seconds
@@ -1265,6 +1309,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
                             `}</style>
                             <div
                                 className="right-preview-scroll transition-transform duration-200"
+                                style={{ fontSize: window.innerWidth < 768 ? '10px' : '12px' }}
                                 style={{
                                     transform: `scale(${zoom})`,
                                     transformOrigin: 'top center',

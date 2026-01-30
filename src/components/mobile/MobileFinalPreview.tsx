@@ -20,7 +20,7 @@ interface MobileFinalPreviewProps {
 const MobileFinalPreview: React.FC<MobileFinalPreviewProps> = ({ data, selectedTemplate, onBack, onNext }) => {
     const [processing, setProcessing] = useState(false);
     const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
-    const [zoom, setZoom] = useState(0.5);
+    const [zoom, setZoom] = useState(0.35); // Smaller zoom for mobile
     const [currentPage, setCurrentPage] = useState(1);
     const [pageCount, setPageCount] = useState(1);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -203,7 +203,7 @@ const MobileFinalPreview: React.FC<MobileFinalPreviewProps> = ({ data, selectedT
             console.log('Feedback submitted:', feedback, 'Template:', selectedTemplate.id);
 
             // Send feedback to backend API
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.hexacv.online');
             await fetch(`${apiBase}/api/feedback`, {
                 method: 'POST',
                 headers: {

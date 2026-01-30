@@ -7,6 +7,11 @@ const router = express.Router();
 // Environment variables
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+// Determine which LLM to use: OpenAI for paid template (better quality), Groq as fallback
+const USE_OPENAI_FOR_PAID = Boolean(OPENAI_API_KEY); // Use OpenAI if key is configured
 
 // Rate limiting: 10 requests per minute per IP
 const aiRewriteLimiter = rateLimit({
@@ -52,9 +57,13 @@ router.post('/bullet', aiRewriteLimiter, async (req, res) => {
             return res.status(400).json({ error: validation.error });
         }
 
-        // Check API key
-        if (!GROQ_API_KEY) {
+        // Check API keys - prefer OpenAI for paid template quality
+        const useOpenAI = USE_OPENAI_FOR_PAID;
+        if (!useOpenAI && !GROQ_API_KEY) {
             return res.status(503).json({ error: 'AI service not configured' });
+        }
+        if (useOpenAI && !OPENAI_API_KEY) {
+            return res.status(503).json({ error: 'OpenAI API key not configured' });
         }
 
         // Sanitize inputs
@@ -83,34 +92,70 @@ Role: ${role}
 ${company ? `Company: ${company}` : ''}
 ${keywordHint}
 
-ATS & SHORTLIST RULES:
+ATS & SHORTLIST RULES (ADVANCED ATS OPTIMIZATION):
 1. Structure: ACTION → TOOL/SKILL → IMPACT or ACTION → PROBLEM → SOLUTION → RESULT.
-2. Start with a strong action verb (e.g. Engineered, Designed, Led, Optimized, Implemented, Built, Created).
+2. Start with a strong action verb (e.g. Engineered, Designed, Led, Optimized, Implemented, Built, Created, Architected, Delivered).
 3. If the original has numbers: make them clearer. If NO numbers: use safe impact framing only (e.g. "improving efficiency", "reducing manual effort") — NEVER invent fake metrics.
-4. Weave in JD/keywords only when they fit the real context; no keyword stuffing.
+4. Weave in JD/keywords NATURALLY - match JD requirements for real ATS optimization. Include JD keywords when they fit the actual work context.
 5. Keep 1–2 lines, recruiter-skimmable (max ~25–30 words).
 6. Keep core truth 100% — no invented experience or tools.
+7. Optimize for ATS keyword matching - this is critical for passing ATS filters.
+8. Match JD requirements naturally - if JD mentions specific technologies/skills and they're relevant, include them.
 
 Return ONLY the rewritten bullet. No preamble or explanation.`;
 
-        // Call Groq API
-        const response = await fetch(GROQ_API_URL, {
+        // Call AI API - Use OpenAI for paid template (better quality), Groq as fallback
+        const apiUrl = useOpenAI ? OPENAI_API_URL : GROQ_API_URL;
+        const apiKey = useOpenAI ? OPENAI_API_KEY : GROQ_API_KEY;
+        const model = useOpenAI ? 'gpt-4o-mini' : 'llama-3.3-70b-versatile';
+        const provider = useOpenAI ? 'openai' : 'groq';
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: model,
                 messages: [{ role: 'user', content: prompt }],
-                temperature: 0.4,
+                temperature: useOpenAI ? 0.3 : 0.4,
                 max_tokens: 256
             })
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Groq API error:', response.status, errorText);
+            console.error(`${provider.toUpperCase()} API error:`, response.status, errorText);
+            
+            // Fallback to Groq if OpenAI fails
+            if (useOpenAI && GROQ_API_KEY) {
+                console.log('OpenAI failed, falling back to Groq...');
+                const groqResponse = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: [{ role: 'user', content: prompt }],
+                        temperature: 0.4,
+                        max_tokens: 256
+                    })
+                });
+                
+                if (groqResponse.ok) {
+                    const groqData = await groqResponse.json();
+                    const rewritten = groqData.choices?.[0]?.message?.content?.trim() || bullet;
+                    return res.json({
+                        original: bullet,
+                        rewritten: rewritten.replace(/^["'\-•]\s*|["']$/g, '').trim(),
+                        improvement: 'Impact-driven language with clearer value proposition (using fallback)'
+                    });
+                }
+            }
+            
             return res.status(502).json({ error: 'AI service temporarily unavailable' });
         }
 
@@ -118,12 +163,16 @@ Return ONLY the rewritten bullet. No preamble or explanation.`;
         const rewritten = data.choices?.[0]?.message?.content?.trim() || bullet;
         const usage = data.usage || {};
         const tokensUsed = (usage.total_tokens || usage.completion_tokens || 0) + (usage.prompt_tokens || 0) || 256;
-        const costUsd = Math.max(0, (tokensUsed / 1e6) * 0.2);
+        
+        // Cost calculation: OpenAI ~$0.15/1M tokens, Groq free
+        const costUsd = useOpenAI 
+            ? Math.max(0, (tokensUsed / 1e6) * 0.15) 
+            : Math.max(0, (tokensUsed / 1e6) * 0.2);
 
         try {
             await query(
                 `INSERT INTO ai_usage_logs (operation_type, provider, tokens_used, cost_usd, session_id) VALUES ($1, $2, $3, $4, $5)`,
-                ['rewrite_bullet', 'groq', tokensUsed, costUsd, req.body.sessionId || null]
+                ['rewrite_bullet', provider, tokensUsed, costUsd, req.body.sessionId || null]
             );
         } catch (_) { /* optional: table may not exist yet */ }
 
@@ -156,9 +205,13 @@ router.post('/summary', aiRewriteLimiter, async (req, res) => {
             return res.status(400).json({ error: 'Summary too long' });
         }
 
-        // Check API key
-        if (!GROQ_API_KEY) {
+        // Check API keys - prefer OpenAI for paid template quality
+        const useOpenAI = USE_OPENAI_FOR_PAID;
+        if (!useOpenAI && !GROQ_API_KEY) {
             return res.status(503).json({ error: 'AI service not configured' });
+        }
+        if (useOpenAI && !OPENAI_API_KEY) {
+            return res.status(503).json({ error: 'OpenAI API key not configured' });
         }
 
         // Sanitize
@@ -181,32 +234,67 @@ TARGET ROLE: ${role}
 ${keywordHint}
 
 RULES:
-1. 3-4 lines, 50-70 words
+1. 2-3 sentences MAX, 40-60 words total (NOT more - recruiters scan quickly)
 2. Start with role/years if clear
 3. Highlight impact and value
 4. Use strong, confident language
 5. Natural keyword inclusion
 6. NO fabrication - maintain truthfulness
+7. Be concise - don't ask for more words
 
 Return ONLY the rewritten summary. No preamble.`;
 
-        // Call Groq
-        const response = await fetch(GROQ_API_URL, {
+        // Call AI API - Use OpenAI for paid template (better quality), Groq as fallback
+        const apiUrl = useOpenAI ? OPENAI_API_URL : GROQ_API_URL;
+        const apiKey = useOpenAI ? OPENAI_API_KEY : GROQ_API_KEY;
+        const model = useOpenAI ? 'gpt-4o-mini' : 'llama-3.3-70b-versatile';
+        const provider = useOpenAI ? 'openai' : 'groq';
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: model,
                 messages: [{ role: 'user', content: prompt }],
-                temperature: 0.5,
+                temperature: useOpenAI ? 0.3 : 0.5,
                 max_tokens: 256
             })
         });
 
         if (!response.ok) {
-            console.error('Groq API error:', response.status);
+            console.error(`${provider.toUpperCase()} API error:`, response.status);
+            
+            // Fallback to Groq if OpenAI fails
+            if (useOpenAI && GROQ_API_KEY) {
+                console.log('OpenAI failed, falling back to Groq...');
+                const groqResponse = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: [{ role: 'user', content: prompt }],
+                        temperature: 0.5,
+                        max_tokens: 256
+                    })
+                });
+                
+                if (groqResponse.ok) {
+                    const groqData = await groqResponse.json();
+                    const rewritten = groqData.choices?.[0]?.message?.content?.trim() || summary;
+                    return res.json({
+                        original: summary,
+                        rewritten: rewritten.replace(/^["']|["']$/g, '').trim(),
+                        improvement: 'Sharper, role-aligned summary (using fallback)'
+                    });
+                }
+            }
+            
             return res.status(502).json({ error: 'AI service temporarily unavailable' });
         }
 
@@ -214,12 +302,16 @@ Return ONLY the rewritten summary. No preamble.`;
         const rewritten = data.choices?.[0]?.message?.content?.trim() || summary;
         const usage = data.usage || {};
         const tokensUsed = (usage.total_tokens || usage.completion_tokens || 0) + (usage.prompt_tokens || 0) || 256;
-        const costUsd = Math.max(0, (tokensUsed / 1e6) * 0.2);
+        
+        // Cost calculation: OpenAI ~$0.15/1M tokens, Groq free
+        const costUsd = useOpenAI 
+            ? Math.max(0, (tokensUsed / 1e6) * 0.15) 
+            : Math.max(0, (tokensUsed / 1e6) * 0.2);
 
         try {
             await query(
                 `INSERT INTO ai_usage_logs (operation_type, provider, tokens_used, cost_usd, session_id) VALUES ($1, $2, $3, $4, $5)`,
-                ['rewrite_summary', 'groq', tokensUsed, costUsd, req.body.sessionId || null]
+                ['rewrite_summary', provider, tokensUsed, costUsd, req.body.sessionId || null]
             );
         } catch (_) { /* optional */ }
 

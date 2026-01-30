@@ -97,7 +97,19 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
                 setShowPaymentSuccess(true);
             }
         } catch (error: any) {
-            alert(error.message || 'Payment failed. Please try again.');
+            // Improved error handling with user-friendly messages
+            const errorMessage = error.message || 'Payment failed. Please try again.';
+            console.error('Payment error:', error);
+            
+            // Show more helpful error messages
+            if (errorMessage.includes('timeout') || errorMessage.includes('Network')) {
+                alert('Connection timeout. Please check your internet connection and try again.');
+            } else if (errorMessage.includes('cancelled')) {
+                // User cancelled - no need to show error
+                console.log('Payment cancelled by user');
+            } else {
+                alert(errorMessage);
+            }
         } finally {
             setProcessing(false);
         }
@@ -157,7 +169,7 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
             console.log('Feedback submitted:', feedback, 'Template:', selectedTemplate.id);
 
             // Send feedback to backend API
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.hexacv.online');
             await fetch(`${apiBase}/api/feedback`, {
                 method: 'POST',
                 headers: {

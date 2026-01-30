@@ -86,15 +86,38 @@ export function RoleMarketStep({ onComplete, initialData }: RoleMarketStepProps)
   const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLDivElement>(null);
 
-  // Filter and rank roles based on input with fuzzy matching - IMPROVED
+  // Filter and rank roles based on input with fuzzy matching - IMPROVED WITH SPELL CORRECTION
   const filteredRoles = useMemo(() => {
-    const base = targetRole.trim()
-      ? getRoleSuggestions(targetRole, 30)
-      : ROLE_TAXONOMY.slice(0, 30);
+    if (!targetRole.trim()) {
+      return ROLE_TAXONOMY.slice(0, 30);
+    }
+    
+    // Get suggestions with higher limit for better matching
+    let suggestions = getRoleSuggestions(targetRole, 50);
+    
+    // Spell correction - check if input has typos
+    const roleCorrection = getRoleCorrection(targetRole);
+    if (roleCorrection && !suggestions.includes(roleCorrection)) {
+      suggestions.unshift(roleCorrection);
+    }
+    
+    // Also check for .NET variations
+    const lowerInput = targetRole.toLowerCase();
+    if (lowerInput.includes('.net') || lowerInput.includes('dotnet') || lowerInput.includes('c#') || lowerInput.includes('csharp')) {
+      const dotNetRoles = ROLE_TAXONOMY.filter(r => 
+        r.toLowerCase().includes('.net') || 
+        r.toLowerCase().includes('dotnet') || 
+        r.toLowerCase().includes('asp.net') ||
+        r.toLowerCase().includes('c#')
+      );
+      suggestions.unshift(...dotNetRoles);
+    }
+    
+    const base = Array.from(new Set(suggestions));
     const filtered = roleCategoryFilter === 'All'
       ? base
       : base.filter(role => categorizeRole(role) === roleCategoryFilter);
-    return filtered.slice(0, 20);
+    return filtered.slice(0, 25); // Show more suggestions
   }, [targetRole, roleCategoryFilter]);
 
   // Close suggestions when clicking outside
@@ -108,8 +131,9 @@ export function RoleMarketStep({ onComplete, initialData }: RoleMarketStepProps)
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Validation: Must select from suggestions
-  const canContinue = selectedRole !== null && selectedRole.trim().length > 0;
+  // Validation: Must select from suggestions OR have valid role input (improved for .NET, etc.)
+  const canContinue = (selectedRole !== null && selectedRole.trim().length > 0) || 
+                      (targetRole.trim().length >= 3 && targetRole.trim().length <= 60);
 
   const handleRoleSelect = useCallback((role: string) => {
     setTargetRole(role);
@@ -171,16 +195,24 @@ export function RoleMarketStep({ onComplete, initialData }: RoleMarketStepProps)
   }, [selectedRole, targetMarket, experienceLevel]);
 
   const handleSubmit = () => {
-    if (!selectedRole) {
-      setValidationError('Select a role from suggestions. We optimize resumes by role, not free text.');
+    const finalRole = selectedRole || targetRole.trim();
+    
+    if (!finalRole || finalRole.trim().length < 3) {
+      setValidationError('Please enter or select a target role (minimum 3 characters)');
       return;
     }
-    const targetRoleCategory = categorizeRole(selectedRole);
+    
+    // Save custom role if not in taxonomy
+    if (!selectedRole && targetRole.trim()) {
+      saveCustomRole(targetRole.trim());
+    }
+    
+    const targetRoleCategory = categorizeRole(finalRole);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('targetRoleCategory', targetRoleCategory);
     }
     onComplete({
-      targetRole: selectedRole,
+      targetRole: finalRole,
       targetMarket,
       experienceLevel,
       targetRoleCategory

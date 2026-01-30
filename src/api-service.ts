@@ -182,7 +182,8 @@ export const getSessionId = (): string => {
   return sessionId;
 };
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from './utils/api-config';
+const API_BASE = getApiBaseUrl();
 
 export const trackEvent = async (
   event: string,
@@ -214,55 +215,139 @@ export const trackEvent = async (
   }
 };
 
-export const createOrder = async (templateId: string): Promise<any> => {
+export const createOrder = async (templateId: string, retries: number = 2): Promise<any> => {
   const sessionId = getSessionId();
-  const response = await fetch(`${API_BASE}/api/orders/create`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ templateId, sessionId })
-  });
-
-  if (!response.ok) {
-    let errorMessage = 'Failed to create order';
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const error = await response.json();
-      errorMessage = error.message || errorMessage;
-    } catch (e) {
-      errorMessage = `Server error (${response.status})`;
-    }
-    throw new Error(errorMessage);
-  }
+      const response = await fetch(`${API_BASE}/api/orders/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId, sessionId }),
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
 
-  return await response.json();
+      if (!response.ok) {
+        let errorMessage = 'Failed to create order';
+        try {
+          const error = await response.json();
+          errorMessage = error.message || error.error || errorMessage;
+          
+          // Handle specific error cases
+          if (error.error === 'INVALID_TEMPLATE') {
+            throw new Error('Template not found. Please refresh and try again.');
+          }
+          if (error.error === 'FREE_TEMPLATE') {
+            throw new Error('This template is free - no payment required.');
+          }
+        } catch (e: any) {
+          if (e.name === 'AbortError') {
+            throw new Error('Request timeout - please check your internet connection and try again.');
+          }
+          errorMessage = `Server error (${response.status})`;
+        }
+        
+        // Don't retry on client errors (4xx)
+        if (response.status >= 400 && response.status < 500) {
+          throw new Error(errorMessage);
+        }
+        
+        // Retry on server errors (5xx)
+        if (attempt < retries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // Exponential backoff
+          continue;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      if (attempt === retries) {
+        // Last attempt failed
+        if (error.message) {
+          throw error;
+        }
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          throw new Error('Network error - please check your internet connection and try again.');
+        }
+        throw new Error('Payment service unavailable. Please try again later.');
+      }
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  
+  throw new Error('Failed to create order after multiple attempts');
 };
 
 export const verifyPayment = async (
   razorpay_payment_id: string,
   razorpay_order_id: string,
-  razorpay_signature: string
+  razorpay_signature: string,
+  retries: number = 2
 ): Promise<any> => {
   const sessionId = getSessionId();
-  const response = await fetch(`${API_BASE}/api/orders/verify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      razorpay_payment_id,
-      razorpay_order_id,
-      razorpay_signature,
-      sessionId
-    })
-  });
-
-  if (!response.ok) {
-    let errorMessage = 'Payment verification failed';
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const error = await response.json();
-      errorMessage = error.message || errorMessage;
-    } catch (e) {
-      errorMessage = `Server error (${response.status})`;
-    }
-    throw new Error(errorMessage);
-  }
+      const response = await fetch(`${API_BASE}/api/orders/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_signature,
+          sessionId
+        }),
+        signal: AbortSignal.timeout(15000) // 15 second timeout for verification
+      });
 
-  return await response.json();
+      if (!response.ok) {
+        let errorMessage = 'Payment verification failed';
+        try {
+          const error = await response.json();
+          errorMessage = error.message || error.error || errorMessage;
+          
+          // Handle specific verification errors
+          if (error.error === 'INVALID_SIGNATURE') {
+            throw new Error('Payment verification failed. Please contact support if payment was deducted.');
+          }
+        } catch (e: any) {
+          if (e.name === 'AbortError') {
+            throw new Error('Verification timeout - please check your internet connection.');
+          }
+          errorMessage = `Server error (${response.status})`;
+        }
+        
+        // Don't retry on client errors (4xx) - these are usually permanent
+        if (response.status >= 400 && response.status < 500) {
+          throw new Error(errorMessage);
+        }
+        
+        // Retry on server errors (5xx)
+        if (attempt < retries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+          continue;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      if (attempt === retries) {
+        if (error.message) {
+          throw error;
+        }
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          throw new Error('Network error during verification. Payment may have succeeded - please check your account.');
+        }
+        throw new Error('Payment verification service unavailable. Please contact support if payment was deducted.');
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+  
+  throw new Error('Payment verification failed after multiple attempts');
 };

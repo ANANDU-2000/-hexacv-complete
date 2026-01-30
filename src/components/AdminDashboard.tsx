@@ -31,7 +31,8 @@ interface AIMetrics {
     optimizations: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '../utils/api-config';
+const API_BASE_URL = getApiBaseUrl();
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'feedback' | 'settings'>('overview');

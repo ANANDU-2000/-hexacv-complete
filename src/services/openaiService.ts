@@ -183,12 +183,13 @@ ${context.experienceYears ? `- Experience: ${context.experienceYears}` : ''}
 ${context.jdKeywords?.length ? `- JD Keywords: ${context.jdKeywords.join(', ')}` : ''}
 
 INSTRUCTIONS:
-1. Keep it 2-3 sentences max
+1. Keep it 2-3 sentences max (40-60 words total - NOT more)
 2. Lead with years of experience and core expertise
 3. Include 2-3 key technologies/skills naturally
 4. End with what the candidate brings to the role
 5. Don't use "I" - keep it professional third person implied
 6. Avoid cliches like "passionate", "driven", "results-oriented"
+7. Be concise - recruiters scan quickly, don't overwhelm with words
 
 Return JSON format:
 {
@@ -257,8 +258,8 @@ Return JSON format:
 export function extractJDKeywords(jobDescription: string): string[] {
     if (!jobDescription) return [];
 
-    // Technical skills regex
-    const techPattern = /\b(python|java|javascript|typescript|react|angular|vue|node\.?js|sql|aws|azure|gcp|docker|kubernetes|git|machine learning|ai|ml|data science|agile|scrum|rest api|graphql|microservices|ci\/cd|tensorflow|pytorch|pandas|numpy|mongodb|postgresql|redis|kafka|spark|hadoop|tableau|power bi|excel|figma|sketch|photoshop|jira|confluence|slack|teams|linux|bash|powershell|c\+\+|c#|go|rust|ruby|php|swift|kotlin|flutter|react native|next\.?js|express|django|flask|spring|\.net|laravel|vue\.?js|angular|svelte|tailwind|bootstrap|sass|less|webpack|vite|jest|cypress|selenium|jenkins|github actions|terraform|ansible|prometheus|grafana|elasticsearch|nginx|apache)\b/gi;
+    // Technical skills regex (enhanced with .NET variations)
+    const techPattern = /\b(python|java|javascript|typescript|react|angular|vue|node\.?js|sql|aws|azure|gcp|docker|kubernetes|git|machine learning|ai|ml|data science|agile|scrum|rest api|graphql|microservices|ci\/cd|tensorflow|pytorch|pandas|numpy|mongodb|postgresql|redis|kafka|spark|hadoop|tableau|power bi|excel|figma|sketch|photoshop|jira|confluence|slack|teams|linux|bash|powershell|c\+\+|c#|csharp|\.net|dotnet|asp\.net|asp\.net core|\.net core|entity framework|linq|mvc|web api|wcf|wpf|blazor|xamarin|go|rust|ruby|php|swift|kotlin|flutter|react native|next\.?js|express|django|flask|spring|laravel|vue\.?js|svelte|tailwind|bootstrap|sass|less|webpack|vite|jest|cypress|selenium|jenkins|github actions|terraform|ansible|prometheus|grafana|elasticsearch|nginx|apache)\b/gi;
     
     const techMatches = jobDescription.match(techPattern) || [];
     

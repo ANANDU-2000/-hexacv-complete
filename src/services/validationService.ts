@@ -162,8 +162,9 @@ export function validateSummary(summary: string): ValidationError | null {
         };
     }
     
-    if (summary.length > 1000) {
-        return { field: 'summary', message: 'Summary too long (max 1000 characters)' };
+    // Reasonable limit - summaries can be longer for detailed profiles, but keep ATS-friendly
+    if (summary.length > 3000) {
+        return { field: 'summary', message: 'Summary too long (max 3000 characters - keep it concise for best ATS results)' };
     }
     
     return null;

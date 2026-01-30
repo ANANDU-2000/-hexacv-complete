@@ -84,10 +84,11 @@
             margin: 15px 0;
         }
 
-        /* SECTIONS */
+        /* SECTIONS - IMPROVED PAGE BREAKS */
         .section {
             margin-bottom: 18px;
-            page-break-inside: auto;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .section-title {
@@ -101,18 +102,27 @@
             letter-spacing: 0.05em;
         }
 
-        /* SUMMARY */
+        /* SUMMARY - IMPROVED STYLING */
         .summary-text {
             font-size: 10.5pt;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #374151;
-            text-align: justify;
+            text-align: left;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
-        /* ENTRIES */
+        /* ENTRIES - IMPROVED STYLING */
         .entry {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .entry:last-child {
+            margin-bottom: 0;
         }
 
         .job-header,
@@ -186,16 +196,53 @@
             color: #111827;
         }
 
-        /* PRINT SETTINGS */
+        /* PRINT SETTINGS - IMPROVED PAGE BREAKS */
         @media print {
             @page {
                 size: A4;
                 margin: 0;
             }
 
+            html,
             body {
-                width: 210mm;
-                height: 297mm;
+                width: 794px;
+                height: 1123px;
+                orphans: 3;
+                widows: 3;
+            }
+
+            body {
+                padding: 40px 50px;
+            }
+
+            /* Keep section titles with their content - never break */
+            .section-title {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+            }
+
+            /* Keep entire sections together - push to next page if needed */
+            .section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Keep individual entries together */
+            .entry {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Prevent breaking within summary */
+            .summary-text {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Ensure skills don't break awkwardly */
+            .skills-list {
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
         }
     </style>

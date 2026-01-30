@@ -8,6 +8,10 @@ import { categorizeResume, saveCategorizedInsights, extractKeywordsFromJD, recom
 import TemplateRenderer from '../template-renderer';
 import { ChevronUp, ChevronDown, Target, Linkedin, Github, Image as ImageIcon, Sparkles, Trash2, Plus, Globe, FileText, Mail, Phone, MapPin, User, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { COMMON_ROLES } from '../constants/roles';
+import { highlightKeywords, renderHighlightedText } from '../utils/keywordHighlighter';
+import { autoCorrectWithSuggestions } from '../utils/autoCorrector';
+import KeywordHighlightDisplay from './KeywordHighlightDisplay';
+import RoleAnalysisPanel from './RoleAnalysisPanel';
 
 // Utility: Calculate total years of experience from work history
 const calculateExperienceYears = (experiences: Experience[]): number => {
@@ -200,16 +204,26 @@ const SortableExperienceItem: React.FC<SortableExperienceItemProps> = ({ exp, id
                         {exp.highlights.map((h, hIdx) => (
                             <div key={hIdx} className="flex gap-3 group">
                                 <div className="mt-3 w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
-                                <textarea
-                                    value={h}
-                                    onChange={(e) => {
-                                        const next = [...data.experience];
-                                        next[idx].highlights[hIdx] = e.target.value;
-                                        updateData({ experience: next });
-                                    }}
-                                    className="flex-1 py-2 bg-transparent outline-none text-base md:text-sm leading-relaxed resize-none min-h-[80px] md:min-h-[60px] text-white placeholder:text-slate-500"
-                                    placeholder="Describe your achievement with metrics..."
-                                />
+                                <div className="flex-1 relative">
+                                    <textarea
+                                        value={h}
+                                        onChange={(e) => {
+                                            const next = [...data.experience];
+                                            next[idx].highlights[hIdx] = e.target.value;
+                                            updateData({ experience: next });
+                                        }}
+                                        className="w-full py-2 bg-transparent outline-none text-sm md:text-sm leading-relaxed resize-none min-h-[80px] md:min-h-[60px] text-white placeholder:text-slate-500 relative z-10"
+                                        placeholder="Describe your achievement with metrics..."
+                                    />
+                                    {/* Keyword Highlighting Overlay for Experience Bullets */}
+                                    {h && extractedKeywords.found.length > 0 && (
+                                        <div className="absolute inset-0 py-2 pointer-events-none overflow-hidden">
+                                            <div className="text-sm md:text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                                {renderHighlightedText(highlightKeywords(h, extractedKeywords.found))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <button
                                     onClick={() => {
                                         const next = [...data.experience];
@@ -710,15 +724,53 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                 const { extractJDKeywords } = await import('../services/openaiService');
 
                 const jdKeywords = extractJDKeywords(data.jobDescription || '');
+                
+                // Also parse JD for better role/keyword extraction (ENHANCED)
+                let enhancedKeywords = [...jdKeywords];
+                if (data.jobDescription) {
+                    try {
+                        const { parseJobDescription } = await import('../universal-jd-parser');
+                        const parsedJD = parseJobDescription(data.jobDescription);
+                        if (parsedJD.detectedRole) {
+                            enhancedKeywords.push(parsedJD.detectedRole.toLowerCase());
+                        }
+                        parsedJD.hardSkills.forEach(skill => {
+                            if (!enhancedKeywords.includes(skill.keyword.toLowerCase())) {
+                                enhancedKeywords.push(skill.keyword.toLowerCase());
+                            }
+                        });
+                    } catch (parseErr) {
+                        console.warn('JD parsing failed:', parseErr);
+                    }
+                }
+                
+                // Also parse JD for better role/keyword extraction
+                let enhancedKeywords = [...jdKeywords];
+                if (data.jobDescription) {
+                    try {
+                        const { parseJobDescription } = await import('../universal-jd-parser');
+                        const parsedJD = parseJobDescription(data.jobDescription);
+                        if (parsedJD.detectedRole) {
+                            enhancedKeywords.push(parsedJD.detectedRole.toLowerCase());
+                        }
+                        parsedJD.hardSkills.forEach(skill => {
+                            if (!enhancedKeywords.includes(skill.keyword.toLowerCase())) {
+                                enhancedKeywords.push(skill.keyword.toLowerCase());
+                            }
+                        });
+                    } catch (parseErr) {
+                        console.warn('JD parsing failed:', parseErr);
+                    }
+                }
 
-                // Rewrite summary with constraints
+                // Rewrite summary with constraints (ENHANCED for ATS)
                 if (data.summary) {
                     const summaryResult = await rewriteWithConstraints({
                         mode: 'rewrite',
                         role: data.basics.targetRole || 'Software Engineer',
                         market: targetMarket,
                         experienceLevel,
-                        jdKeywords,
+                        jdKeywords: enhancedKeywords.length > 0 ? enhancedKeywords : undefined,
                         originalText: data.summary
                     });
 
@@ -744,7 +796,7 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                                     role: data.basics.targetRole || 'Software Engineer',
                                     market: targetMarket,
                                     experienceLevel,
-                                    jdKeywords,
+                                    jdKeywords: enhancedKeywords.length > 0 ? enhancedKeywords : undefined, // Use enhanced keywords for better JD matching
                                     originalText: exp.highlights[idx]
                                 });
 
@@ -891,7 +943,7 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                         <div className="space-y-3 pb-5 border-b border-white/10">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-                                <h2 className="text-lg font-semibold text-white">Resume Context</h2>
+                                <h2 className="text-sm md:text-base font-semibold text-white">Resume Context</h2>
                             </div>
                             <p className="text-xs text-slate-400 leading-relaxed">Configure your target role, market, and job requirements for AI-optimized output</p>
                         </div>
@@ -908,12 +960,20 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                                     type="text"
                                     value={data.basics.targetRole || ''}
                                     onChange={(e) => {
-                                        handleRoleSearch(e.target.value);
-                                        updateData({ basics: { ...data.basics, targetRole: e.target.value } });
+                                        const value = e.target.value;
+                                        handleRoleSearch(value);
+                                        // Auto-correct common role typos
+                                        const corrected = autoCorrectWithSuggestions(value);
+                                        updateData({ basics: { ...data.basics, targetRole: corrected.applied ? corrected.corrected : value } });
                                     }}
                                     onFocus={() => handleRoleSearch(data.basics.targetRole || '')}
-                                    onBlur={() => {
+                                    onBlur={(e) => {
                                         setTimeout(() => setShowRoleSuggestions(false), 300);
+                                        // Final auto-correction on blur
+                                        const corrected = autoCorrectWithSuggestions(e.target.value);
+                                        if (corrected.applied && corrected.corrected !== e.target.value) {
+                                            updateData({ basics: { ...data.basics, targetRole: corrected.corrected } });
+                                        }
                                         if (data.basics.targetRole) saveRoleToAnalytics(data.basics.targetRole);
                                     }}
                                     onKeyDown={(e) => {
@@ -1099,7 +1159,70 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                                         rows={6}
                                         className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-xs leading-relaxed resize-none text-slate-300 placeholder:text-slate-600 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all backdrop-blur-sm font-mono"
                                     />
-                                    <p className="text-[10px] text-slate-500 leading-relaxed">Paste the job description to get AI-optimized suggestions for your resume</p>
+                                    {/* JD Keyword Matching Visualization */}
+                                    {extractedKeywords.found.length > 0 && (
+                                        <div className="bg-green-500/10 border border-green-400/30 rounded-lg p-3 space-y-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                                <span className="text-xs font-semibold text-green-300">
+                                                    {extractedKeywords.found.length} Keywords Matched
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {extractedKeywords.found.slice(0, 10).map((kw, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="px-2 py-0.5 bg-green-400/20 text-green-200 text-[10px] rounded border border-green-400/30"
+                                                    >
+                                                        {kw}
+                                                    </span>
+                                                ))}
+                                                {extractedKeywords.found.length > 10 && (
+                                                    <span className="px-2 py-0.5 text-green-300 text-[10px]">
+                                                        +{extractedKeywords.found.length - 10} more
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {extractedKeywords.missing.length > 0 && (
+                                        <div className="bg-amber-500/10 border border-amber-400/30 rounded-lg p-3 space-y-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                                                <span className="text-xs font-semibold text-amber-300">
+                                                    {extractedKeywords.missing.length} Keywords Missing
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {extractedKeywords.missing.slice(0, 10).map((kw, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="px-2 py-0.5 bg-amber-400/20 text-amber-200 text-[10px] rounded border border-amber-400/30"
+                                                    >
+                                                        {kw}
+                                                    </span>
+                                                ))}
+                                                {extractedKeywords.missing.length > 10 && (
+                                                    <span className="px-2 py-0.5 text-amber-300 text-[10px]">
+                                                        +{extractedKeywords.missing.length - 10} more
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {/* Role Analysis Panel */}
+                                    {data.basics.targetRole && (
+                                        <RoleAnalysisPanel
+                                            targetRole={data.basics.targetRole}
+                                            jdKeywords={extractedKeywords.found.concat(extractedKeywords.missing)}
+                                            matchedKeywords={extractedKeywords.found}
+                                            missingKeywords={extractedKeywords.missing}
+                                            atsScore={data.atsMetrics?.score || 0}
+                                            roleCategory={resumeCategorization?.primaryCategory}
+                                            experienceLevel={resumeCategorization?.experienceLevel}
+                                        />
+                                    )}
+                                    <p className="text-[10px] text-slate-500 leading-relaxed">Paste the job description to get AI-optimized suggestions and keyword matching for your resume</p>
                                 </div>
                             )}
                         </div>
@@ -1162,8 +1285,18 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                                         <label className="text-xs font-semibold text-white ml-1">Full Professional Name *</label>
                                         <input
                                             value={data.basics.fullName}
-                                            onChange={(e) => updateData({ basics: { ...data.basics, fullName: e.target.value } })}
-                                            className={`w-full px-4 py-4 md:py-3 bg-white/5 border-2 rounded-xl outline-none text-base md:text-sm font-medium text-white placeholder:text-slate-500 transition-all duration-200 backdrop-blur-sm min-h-[56px] md:min-h-0 ${!data.basics.fullName
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                const corrected = autoCorrectWithSuggestions(value);
+                                                updateData({ basics: { ...data.basics, fullName: corrected.applied ? corrected.corrected : value } });
+                                            }}
+                                            onBlur={(e) => {
+                                                const corrected = autoCorrectWithSuggestions(e.target.value);
+                                                if (corrected.applied && corrected.corrected !== e.target.value) {
+                                                    updateData({ basics: { ...data.basics, fullName: corrected.corrected } });
+                                                }
+                                            }}
+                                            className={`w-full px-4 py-3 md:py-2.5 bg-white/5 border-2 rounded-xl outline-none text-sm md:text-sm font-medium text-white placeholder:text-slate-500 transition-all duration-200 backdrop-blur-sm min-h-[48px] md:min-h-[44px] ${!data.basics.fullName
                                                 ? 'border-red-400/50 focus:border-red-400 focus:ring-4 focus:ring-red-400/20 shadow-lg shadow-red-500/20'
                                                 : 'border-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/10 shadow-lg shadow-white/5'
                                                 }`}
@@ -1181,8 +1314,18 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                                         <label className="text-xs font-semibold text-white ml-1">Email *</label>
                                         <input
                                             value={data.basics.email}
-                                            onChange={(e) => updateData({ basics: { ...data.basics, email: e.target.value } })}
-                                            className={`w-full px-4 py-4 md:py-3 bg-white/5 border-2 rounded-xl outline-none text-base md:text-sm font-medium text-white placeholder:text-slate-500 transition-all duration-200 backdrop-blur-sm min-h-[56px] md:min-h-0 ${!data.basics.email || (data.basics.email && !validateEmail(data.basics.email))
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                const corrected = autoCorrectWithSuggestions(value);
+                                                updateData({ basics: { ...data.basics, email: corrected.applied ? corrected.corrected : value } });
+                                            }}
+                                            onBlur={(e) => {
+                                                const corrected = autoCorrectWithSuggestions(e.target.value);
+                                                if (corrected.applied && corrected.corrected !== e.target.value) {
+                                                    updateData({ basics: { ...data.basics, email: corrected.corrected } });
+                                                }
+                                            }}
+                                            className={`w-full px-4 py-3 md:py-2.5 bg-white/5 border-2 rounded-xl outline-none text-sm md:text-sm font-medium text-white placeholder:text-slate-500 transition-all duration-200 backdrop-blur-sm min-h-[48px] md:min-h-[44px] ${!data.basics.email || (data.basics.email && !validateEmail(data.basics.email))
                                                 ? 'border-red-400/50 focus:border-red-400 focus:ring-4 focus:ring-red-400/20'
                                                 : 'border-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/10 shadow-lg shadow-white/5'
                                                 }`}
@@ -1352,13 +1495,21 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                                         <textarea
                                             value={data.summary}
                                             onChange={(e) => updateData({ summary: e.target.value })}
-                                            className="w-full px-4 py-4 md:py-3 bg-white/5 border-2 border-white/20 rounded-xl outline-none focus:border-white/40 focus:ring-4 focus:ring-white/10 text-base md:text-sm font-medium text-white placeholder:text-slate-500 transition-all backdrop-blur-sm shadow-lg shadow-white/5 min-h-[160px] md:min-h-[140px] leading-relaxed resize-none"
-                                            placeholder="Write your professional career narrative..."
+                                            placeholder="2-3 sentences (40-60 words). Lead with experience and core skills. Be concise - recruiters scan quickly."
+                                            className="w-full px-4 py-3 md:py-2.5 bg-white/5 border-2 border-white/20 rounded-xl outline-none focus:border-white/40 focus:ring-4 focus:ring-white/10 text-sm md:text-sm font-medium text-white placeholder:text-slate-500 transition-all backdrop-blur-sm shadow-lg shadow-white/5 min-h-[100px] md:min-h-[90px] leading-relaxed resize-none"
                                         />
                                         <p className="text-xs text-slate-400 ml-1 flex items-center gap-1.5">
                                             <AlertCircle size={14} />
-                                            A strong summary highlights your key skills and experiences
+                                            Keep it concise: 2-3 sentences, 40-60 words max. Lead with years of experience and key skills.
                                         </p>
+                                        {/* JD Keyword Matching Visualization */}
+                                        {data.jobDescription && (extractedKeywords.found.length > 0 || extractedKeywords.missing.length > 0) && (
+                                            <KeywordHighlightDisplay
+                                                found={extractedKeywords.found}
+                                                missing={extractedKeywords.missing}
+                                                compact={false}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>

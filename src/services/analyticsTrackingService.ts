@@ -3,7 +3,8 @@
  * Client-side event tracking for user behavior metrics
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '../utils/api-config';
+const API_BASE_URL = getApiBaseUrl();
 
 export type AnalyticsEvent = 
     | 'page_view'

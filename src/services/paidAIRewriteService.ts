@@ -11,7 +11,8 @@
 
 import { ResumeData } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '../utils/api-config';
+const API_BASE_URL = getApiBaseUrl();
 
 export interface RewriteResult {
     original: string;
@@ -26,23 +27,29 @@ export interface AIRewriteOutput {
 }
 
 /**
- * Extract keywords from job description for natural alignment
+ * Extract keywords from job description for natural alignment (ENHANCED for ATS)
  */
 function extractKeywords(jd: string): string[] {
     if (!jd) return [];
     
-    const commonWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']);
+    // Enhanced keyword extraction - prioritize technical terms, skills, tools
+    const techPattern = /\b(python|java|javascript|typescript|react|angular|vue|node\.?js|sql|aws|azure|gcp|docker|kubernetes|git|machine learning|ai|ml|data science|agile|scrum|rest api|graphql|microservices|ci\/cd|\.net|dotnet|asp\.net|asp\.net core|\.net core|entity framework|linq|mvc|web api|wcf|wpf|blazor|c#|csharp|c\+\+|go|rust|ruby|php|swift|kotlin|flutter|mongodb|postgresql|redis|kafka|spark|tensorflow|pytorch|pandas|numpy|tableau|power bi|excel|figma|jira|confluence|terraform|ansible|prometheus|grafana|elasticsearch|nginx|apache|jenkins|github actions|selenium|cypress|jest|webpack|vite|tailwind|bootstrap|sass|less|next\.?js|express|django|flask|spring|laravel|svelte|react native)\b/gi;
+    const techMatches = jd.match(techPattern) || [];
+    
+    const commonWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'this', 'that', 'these', 'those', 'will', 'would', 'should', 'could', 'can', 'may', 'might', 'must', 'have', 'has', 'had', 'been', 'being', 'are', 'is', 'was', 'were']);
     const words = jd.toLowerCase()
-        .replace(/[^\w\s]/g, ' ')
+        .replace(/[^\w\s\.#]/g, ' ')
         .split(/\s+/)
         .filter(w => w.length > 3 && !commonWords.has(w));
     
     const frequency = new Map<string, number>();
+    // Prioritize tech keywords
+    techMatches.forEach(w => frequency.set(w.toLowerCase(), (frequency.get(w.toLowerCase()) || 0) + 3));
     words.forEach(w => frequency.set(w, (frequency.get(w) || 0) + 1));
     
     return Array.from(frequency.entries())
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 20)
+        .slice(0, 25)
         .map(([word]) => word);
 }
 

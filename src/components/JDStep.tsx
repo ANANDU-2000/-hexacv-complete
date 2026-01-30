@@ -48,13 +48,30 @@ export default function JDStep({ onComplete, onBack, targetRole, initialJD }: JD
     const [showExample, setShowExample] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // Extract keywords when JD changes
+    // Extract keywords when JD changes (ENHANCED for better role/keyword detection)
     useEffect(() => {
         if (jobDescription.trim().length > 50) {
             setIsAnalyzing(true);
-            const timer = setTimeout(() => {
-                const extracted = extractJDKeywords(jobDescription);
-                setKeywords(extracted);
+            const timer = setTimeout(async () => {
+                try {
+                    const extracted = extractJDKeywords(jobDescription);
+                    
+                    // Also parse JD for role detection
+                    try {
+                        const { parseJobDescription } = await import('../universal-jd-parser');
+                        const parsedJD = parseJobDescription(jobDescription);
+                        if (parsedJD.detectedRole) {
+                            extracted.unshift(parsedJD.detectedRole.toLowerCase());
+                        }
+                    } catch (parseErr) {
+                        console.warn('JD parsing failed:', parseErr);
+                    }
+                    
+                    setKeywords([...new Set(extracted)]); // Remove duplicates
+                } catch (err) {
+                    console.error('Keyword extraction failed:', err);
+                    setKeywords([]);
+                }
                 setIsAnalyzing(false);
             }, 500);
             return () => clearTimeout(timer);

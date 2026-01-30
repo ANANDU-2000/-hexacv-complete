@@ -160,6 +160,12 @@ const ROLE_TAXONOMY_BASE = [
     'Golang Developer',
     'Rust Developer',
     '.NET Developer',
+    'DotNet Developer',
+    'ASP.NET Developer',
+    'C# Developer',
+    'C# .NET Developer',
+    '.NET Core Developer',
+    'ASP.NET Core Developer',
     'PHP Developer',
     'Ruby on Rails Developer',
     // QA & Testing
@@ -329,7 +335,10 @@ const ABBREVIATIONS: Record<string, string[]> = {
     'ui': ['ui designer', 'ui/ux'],
     'sre': ['site reliability', 'sre'],
     'tpm': ['technical program manager'],
-    'em': ['engineering manager']
+    'em': ['engineering manager'],
+    'net': ['.net', 'dotnet', 'asp.net', 'c#'],
+    'dotnet': ['.net', 'dotnet', 'asp.net', 'c#'],
+    '.net': ['.net', 'dotnet', 'asp.net', 'c#']
 };
 
 function normalizeRole(input: string): string {
@@ -414,7 +423,7 @@ export function categorizeRole(role?: string): string {
     if (!role) return 'Other';
     const lower = role.toLowerCase();
     if (/(data|analyst|scientist|analytics|bi)/.test(lower)) return 'Data';
-    if (/(engineer|developer|software|full stack|frontend|backend)/.test(lower)) return 'Software';
+    if (/(engineer|developer|software|full stack|frontend|backend|\.net|dotnet|asp\.net|c#)/.test(lower)) return 'Software';
     if (/(product|program|project)/.test(lower)) return 'Product';
     if (/(design|ux|ui|graphic|visual)/.test(lower)) return 'Design';
     if (/(marketing|seo|content|brand)/.test(lower)) return 'Marketing';

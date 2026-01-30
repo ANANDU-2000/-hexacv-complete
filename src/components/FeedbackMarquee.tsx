@@ -23,7 +23,7 @@ const FeedbackMarquee: React.FC<FeedbackMarqueeProps> = ({ feedbacks: propFeedba
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
-                const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.hexacv.online');
                 const response = await fetch(`${apiBase}/api/feedback/approved`);
                 if (response.ok) {
                     const data = await response.json();

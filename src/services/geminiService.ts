@@ -511,7 +511,7 @@ export async function refineResumeSummary(profile: string, jobTitle: string, jd?
     5. If original is already good, make MINIMAL changes
     6. Keep factual accuracy 100% - this is for real job applications
     
-    Keep it between 3-4 lines or 50-70 words. Use strong but HONEST action verbs.
+    Keep it between 2-3 sentences or 40-60 words maximum. Use strong but HONEST action verbs. Be concise - recruiters scan quickly.
     
     ORIGINAL SUMMARY:
     ${profile}

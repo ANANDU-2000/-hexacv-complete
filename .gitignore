@@ -1,7 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
+**/node_modules/
+**/node_modules/**
+apps/*/node_modules/
+packages/*/node_modules/
+services/*/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -24,11 +29,29 @@
 # misc
 .DS_Store
 *.pem
+*.key
 push-with-token.sh
 PUSH-NOW.bat
 push-to-github.sh
+CLEAN-PUSH-TO-HEXACV.ps1
+FIX-SECRETS-AND-PUSH.ps1
+PUSH-TO-NEW-REPO.ps1
+CLEAN-AND-PUSH.ps1
+CLEAN-ENTERPRISE-STRUCTURE.ps1
+CLEAN-PRODUCTION-ONLY.ps1
+REMOVE-UNWANTED-FROM-GIT.ps1
+INSTALL-NODE-AND-RUN.ps1
+INSTALL-AND-RUN.ps1
+deploy-complete.ps1
+deploy-vercel.ps1
+verify-repo.ps1
+setup-new-github.ps1
+QUICK-START.bat
+PUSH-NOW.bat
+scripts/deploy-all.*
 .cursor/
 .qoder/
+.git.backup/
 desktop.ini
 *.log
 *.env
@@ -36,8 +59,17 @@ desktop.ini
 !*.env.example
 SECRET*.md
 VERCEL-ENV-VARIABLES.txt
-*.pem
-*.key
+vercel-deploy/
+git
+images/
+docs/
+electron/
+apps/admin-web/
+CONTRIBUTING.md
+backend/EC2-SETUP-INSTRUCTIONS.md
+backend/README.md
+REMOVE-UNWANTED-FROM-GIT.ps1
+CLEAN-PRODUCTION-ONLY.ps1
 
 # debug
 npm-debug.log*

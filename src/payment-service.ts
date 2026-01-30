@@ -27,6 +27,18 @@ export const initiatePayment = async (
   userPhone?: string
 ): Promise<PaymentResult> => {
   try {
+    // Check if Razorpay is loaded
+    if (!window.Razorpay) {
+      // Load Razorpay script dynamically if not present
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => reject(new Error('Failed to load Razorpay SDK'));
+        document.head.appendChild(script);
+      });
+    }
+
     // Create order on backend
     const orderData = await createOrder(templateId);
 
@@ -96,8 +108,17 @@ export const initiatePayment = async (
       const rzp = new window.Razorpay(options);
       rzp.open();
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Payment initiation error:', error);
-    throw error;
+    
+    // Provide user-friendly error messages
+    if (error.message?.includes('Failed to create order') || error.message?.includes('Server error')) {
+      throw new Error('Unable to connect to payment server. Please check your internet connection and try again.');
+    }
+    if (error.message?.includes('Razorpay')) {
+      throw new Error('Payment gateway failed to load. Please refresh the page and try again.');
+    }
+    
+    throw new Error(error.message || 'Payment initialization failed. Please try again.');
   }
 };

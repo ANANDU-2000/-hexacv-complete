@@ -267,13 +267,36 @@ function buildTemplate2Content(replacements: Record<string, string>, data: Resum
     const technical = isTechnicalRole(targetRole);
     const isFresher = expLevel === 'fresher';
 
-    // ATS-optimized section order
+    // ATS-optimized section order - IMPROVED DYNAMIC ORDERING
     let order: string[];
+    
+    // Enhanced role-based ordering
+    const roleLower = targetRole.toLowerCase();
+    const isDataRole = /data|analyst|scientist|bi|analytics/.test(roleLower);
+    const isDesignRole = /design|ux|ui|graphic|visual/.test(roleLower);
+    const isProductRole = /product|program|project/.test(roleLower);
+    const isSalesRole = /sales|account|business development/.test(roleLower);
+    
     if (isFresher) {
+        // Freshers: Education and projects first
         order = ['profile', 'education', 'projects', 'skills', 'experience', 'additional'];
+    } else if (isDataRole) {
+        // Data roles: Skills and projects critical
+        order = ['profile', 'skills', 'projects', 'experience', 'education', 'additional'];
+    } else if (isDesignRole) {
+        // Design roles: Projects showcase work
+        order = ['profile', 'projects', 'experience', 'skills', 'education', 'additional'];
+    } else if (isProductRole) {
+        // Product roles: Experience and skills
+        order = ['profile', 'experience', 'skills', 'projects', 'education', 'additional'];
+    } else if (isSalesRole) {
+        // Sales roles: Experience first
+        order = ['profile', 'experience', 'skills', 'education', 'projects', 'additional'];
     } else if (technical) {
+        // Technical roles: Skills and experience
         order = ['profile', 'skills', 'experience', 'projects', 'education', 'additional'];
     } else {
+        // Default: Standard professional order
         order = ['profile', 'experience', 'skills', 'education', 'projects', 'additional'];
     }
 

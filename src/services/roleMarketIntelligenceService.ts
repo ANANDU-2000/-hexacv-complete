@@ -5,7 +5,8 @@
 import { TargetMarket, ExperienceLevel } from '../agents/shared/types';
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-const BACKEND_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '../utils/api-config';
+const BACKEND_API_URL = getApiBaseUrl();
 
 export interface RoleMarketIntelligence {
   role: string;

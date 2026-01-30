@@ -144,17 +144,19 @@ export async function rewriteWithConstraints(
     return rewriteWithRules(options, intelligence);
   }
   
-  const systemPrompt = `You are a resume optimizer who helps candidates write honest, interview-safe resumes.
+  const systemPrompt = `You are an ATS optimization expert who creates powerful, interview-safe resumes that match JD requirements.
 
 CRITICAL RULES:
 1. NEVER invent leadership claims for junior candidates
 2. NEVER add metrics that aren't logically implied
 3. NEVER add tools/technologies not mentioned in original
 4. Use language appropriate for experience level
-5. Match JD keywords ONLY if relevant to original content
+5. Match JD keywords NATURALLY - weave them into original content when relevant
 6. Preserve factual accuracy strictly
+7. Optimize for ATS keyword matching while keeping it human-readable
+8. Use strong action verbs appropriate for the role and experience level
 
-Your goal: Make the resume recruiter-friendly while staying 100% honest.`;
+Your goal: Create a powerful ATS-optimized resume that matches JD requirements while staying 100% honest and interview-safe.`;
 
   const userPrompt = `Rewrite this resume bullet point with constraints.
 
@@ -171,13 +173,15 @@ CONTEXT:
 ${options.jdKeywords?.length ? `- JD Keywords (only if relevant): ${options.jdKeywords.join(', ')}` : ''}
 
 INSTRUCTIONS:
-1. Start with an appropriate action verb from the list
+1. Start with a strong action verb from the list (Led, Built, Developed, Optimized, etc.)
 2. Keep core achievement/responsibility intact
 3. Add metric ONLY if logically implied (e.g., "team of 5" if original mentions team)
-4. Use JD keywords ONLY if they fit naturally
-5. Keep it concise (max 25 words)
+4. Weave JD keywords NATURALLY into the bullet - match JD requirements for ATS optimization
+5. Keep it concise (max 25 words) but impactful
 6. Sound human-written, not AI-generated
-7. NEVER use: ${intelligence.avoidClaims.join(', ')}
+7. Optimize for ATS keyword matching - include JD keywords when they fit the actual work
+8. NEVER use: ${intelligence.avoidClaims.join(', ')}
+9. Make it powerful and ATS-friendly while staying truthful
 
 Return JSON:
 {

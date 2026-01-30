@@ -125,12 +125,15 @@
             /* REMOVED page-break-inside: avoid to prevent large gaps */
         }
 
-        /* PROFESSIONAL SUMMARY */
+        /* PROFESSIONAL SUMMARY - IMPROVED STYLING */
         .summary-text {
             font-size: 11pt;
-            line-height: 1.45;
+            line-height: 1.6;
             color: #000000;
-            text-align: justify;
+            text-align: left;
+            margin-bottom: 0;
+            font-weight: 400;
+            letter-spacing: 0.01em;
         }
 
         /* EXPERIENCE / PROJECTS - EXACT FROM SPEC */
@@ -247,26 +250,8 @@
             color: #000000;
         }
 
-        /* FREE VERSION WATERMARK - Small, subtle footer */
-        .free-watermark {
-            position: fixed;
-            bottom: 12px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 8pt;
-            color: #999999;
-            letter-spacing: 0.5px;
-        }
 
-        @media print {
-            .free-watermark {
-                position: fixed;
-                bottom: 12px;
-            }
-        }
-
-        /* PAGE BREAK CONTROL FOR PDF - SMART BREAKING */
+        /* PAGE BREAK CONTROL FOR PDF - SMART BREAKING - IMPROVED */
         @media print {
 
             html,
@@ -284,9 +269,16 @@
                 padding-right: 28px;
             }
 
-            /* Allow sections to break, prevent orphan/widow lines */
+            /* Keep section titles with their content - never break */
             .section-title {
                 page-break-after: avoid;
+                page-break-inside: avoid;
+            }
+
+            /* Keep entire sections together - push to next page if needed */
+            .section {
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
 
             /* Keep individual entries together */
@@ -294,6 +286,19 @@
             .project-entry,
             .education-entry {
                 page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Prevent breaking within summary */
+            .summary-text {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Ensure skills don't break awkwardly */
+            .skills-content {
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
         }
     </style>
@@ -383,10 +388,6 @@
         </div>
         {{/if}}
 
-        <!-- FREE VERSION WATERMARK - Small, professional footer -->
-        <div class="free-watermark">
-            Created with HexaResume
-        </div>
 
     </div>
 </body>

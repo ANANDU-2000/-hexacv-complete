@@ -40,16 +40,17 @@ echo "📦 Step 4/8: Installing Git..."
 sudo apt-get install -y git
 
 # ==============================================
-# 5. CLONE REPOSITORY
+# 5. CLONE REPOSITORY (NEW REPO: -hexacv-complete)
 # ==============================================
 echo "📦 Step 5/8: Cloning repository..."
 cd /home/ubuntu
 if [ -d "hexacv" ]; then
-    echo "Repository already exists, pulling latest changes..."
+    echo "Repository already exists, updating remote URL and pulling latest changes..."
     cd hexacv
+    git remote set-url origin https://github.com/ANANDU-2000/-hexacv-complete.git
     git pull origin main
 else
-    git clone https://github.com/ANANDU-2000/hexacv.git
+    git clone https://github.com/ANANDU-2000/-hexacv-complete.git hexacv
     cd hexacv
 fi
 
@@ -79,6 +80,9 @@ if [ ! -f ".env" ]; then
     echo ""
     echo "Required variables:"
     echo "  - DATABASE_URL (AWS RDS PostgreSQL connection string)"
+    echo "  - GEMINI_API_KEY (AI service)"
+    echo "  - GROQ_API_KEY (AI service)"
+    echo "  - OPENAI_API_KEY (Premium AI rewrite - NEW)"
     echo "  - RAZORPAY_KEY_ID (Test keys for now)"
     echo "  - RAZORPAY_KEY_SECRET"
     echo "  - ADMIN_PASSWORD (Change from default)"

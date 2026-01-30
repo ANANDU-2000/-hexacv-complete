@@ -29,8 +29,8 @@ sudo npm install -g pm2
 echo "📦 Step 4: Installing Git..."
 sudo apt install git -y
 
-# Clone repository (change REPO_URL if using BuildMyResume8 or another repo)
-REPO_URL="${REPO_URL:-https://github.com/ANANDU-2000/hexacv.git}"
+# Clone repository (NEW REPO: -hexacv-complete)
+REPO_URL="${REPO_URL:-https://github.com/ANANDU-2000/-hexacv-complete.git}"
 REPO_DIR="${REPO_DIR:-hexacv}"
 echo "📦 Step 5: Cloning repository ($REPO_URL)..."
 if [ -d "$REPO_DIR" ]; then
@@ -57,6 +57,7 @@ DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@hexacv-db.XXXXXX.us-east-1.rds.
 # AI Services (CRITICAL - KEEP SECRET)
 GROQ_API_KEY=gsk_XXXXXXXXXXXXXXXXXXXXXXXX
 GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXX
+OPENAI_API_KEY=sk_XXXXXXXXXXXXXXXXXXXXXXXX
 
 # Payment (Razorpay)
 RAZORPAY_KEY_ID=rzp_live_XXXXX

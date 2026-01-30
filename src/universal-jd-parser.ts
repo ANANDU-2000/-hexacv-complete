@@ -55,7 +55,9 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
         'python', 'java', 'javascript', 'typescript', 'react', 'angular', 'vue', 'node', 'sql', 'nosql',
         'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'ci/cd', 'git', 'agile', 'scrum', 'api',
         'machine learning', 'data science', 'ai', 'cloud', 'microservices', 'devops', 'full stack',
-        'backend', 'frontend', 'mobile', 'ios', 'android', 'testing', 'security', 'database'
+        'backend', 'frontend', 'mobile', 'ios', 'android', 'testing', 'security', 'database',
+        '.net', 'dotnet', 'asp.net', 'c#', 'csharp', 'asp.net core', '.net core', 'entity framework',
+        'linq', 'mvc', 'web api', 'wcf', 'wpf', 'blazor', 'xamarin'
     ],
     
     // Healthcare
@@ -252,21 +254,32 @@ function detectIndustryFromJD(text: string): IndustryCategory {
 }
 
 function extractJobTitle(text: string): string | null {
-    // Common patterns for job titles
+    // Enhanced patterns for job titles (including .NET, C#, etc.)
     const patterns = [
-        /^([A-Z][a-zA-Z\s]+(?:Engineer|Developer|Manager|Analyst|Designer|Specialist|Coordinator|Director|Lead|Executive|Administrator|Officer|Consultant|Technician|Nurse|Teacher|Accountant|Lawyer|Chef))/m,
-        /job\s*title[:\s]+([A-Za-z\s]+)/i,
-        /position[:\s]+([A-Za-z\s]+)/i,
-        /role[:\s]+([A-Za-z\s]+)/i,
-        /hiring[:\s]+([A-Za-z\s]+)/i
+        /^([A-Z][a-zA-Z\s\.#]+(?:Engineer|Developer|Manager|Analyst|Designer|Specialist|Coordinator|Director|Lead|Executive|Administrator|Officer|Consultant|Technician|Nurse|Teacher|Accountant|Lawyer|Chef))/m,
+        /(?:looking for|seeking|hiring|position|role|job title)[:\s]+([A-Za-z\s\.#]+(?:Engineer|Developer|Manager|Analyst|Designer|Specialist))/i,
+        /(?:\.NET|dotnet|asp\.net|c#)\s+(?:developer|engineer|programmer)/i,
+        /(?:software|full.?stack|backend|frontend)\s+(?:developer|engineer)/i,
+        /job\s*title[:\s]+([A-Za-z\s\.#]+)/i,
+        /position[:\s]+([A-Za-z\s\.#]+)/i,
+        /role[:\s]+([A-Za-z\s\.#]+)/i,
+        /hiring[:\s]+([A-Za-z\s\.#]+)/i
     ];
+    
+    // Check for .NET specific patterns first
+    const dotNetMatch = text.match(/(?:\.NET|dotnet|asp\.net|c#)\s+(?:developer|engineer|programmer)/i);
+    if (dotNetMatch) {
+        const role = dotNetMatch[0].replace(/\s+/g, ' ');
+        return role.charAt(0).toUpperCase() + role.slice(1);
+    }
     
     for (const pattern of patterns) {
         const match = text.match(pattern);
         if (match && match[1]) {
             const title = match[1].trim();
             if (title.length > 3 && title.length < 60) {
-                return title;
+                // Normalize .NET variations
+                return title.replace(/dotnet/gi, '.NET').replace(/asp\.net/gi, 'ASP.NET');
             }
         }
     }

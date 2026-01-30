@@ -1,0 +1,19 @@
+# Vercel ignore - exclude these from deployment
+node_modules
+.env
+.env.local
+.env.development
+.env.production
+backend
+database
+docs
+tests
+*.md
+!README.md
+.git
+.gitignore
+.vscode
+.qoder
+package-lock.json
+pnpm-lock.yaml
+tsconfig.json

@@ -1,0 +1,34 @@
+# Repository Code Owners
+# These users will be automatically requested for review when PRs are opened
+
+# Default owners for everything
+* @hexastack/tech-leads
+
+# Frontend applications
+/apps/user-web/ @hexastack/frontend-team
+/apps/admin-web/ @hexastack/frontend-team
+
+# Backend services
+/services/api/ @hexastack/backend-team
+/services/admin-api/ @hexastack/backend-team
+
+# Shared packages
+/packages/shared-types/ @hexastack/backend-team @hexastack/frontend-team
+/packages/ui-components/ @hexastack/frontend-team
+/packages/utils/ @hexastack/tech-leads
+
+# Database
+/database/ @hexastack/backend-team @hexastack/tech-leads
+
+# Infrastructure
+/infrastructure/ @hexastack/devops-team
+/.github/workflows/ @hexastack/devops-team
+
+# Documentation
+/docs/ @hexastack/tech-leads
+README.md @hexastack/tech-leads
+CONTRIBUTING.md @hexastack/tech-leads
+
+# Security-sensitive files
+/config/security/ @hexastack/tech-leads
+/.github/ @hexastack/tech-leads

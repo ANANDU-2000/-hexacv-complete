@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{FULL_NAME}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
+            padding: 50px 75px;
+            background: #fff;
+            max-width: 210mm;
+            margin: 0 auto;
+            min-height: 297mm;
+            overflow: visible;
+            box-sizing: border-box;
+        }
+
+        .entry {
+            page-break-inside: avoid;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #000;
+        }
+
+        .header h1 {
+            font-size: 30pt;
+            font-weight: 400;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .contact {
+            font-size: 10pt;
+            color: #444;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 13pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #000;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .job-title {
+            font-size: 11pt;
+            font-weight: 700;
+        }
+
+        .date-range {
+            font-size: 10pt;
+            font-style: italic;
+        }
+
+        .company-info {
+            font-size: 10pt;
+            font-style: italic;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        li {
+            font-size: 10pt;
+            line-height: 1.7;
+            margin-bottom: 5px;
+        }
+
+        .skill-item {
+            font-size: 10pt;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>{{FULL_NAME}}</h1>
+        <div class="contact">{{EMAIL}} | {{PHONE}}{{LINKEDIN_DISPLAY}}{{GITHUB_DISPLAY}}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Executive Summary</div>
+        <p>{{PROFILE}}</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Professional Experience</div>
+        {{EXPERIENCE_ENTRIES}}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Core Competencies</div>
+        {{SKILLS_LIST}}
+    </div>
+
+    {{PROJECTS_SECTION}}
+
+    <div class="section">
+        <div class="section-title">Education</div>
+        {{EDUCATION_ENTRIES}}
+    </div>
+</body>
+
+</html>

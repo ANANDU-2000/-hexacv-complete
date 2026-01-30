@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <title>{{FULL_NAME}} - Resume</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* A4 PAGE FRAME - Standard ATS scale */
+        html,
+        body {
+            width: 794px;
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: 'Inter', Arial, Helvetica, sans-serif;
+            font-size: 10.5pt;
+            /* Standard resume font size */
+            line-height: 1.4;
+            color: #111827;
+        }
+
+        .resume-container {
+            width: 794px;
+            min-height: 1123px;
+            padding: 40px 50px;
+            /* Standard margins */
+            background: #FFFFFF;
+        }
+
+        /* HEADER - Clean & Professional */
+        .header {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .header h1 {
+            font-size: 24pt;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #000000;
+        }
+
+        .target-role {
+            font-size: 13pt;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .contact-line {
+            font-size: 9.5pt;
+            color: #4b5563;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .contact-line .sep {
+            color: #d1d5db;
+        }
+
+        .contact-line a {
+            color: #111827;
+            text-decoration: none;
+        }
+
+        .header-divider {
+            height: 1.5pt;
+            background: #111827;
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        /* SECTIONS */
+        .section {
+            margin-bottom: 18px;
+            page-break-inside: auto;
+        }
+
+        .section-title {
+            font-size: 12pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #000000;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 3px;
+            letter-spacing: 0.05em;
+        }
+
+        /* SUMMARY */
+        .summary-text {
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #374151;
+            text-align: justify;
+        }
+
+        /* ENTRIES */
+        .entry {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .job-header,
+        .project-header,
+        .edu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .job-title,
+        .project-title,
+        .degree {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .company-name,
+        .institution {
+            font-size: 11pt;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .date-range,
+        .project-date,
+        .education-date {
+            font-size: 10pt;
+            font-weight: 500;
+            color: #4b5563;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* LISTS - ATS Preferred Format */
+        ul {
+            margin: 5px 0 5px 18px;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        li {
+            font-size: 10.5pt;
+            line-height: 1.4;
+            margin-bottom: 3px;
+            color: #1f2937;
+        }
+
+        /* SKILLS */
+        .skills-list {
+            columns: 2;
+            column-gap: 30px;
+            margin-left: 20px;
+        }
+
+        /* ADDITIONAL INFO */
+        .additional-info {
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #374151;
+        }
+
+        .info-item {
+            margin-bottom: 4px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* PRINT SETTINGS */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume-container">
+        <header class="header">
+            <h1>{{FULL_NAME}}</h1>
+            {{#if JOB_TITLE}}
+            <div class="target-role">{{JOB_TITLE}}</div>
+            {{/if}}
+            <div class="contact-line">
+                {{#if ADDRESS}}<span>{{ADDRESS}}</span>{{/if}}
+                {{#if PHONE}}<span class="sep">|</span><span>{{PHONE}}</span>{{/if}}
+                {{#if EMAIL}}<span class="sep">|</span><span><a href="mailto:{{EMAIL}}">{{EMAIL}}</a></span>{{/if}}
+                {{#if LINKEDIN}}<span class="sep">|</span><span><a href="{{LINKEDIN}}">{{LINKEDIN}}</a></span>{{/if}}
+                {{#if GITHUB}}<span class="sep">|</span><span><a href="{{GITHUB}}">{{GITHUB}}</a></span>{{/if}}
+            </div>
+            <div class="header-divider"></div>
+        </header>
+
+        <main>
+            {{TEMPLATE2_CONTENT}}
+        </main>
+    </div>
+</body>
+
+</html>

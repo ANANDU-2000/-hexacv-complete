@@ -1,0 +1,32 @@
+# Multi-stage build for API service
+FROM node:20-alpine AS base
+RUN npm install -g pnpm@8.15.0
+
+# Dependencies stage
+FROM base AS deps
+WORKDIR /app
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/shared-types/package.json ./packages/shared-types/
+COPY services/api/package.json ./services/api/
+RUN pnpm install --frozen-lockfile
+
+# Builder stage
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages ./packages
+COPY . .
+RUN pnpm --filter @hexaresume/shared-types build
+RUN pnpm --filter @hexaresume/api build
+
+# Production stage
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/services/api/dist ./dist
+COPY --from=builder /app/services/api/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+EXPOSE 3001
+CMD ["node", "dist/server.js"]

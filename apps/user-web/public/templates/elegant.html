@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{FULL_NAME}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #222;
+            padding: 45px 65px;
+            max-width: 210mm;
+            margin: 0 auto;
+        }
+
+        .entry {
+            page-break-inside: avoid;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px double #333;
+            padding-bottom: 18px;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 26pt;
+            font-weight: 400;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .contact {
+            font-size: 9pt;
+            color: #555;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 12pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #333;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .job-title {
+            font-size: 11pt;
+            font-weight: 600;
+        }
+
+        .date-range {
+            font-size: 9pt;
+            font-style: italic;
+        }
+
+        .company-info {
+            font-size: 10pt;
+            font-style: italic;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        ul {
+            margin-left: 18px;
+            margin-top: 6px;
+        }
+
+        li {
+            font-size: 10pt;
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        .skill-item {
+            font-size: 10pt;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>{{FULL_NAME}}</h1>
+        <div class="contact">{{EMAIL}} | {{PHONE}}{{LINKEDIN_DISPLAY}}{{GITHUB_DISPLAY}}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Professional Summary</div>
+        <p>{{PROFILE}}</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Experience</div>
+        {{EXPERIENCE_ENTRIES}}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Skills</div>
+        {{SKILLS_LIST}}
+    </div>
+
+    {{PROJECTS_SECTION}}
+
+    <div class="section">
+        <div class="section-title">Education</div>
+        {{EDUCATION_ENTRIES}}
+    </div>
+</body>
+
+</html>

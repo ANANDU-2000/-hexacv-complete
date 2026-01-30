@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <title>{{FULL_NAME}} - Resume</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ENFORCE A4 PAGE WITH EXACT MARGINS FROM SPEC */
+        html,
+        body {
+            width: 794px;
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Inter', Arial, Helvetica, sans-serif;
+            font-size: 11pt;
+            line-height: 1.45;
+            color: #000000;
+        }
+
+        .resume-container {
+            width: 794px;
+            min-height: 1123px;
+            padding-top: 32px;
+            padding-bottom: 28px;
+            padding-left: 28px;
+            padding-right: 28px;
+            background: #FFFFFF;
+        }
+
+        /* HEADER - NAME & PHOTO CONTAINER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 26pt;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: #000000;
+            text-align: left;
+        }
+
+        /* TARGET ROLE - Subtitle under name */
+        .target-role {
+            font-size: 12pt;
+            font-weight: 500;
+            color: #333333;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        /* PROFILE PHOTO - TOP RIGHT CORNER (PASSPORT SIZE) */
+        .profile-photo {
+            width: 100px;
+            height: 120px;
+            object-fit: cover;
+            border: 2px solid #000000;
+            margin-left: 20px;
+            flex-shrink: 0;
+        }
+
+        /* CONTACT INFO */
+        .contact-info {
+            font-size: 10.5pt;
+            margin-bottom: 10px;
+            color: #000000;
+            text-align: left;
+        }
+
+        .contact-info a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        /* HORIZONTAL LINE AFTER HEADER */
+        .header-line {
+            border: none;
+            border-top: 1px solid #000000;
+            margin: 0 0 14px 0;
+        }
+
+        /* SECTION TITLE - EXACT FROM SPEC + KEEP WITH CONTENT */
+        .section-title {
+            font-size: 13pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 0.8px solid #000000;
+            padding-bottom: 2px;
+            margin-top: 14px;
+            margin-bottom: 8px;
+            color: #000000;
+            page-break-after: avoid;
+            orphans: 3;
+            widows: 3;
+        }
+
+        /* FIRST SECTION NO TOP MARGIN */
+        .section:first-of-type .section-title {
+            margin-top: 0;
+        }
+
+        /* SECTION SPACING - ALLOW BREAKING TO AVOID GAPS */
+        .section {
+            margin-bottom: 10px;
+            /* REMOVED page-break-inside: avoid to prevent large gaps */
+        }
+
+        /* PROFESSIONAL SUMMARY */
+        .summary-text {
+            font-size: 11pt;
+            line-height: 1.45;
+            color: #000000;
+            text-align: justify;
+        }
+
+        /* EXPERIENCE / PROJECTS - EXACT FROM SPEC */
+        .experience-entry,
+        .project-entry {
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+        }
+
+        /* ROLE TITLE & DATE - TWO COLUMN ROW */
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 2px;
+        }
+
+        .job-title,
+        .project-title {
+            font-size: 12pt;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .date-range,
+        .project-date {
+            font-size: 10.5pt;
+            font-weight: 400;
+            color: #000000;
+            text-align: right;
+        }
+
+        /* COMPANY NAME */
+        .company-name {
+            font-size: 11.5pt;
+            font-weight: 500;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+
+        /* BULLETS - EXACT FROM SPEC */
+        .experience-entry ul,
+        .project-entry ul {
+            margin: 0 0 0 12pt;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        .experience-entry li,
+        .project-entry li {
+            font-size: 11pt;
+            line-height: 1.45;
+            margin-bottom: 4px;
+            padding-left: 6pt;
+            color: #000000;
+        }
+
+        /* EDUCATION - ROW LAYOUT */
+        .education-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+
+        .degree {
+            font-size: 11.5pt;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .institution {
+            font-size: 11pt;
+            font-weight: 400;
+            color: #000000;
+        }
+
+        .education-year {
+            font-size: 10.5pt;
+            font-weight: 400;
+            color: #000000;
+            text-align: right;
+        }
+
+        /* SKILLS - MULTI-COLUMN TEXT */
+        .skills-content {
+            font-size: 11pt;
+            line-height: 1.45;
+            color: #000000;
+            column-count: 2;
+            column-gap: 16pt;
+        }
+
+        .skill-category {
+            margin-bottom: 4px;
+            break-inside: avoid;
+        }
+
+        /* ACHIEVEMENTS */
+        .achievements ul,
+        .certifications ul {
+            margin: 0 0 0 12pt;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        .achievements li,
+        .certifications li {
+            font-size: 11pt;
+            line-height: 1.45;
+            margin-bottom: 4px;
+            padding-left: 6pt;
+            color: #000000;
+        }
+
+        /* FREE VERSION WATERMARK - Small, subtle footer */
+        .free-watermark {
+            position: fixed;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8pt;
+            color: #999999;
+            letter-spacing: 0.5px;
+        }
+
+        @media print {
+            .free-watermark {
+                position: fixed;
+                bottom: 12px;
+            }
+        }
+
+        /* PAGE BREAK CONTROL FOR PDF - SMART BREAKING */
+        @media print {
+
+            html,
+            body {
+                width: 794px;
+                height: 1123px;
+                orphans: 3;
+                widows: 3;
+            }
+
+            body {
+                padding-top: 32px;
+                padding-bottom: 28px;
+                padding-left: 28px;
+                padding-right: 28px;
+            }
+
+            /* Allow sections to break, prevent orphan/widow lines */
+            .section-title {
+                page-break-after: avoid;
+            }
+
+            /* Keep individual entries together */
+            .experience-entry,
+            .project-entry,
+            .education-entry {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume-container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-text">
+                <h1>{{FULL_NAME}}</h1>
+                {{#if JOB_TITLE}}
+                <div class="target-role">{{JOB_TITLE}}</div>
+                {{/if}}
+            </div>
+            {{#if PHOTO_URL}}
+            <img class="profile-photo" src="{{PHOTO_URL}}" alt="{{FULL_NAME}}" />
+            {{/if}}
+        </div>
+
+        <!-- CONTACT INFO -->
+        <div class="contact-info">
+            {{#if EMAIL}}
+            <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
+            {{/if}}
+            {{#if PHONE}}
+            | {{PHONE}}
+            {{/if}}
+            {{#if LINKEDIN}}
+            | <a href="{{LINKEDIN}}">{{LINKEDIN}}</a>
+            {{/if}}
+        </div>
+
+        <!-- HORIZONTAL LINE -->
+        <hr class="header-line">
+
+        <!-- PROFESSIONAL SUMMARY -->
+        {{#if PROFILE}}
+        <div class="section">
+            <div class="section-title">PROFESSIONAL SUMMARY</div>
+            <p class="summary-text">{{PROFILE}}</p>
+        </div>
+        {{/if}}
+
+        <!-- EXPERIENCE -->
+        {{#if EXPERIENCE_ENTRIES}}
+        <div class="section">
+            <div class="section-title">EXPERIENCE</div>
+            {{EXPERIENCE_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- PROJECTS -->
+        {{#if PROJECTS_ENTRIES}}
+        <div class="section">
+            <div class="section-title">PROJECTS</div>
+            {{PROJECTS_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- SKILLS -->
+        {{#if SKILLS_LIST}}
+        <div class="section">
+            <div class="section-title">SKILLS</div>
+            <div class="skills-content">
+                {{SKILLS_LIST}}
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- ACHIEVEMENTS & CERTIFICATIONS -->
+        {{#if ACHIEVEMENTS_ENTRIES}}
+        <div class="section achievements">
+            <div class="section-title">ACHIEVEMENTS & CERTIFICATIONS</div>
+            <ul>
+                {{ACHIEVEMENTS_ENTRIES}}
+            </ul>
+        </div>
+        {{/if}}
+
+        <!-- EDUCATION -->
+        {{#if EDUCATION_ENTRIES}}
+        <div class="section">
+            <div class="section-title">EDUCATION</div>
+            {{EDUCATION_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- FREE VERSION WATERMARK - Small, professional footer -->
+        <div class="free-watermark">
+            Created with HexaResume
+        </div>
+
+    </div>
+</body>
+
+</html>

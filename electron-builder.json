@@ -1,0 +1,25 @@
+{
+    "appId": "com.hexaresume.app",
+    "productName": "HexaResume",
+    "directories": {
+        "output": "dist_electron",
+        "buildResources": "public"
+    },
+    "files": [
+        "dist/**/*",
+        "electron/**/*",
+        "package.json"
+    ],
+    "extends": null,
+    "win": {
+        "target": "nsis"
+    },
+    "mac": {
+        "target": "dmg",
+        "category": "public.app-category.utilities"
+    },
+    "linux": {
+        "target": "AppImage",
+        "category": "Utility"
+    }
+}

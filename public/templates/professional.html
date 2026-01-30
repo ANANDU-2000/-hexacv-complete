@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{FULL_NAME}} - Resume</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1f4e79;
+            --text-dark: #222;
+            --text-muted: #555;
+            --line-gray: #cfd8dc;
+        }
+
+        body {
+            background: #eee;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 20mm 18mm;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: visible;
+        }
+
+        /* HEADER WITH PHOTO */
+        .header {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 18px;
+            align-items: flex-start;
+        }
+
+        .photo {
+            width: 38mm;
+            height: 38mm;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .header-info h1 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            line-height: 1.2;
+        }
+
+        .header-info p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .header-info p strong {
+            font-weight: 600;
+        }
+
+        /* SECTIONS */
+        section {
+            margin-top: 18px;
+        }
+
+        h2 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--line-gray);
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            page-break-after: avoid;
+        }
+
+        /* SUMMARY */
+        .summary {
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        /* EXPERIENCE & EDUCATION */
+        .entry {
+            margin-top: 10px;
+            page-break-inside: avoid;
+            orphans: 2;
+            widows: 2;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .row-left {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .row-left .company,
+        .row-left .institution {
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .date {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        /* BULLETS */
+        ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        li {
+            font-size: 12px;
+            margin-bottom: 6px;
+            line-height: 1.45;
+            color: var(--text-dark);
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+            }
+
+            section {
+                page-break-inside: auto;
+            }
+
+            h2 {
+                page-break-after: avoid;
+            }
+
+            .entry {
+                page-break-inside: avoid;
+            }
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+
+        <!-- HEADER WITH PHOTO -->
+        <div class="header">
+            <img class="photo" src="{{PHOTO_URL}}" alt="{{FULL_NAME}}" />
+
+            <div class="header-info">
+                <h1>{{FULL_NAME}}</h1>
+                {{#if ADDRESS}}
+                <p><strong>Address:</strong> {{ADDRESS}}</p>
+                {{/if}}
+                <p><strong>Phone:</strong> {{PHONE}}</p>
+                <p><strong>Email:</strong> {{EMAIL}}</p>
+                {{#if LINKEDIN}}
+                <p><strong>LinkedIn:</strong> {{LINKEDIN}}</p>
+                {{/if}}
+                {{#if GITHUB}}
+                <p><strong>GitHub:</strong> {{GITHUB}}</p>
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- SUMMARY -->
+        {{#if PROFILE}}
+        <section>
+            <h2>Professional Summary</h2>
+            <p class="summary">{{PROFILE}}</p>
+        </section>
+        {{/if}}
+
+        <!-- WORK EXPERIENCE -->
+        {{#if EXPERIENCE_ENTRIES}}
+        <section>
+            <h2>Work Experience</h2>
+            {{EXPERIENCE_ENTRIES}}
+        </section>
+        {{/if}}
+
+        <!-- EDUCATION -->
+        {{#if EDUCATION_ENTRIES}}
+        <section>
+            <h2>Education</h2>
+            {{EDUCATION_ENTRIES}}
+        </section>
+        {{/if}}
+
+        <!-- SKILLS -->
+        {{#if SKILLS_LIST}}
+        <section>
+            <h2>Technical Skills</h2>
+            <div class="summary">
+                {{SKILLS_LIST}}
+            </div>
+        </section>
+        {{/if}}
+
+        <!-- PROJECTS -->
+        {{#if PROJECTS_ENTRIES}}
+        <section>
+            <h2>Projects</h2>
+            {{PROJECTS_ENTRIES}}
+        </section>
+        {{/if}}
+
+        <!-- CERTIFICATIONS -->
+        {{#if CERTIFICATIONS_ENTRIES}}
+        <section>
+            <h2>Certifications</h2>
+            {{CERTIFICATIONS_ENTRIES}}
+        </section>
+        {{/if}}
+
+    </div>
+</body>
+
+</html>

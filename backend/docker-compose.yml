@@ -1,0 +1,51 @@
+# ==============================================
+# Docker Compose Configuration for Local Testing
+# ==============================================
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hexacv-postgres
+    environment:
+      POSTGRES_DB: buildmyresume
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hexacv-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/buildmyresume
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      SESSION_SECRET: ${SESSION_SECRET:-change_this_in_production}
+      PORT: 3001
+      NODE_ENV: development
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

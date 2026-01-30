@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>HexaResume | AI-Powered Professional Resume Builder</title>
+  <meta name="description"
+    content="Build a professional, ATS-optimized resume in minutes with HexaResume. Our AI-powered tool helps you format, edit, and download a clean CV for free." />
+  <meta name="keywords"
+    content="resume builder, AI resume builder, professional CV, ATS-optimized resume, free resume formatter, HexaResume" />
+  <meta name="author" content="Anandu & Surag" />
+  <!-- Developed by Anandu & Surag -->
+  <meta name="robots" content="index, follow" />
+
+  <!-- Favicon & Logos -->
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="apple-touch-icon" href="/logo.svg" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="HexaResume | AI-Powered Professional Resume Builder" />
+  <meta property="og:description" content="Build a professional, ATS-optimized resume for free with HexaResume." />
+  <meta property="og:image" content="/hexaresume_logo.png" />
+  <meta property="og:site_name" content="HexaResume" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HexaResume | AI-Powered Professional Resume Builder" />
+  <meta name="twitter:description" content="Build a professional, ATS-optimized resume for free." />
+  <meta name="twitter:image" content="/hexaresume_logo.png" />
+
+  <link rel="canonical" href="https://hexaresume.com" />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "HexaResume",
+      "description": "AI-powered professional resume builder and formatter.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+        "description": "Free professional resume builder"
+      }
+    }
+    </script>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- PDF.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    // Configure PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+
+  <!-- Razorpay Payment Gateway -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script type="module" src="/src/main.tsx"></script>
+  <!-- Developed by Anandu & Surag -->
+</body>
+
+</html>

@@ -340,16 +340,16 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                         </div>
                     </div>
 
-                    {/* 3. Primary Action Buttons */}
-                    <div className="w-full max-w-[360px] space-y-3.5 px-6 mb-12">
+                    {/* 3. Primary Action Buttons - Touch Optimized */}
+                    <div className="w-full max-w-[360px] space-y-4 px-6 mb-12">
                         <label htmlFor="pdf-upload-mobile" className="block w-full cursor-pointer">
-                            <div className="w-full bg-[#0F172A] text-white h-[52px] rounded-2xl font-bold flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] shadow-[0_4px_12px_rgba(15,23,42,0.1)]">
+                            <div className="w-full bg-[#0F172A] text-white min-h-[56px] h-[56px] rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.97] shadow-[0_4px_16px_rgba(15,23,42,0.15)]">
                                 {uploadState === 'uploading' ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                 ) : (
-                                    <Upload size={18} strokeWidth={2.5} />
+                                    <Upload size={20} strokeWidth={2.5} />
                                 )}
-                                <span className="text-[16px]">
+                                <span className="text-[16px] font-semibold">
                                     {uploadState === 'uploading' ? `Uploading ${uploadProgress}%` : 'Upload Existing PDF'}
                                 </span>
                             </div>
@@ -364,7 +364,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
 
                         <button
                             onClick={onStart}
-                            className="w-full bg-white text-[#111111] border border-[#111111] h-[48px] rounded-2xl font-bold transition-all active:scale-[0.98] flex items-center justify-center shadow-sm"
+                            className="w-full bg-white text-[#111111] border-2 border-[#111111] min-h-[56px] h-[56px] rounded-2xl font-bold transition-all active:scale-[0.97] flex items-center justify-center shadow-sm hover:bg-gray-50"
                         >
                             Build From Scratch
                         </button>

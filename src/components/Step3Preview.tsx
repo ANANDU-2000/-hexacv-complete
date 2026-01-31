@@ -12,13 +12,26 @@ interface Step3PreviewProps {
 }
 
 const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBack }) => {
-    const [zoom, setZoom] = useState(0.75);
+    // Detect mobile device
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+    // Set default zoom based on device - higher on mobile for readability
+    const [zoom, setZoom] = useState(isMobile ? 0.5 : 0.75);
     const [currentPage, setCurrentPage] = useState(1);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [isAnimating, setIsAnimating] = useState(true);
-    
+    const [showMobileZoomHint, setShowMobileZoomHint] = useState(isMobile);
+
     const totalPages = 2; // Simulated, should be calculated from actual content
     const isPaidTemplate = (config as any).price > 0;
+
+    // Hide zoom hint after 3 seconds on mobile
+    useEffect(() => {
+        if (isMobile && showMobileZoomHint) {
+            const timer = setTimeout(() => setShowMobileZoomHint(false), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [isMobile, showMobileZoomHint]);
 
     // Entrance animation
     useEffect(() => {
@@ -40,8 +53,28 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
         }
     }, []);
 
-    const handleZoomIn = () => setZoom(prev => Math.min(1.5, prev + 0.1));
-    const handleZoomOut = () => setZoom(prev => Math.max(0.5, prev - 0.1));
+    // Mobile-friendly zoom steps
+    const mobileZoomLevels = [0.4, 0.5, 0.65, 0.8, 1.0];
+    const desktopZoomLevels = [0.5, 0.75, 1.0, 1.25, 1.5];
+    const zoomLevels = isMobile ? mobileZoomLevels : desktopZoomLevels;
+
+    const handleZoomIn = () => {
+        const currentIndex = zoomLevels.findIndex(z => z >= zoom);
+        if (currentIndex < zoomLevels.length - 1) {
+            setZoom(zoomLevels[currentIndex + 1]);
+        }
+    };
+
+    const handleZoomOut = () => {
+        const currentIndex = zoomLevels.findIndex(z => z >= zoom);
+        if (currentIndex > 0) {
+            setZoom(zoomLevels[currentIndex - 1]);
+        }
+    };
+
+    const handleFitToScreen = () => {
+        setZoom(isMobile ? 0.5 : 0.75);
+    };
     const handlePrevPage = () => setCurrentPage(prev => Math.max(1, prev - 1));
     const handleNextPage = () => setCurrentPage(prev => Math.min(totalPages, prev + 1));
 
@@ -140,26 +173,39 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
                     </div>
                 </div>
 
-                {/* Bottom Control Bar */}
-                <div className="flex items-center justify-between px-8 py-6 border-t border-white/10 glass-ios-preview-footer">
+                {/* Mobile Zoom Hint */}
+                {showMobileZoomHint && isMobile && (
+                    <div className="pinch-hint absolute bottom-24 left-1/2 transform -translate-x-1/2 z-50 bg-black/75 text-white px-4 py-2 rounded-full text-sm font-medium animate-pulse">
+                        Pinch to zoom • Tap buttons below
+                    </div>
+                )}
+
+                {/* Bottom Control Bar - Mobile Optimized */}
+                <div className={`flex items-center justify-between border-t border-white/10 glass-ios-preview-footer ${isMobile ? 'px-4 py-4' : 'px-8 py-6'}`}>
                     {/* Left: Zoom Controls */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                         <button
                             onClick={handleZoomOut}
-                            disabled={zoom <= 0.5}
-                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            disabled={zoom <= zoomLevels[0]}
+                            className={`${isMobile ? 'w-11 h-11' : 'p-2'} text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center`}
+                            aria-label="Zoom out"
                         >
-                            <ZoomOut size={18} />
+                            <ZoomOut size={isMobile ? 22 : 18} />
                         </button>
-                        <span className="text-white font-bold text-sm w-16 text-center">
+                        <button
+                            onClick={handleFitToScreen}
+                            className={`${isMobile ? 'min-w-[60px] h-11' : 'w-16'} text-white font-bold text-sm text-center bg-white/10 rounded-lg hover:bg-white/20 transition-all flex items-center justify-center`}
+                            aria-label="Fit to screen"
+                        >
                             {Math.round(zoom * 100)}%
-                        </span>
+                        </button>
                         <button
                             onClick={handleZoomIn}
-                            disabled={zoom >= 1.5}
-                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            disabled={zoom >= zoomLevels[zoomLevels.length - 1]}
+                            className={`${isMobile ? 'w-11 h-11' : 'p-2'} text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center`}
+                            aria-label="Zoom in"
                         >
-                            <ZoomIn size={18} />
+                            <ZoomIn size={isMobile ? 22 : 18} />
                         </button>
                     </div>
 

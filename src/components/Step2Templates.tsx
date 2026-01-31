@@ -702,18 +702,23 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
 
     return (
         <div className="fixed inset-0 top-0 flex flex-col bg-slate-900 overflow-hidden">
-            {/* COMPACT TOP NAVIGATION - DARK THEME */}
-            <div className="sticky top-0 z-50 bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between shadow-lg">
-                <div className="flex items-center gap-3">
+            {/* COMPACT TOP NAVIGATION - DARK THEME - MOBILE OPTIMIZED */}
+            <div className="sticky top-0 z-50 bg-slate-950 border-b border-slate-800 px-3 md:px-4 py-2 flex items-center justify-between shadow-lg">
+                <div className="flex items-center gap-2 md:gap-3">
                     <button
                         onClick={onBack}
-                        className="px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
+                        className="min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 px-2 md:px-3 py-1.5 text-sm md:text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-all flex items-center justify-center"
+                        aria-label="Go back"
                     >
-                        ← Back
+                        <span className="md:hidden">←</span>
+                        <span className="hidden md:inline">← Back</span>
                     </button>
-                    <div className="border-l border-slate-700 pl-3">
+                    <div className="border-l border-slate-700 pl-2 md:pl-3">
                         <div className="inline-flex bg-blue-600 text-white px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">Step 2</div>
-                        <h2 className="text-sm font-black text-white inline ml-2">Choose Template</h2>
+                        <h2 className="text-xs md:text-sm font-black text-white inline ml-1 md:ml-2">
+                            <span className="hidden sm:inline">Choose Template</span>
+                            <span className="sm:hidden">Templates</span>
+                        </h2>
                     </div>
                 </div>
                 <button
@@ -723,12 +728,25 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ data, selectedTemplate,
                         }
                     }}
                     disabled={!selectedTemplate || processing || isResumeIncomplete}
-                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${isTemplateUnlocked(selectedTemplate.id)
+                    className={`min-h-[44px] px-3 md:px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${isTemplateUnlocked(selectedTemplate.id)
                         ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                         }`}
                 >
-                    {processing ? '⏳' : isResumeIncomplete ? 'FILL RESUME FIRST' : isTemplateUnlocked(selectedTemplate.id) ? 'DOWNLOAD PDF' : `PAY ${(selectedTemplate as any).priceLabel ?? '₹0'}`}
+                    {processing ? '⏳' : isResumeIncomplete ? (
+                        <span className="hidden sm:inline">FILL RESUME FIRST</span>
+                    ) : isTemplateUnlocked(selectedTemplate.id) ? (
+                        <>
+                            <span className="hidden sm:inline">DOWNLOAD PDF</span>
+                            <span className="sm:hidden">DOWNLOAD</span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="hidden sm:inline">PAY {(selectedTemplate as any).priceLabel ?? '₹0'}</span>
+                            <span className="sm:hidden">{(selectedTemplate as any).priceLabel ?? '₹0'}</span>
+                        </>
+                    )}
+                    {isResumeIncomplete && <span className="sm:hidden">FILL FIRST</span>}
                 </button>
             </div>
 

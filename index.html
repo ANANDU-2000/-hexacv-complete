@@ -5,6 +5,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-NDGT65ZG');</script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NHX5SC6RE7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-NHX5SC6RE7');
+  </script>
+
   <!-- SEO - Target Keywords -->
   <title>HexaCV | Free ATS Resume Builder - No Login Required</title>
   <meta name="description"
@@ -13,19 +30,6 @@
     content="free ats resume builder, resume keyword extractor free, ats resume for freshers, resume optimization without login, free resume builder no signup, ATS-friendly resume, HexaCV" />
   <meta name="author" content="HexaCV" />
   <meta name="robots" content="index, follow" />
-
-  <!-- 
-    GOOGLE SEARCH CONSOLE VERIFICATION
-    ==================================
-    To verify your site:
-    1. Go to https://search.google.com/search-console
-    2. Add property > URL prefix > https://hexacv.online
-    3. Choose "HTML tag" verification method
-    4. Copy the meta tag and replace the placeholder below
-    5. Verify in Search Console
-    6. Submit sitemap: https://hexacv.online/sitemap.xml
-  -->
-  <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE_HERE" />
 
   <!-- Favicon & Logos -->
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
@@ -122,39 +126,14 @@
       ]
     }
   </script>
-
-  <!-- 
-    GOOGLE ANALYTICS 4 SETUP
-    ========================
-    To enable GA4:
-    1. Go to https://analytics.google.com
-    2. Create a new GA4 property
-    3. Get your Measurement ID (starts with G-)
-    4. Replace 'G-XXXXXXXXXX' below with your actual ID
-    5. Verify data is flowing in GA4 Real-time reports
-  -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX', {
-      // Enhanced measurement settings
-      page_title: document.title,
-      page_location: window.location.href,
-      // Privacy-friendly settings
-      anonymize_ip: true,
-      cookie_flags: 'SameSite=None;Secure'
-    });
-    
-    // Track custom events
-    window.trackHexaCVEvent = function(eventName, params) {
-      gtag('event', eventName, params);
-    };
-  </script>
 </head>
 
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDGT65ZG"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
   <div id="root"></div>
 
   <!-- PDF.js Library for resume parsing -->

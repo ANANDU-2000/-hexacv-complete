@@ -42,7 +42,7 @@
    OPENAI_API_KEY=your-openai-api-key-here
    GROQ_API_KEY=your_groq_key
    GEMINI_API_KEY=your_gemini_key
-   DATABASE_URL=postgresql://postgres:Anandu2000@hexacv-db.cp2eoukoe7lq.eu-north-1.rds.amazonaws.com:5432/postgres
+   DATABASE_URL=your-database-url-here
    ```
 
 7. **Restart backend service:**

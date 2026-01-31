@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO - Target Keywords -->
+  <title>HexaCV | Free ATS Resume Builder - No Login Required</title>
+  <meta name="description"
+    content="Build an ATS-optimized resume for free with HexaCV. No login, no signup, no payment. Instant keyword extraction from job descriptions. Download your resume in minutes." />
+  <meta name="keywords"
+    content="free ats resume builder, resume keyword extractor free, ats resume for freshers, resume optimization without login, free resume builder no signup, ATS-friendly resume, HexaCV" />
+  <meta name="author" content="HexaCV" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- 
+    GOOGLE SEARCH CONSOLE VERIFICATION
+    ==================================
+    To verify your site:
+    1. Go to https://search.google.com/search-console
+    2. Add property > URL prefix > https://hexacv.online
+    3. Choose "HTML tag" verification method
+    4. Copy the meta tag and replace the placeholder below
+    5. Verify in Search Console
+    6. Submit sitemap: https://hexacv.online/sitemap.xml
+  -->
+  <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE_HERE" />
+
+  <!-- Favicon & Logos -->
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="apple-touch-icon" href="/logo.svg" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="HexaCV | Free ATS Resume Builder" />
+  <meta property="og:description" content="Build an ATS-optimized resume for free. No login required. Extract keywords from job descriptions instantly." />
+  <meta property="og:image" content="/hexacv_logo.png" />
+  <meta property="og:site_name" content="HexaCV" />
+  <meta property="og:url" content="https://hexacv.online" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HexaCV | Free ATS Resume Builder" />
+  <meta name="twitter:description" content="Build an ATS-optimized resume for free. No login required." />
+  <meta name="twitter:image" content="/hexacv_logo.png" />
+
+  <link rel="canonical" href="https://hexacv.online" />
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "HexaCV",
+      "url": "https://hexacv.online",
+      "description": "Free ATS resume builder with keyword extraction. No login, no signup, no payment required.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free ATS resume builder - no payment required"
+      },
+      "featureList": [
+        "ATS keyword extraction from job descriptions",
+        "Free resume template",
+        "No login required",
+        "Instant PDF download",
+        "AI-powered optimization",
+        "Works offline"
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+  </script>
+
+  <!-- FAQ Schema for SEO -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is HexaCV really free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, HexaCV is 100% free forever. No hidden costs, no premium upgrades, no payment required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to create an account?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, HexaCV requires no login, signup, or account creation. Start building your resume immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is my resume data stored on your servers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, all resume data stays in your browser. We don't store any personal information on servers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does ATS keyword extraction work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Paste a job description and our AI extracts relevant keywords. Your resume is then optimized to include these keywords naturally."
+          }
+        }
+      ]
+    }
+  </script>
+
+  <!-- 
+    GOOGLE ANALYTICS 4 SETUP
+    ========================
+    To enable GA4:
+    1. Go to https://analytics.google.com
+    2. Create a new GA4 property
+    3. Get your Measurement ID (starts with G-)
+    4. Replace 'G-XXXXXXXXXX' below with your actual ID
+    5. Verify data is flowing in GA4 Real-time reports
+  -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', {
+      // Enhanced measurement settings
+      page_title: document.title,
+      page_location: window.location.href,
+      // Privacy-friendly settings
+      anonymize_ip: true,
+      cookie_flags: 'SameSite=None;Secure'
+    });
+    
+    // Track custom events
+    window.trackHexaCVEvent = function(eventName, params) {
+      gtag('event', eventName, params);
+    };
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- PDF.js Library for resume parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

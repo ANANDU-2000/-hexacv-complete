@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <title>{{FULL_NAME}} - Resume</title>
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* A4 PAGE SETUP - 794px x 1123px at 96dpi */
+        html,
+        body {
+            width: 794px;
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF;
+        }
+
+        body {
+            font-family: "Times New Roman", Times, Georgia, serif;
+            font-size: 10.5pt;
+            line-height: 1.3;
+            color: #000000;
+        }
+
+        /* MAIN CONTAINER - A4 with reduced margins for more content */
+        .resume-container {
+            width: 794px;
+            min-height: 1123px;
+            padding: 56px 56px 56px 56px; /* Reduced from 75px/68px */
+            background: #FFFFFF;
+        }
+
+        /* ====== HEADER SECTION ====== */
+        .header {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .header h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #000000;
+            margin: 0 0 6px 0;
+            letter-spacing: 0.02em;
+        }
+
+        /* CONTACT INFO - Single centered line */
+        .contact-info {
+            font-size: 10pt;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .contact-info a {
+            color: #0000EE;
+            text-decoration: underline;
+        }
+
+        .contact-info .separator {
+            margin: 0 6px;
+            color: #000000;
+        }
+
+        /* ====== SECTION STYLING ====== */
+        .section {
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #000000;
+            margin-bottom: 3px;
+            padding-bottom: 0;
+        }
+
+        /* Horizontal rule after section title */
+        .section-hr {
+            border: none;
+            border-top: 1px solid #000000;
+            margin: 0 0 6px 0;
+        }
+
+        /* ====== PROFESSIONAL SUMMARY ====== */
+        .summary-text {
+            font-size: 10.5pt;
+            line-height: 1.35;
+            color: #000000;
+            text-align: left;
+        }
+
+        /* ====== SKILLS - Comma separated ====== */
+        .skills-content {
+            font-size: 10.5pt;
+            line-height: 1.4;
+            color: #000000;
+        }
+
+        /* ====== EXPERIENCE ENTRIES ====== */
+        .experience-entry {
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1px;
+        }
+
+        .job-title {
+            font-size: 10.5pt;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .date-range {
+            font-size: 10.5pt;
+            font-weight: normal;
+            color: #000000;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .company-name {
+            font-size: 10.5pt;
+            font-weight: normal;
+            font-style: italic;
+            color: #000000;
+            margin-bottom: 3px;
+        }
+
+        /* Bullet points for experience */
+        .experience-entry ul {
+            margin: 0 0 0 18px;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        .experience-entry li {
+            font-size: 10.5pt;
+            line-height: 1.35;
+            margin-bottom: 2px;
+            color: #000000;
+        }
+
+        /* ====== PROJECT ENTRIES ====== */
+        .project-entry {
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .project-title {
+            font-size: 10.5pt;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .project-date {
+            font-size: 10.5pt;
+            font-weight: normal;
+            color: #000000;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .project-entry ul {
+            margin: 0 0 0 18px;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        .project-entry li {
+            font-size: 10.5pt;
+            line-height: 1.35;
+            margin-bottom: 3px;
+            color: #000000;
+        }
+
+        /* ====== ACHIEVEMENTS - Simple list (no bullets) ====== */
+        .achievements-list {
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #000000;
+        }
+
+        .achievement-item {
+            margin-bottom: 2px;
+        }
+
+        /* ====== EDUCATION ENTRIES ====== */
+        .education-entry {
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+
+        .education-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .degree {
+            font-size: 10.5pt;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .education-year {
+            font-size: 10.5pt;
+            font-weight: normal;
+            color: #000000;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .institution {
+            font-size: 10.5pt;
+            font-weight: normal;
+            font-style: italic;
+            color: #000000;
+        }
+
+        /* ====== KEYWORD HIGHLIGHTING - ATS-safe bold ====== */
+        strong {
+            font-weight: bold;
+            color: inherit;
+            background: none;
+        }
+
+        /* ====== PRINT / PDF SETTINGS ====== */
+        @media print {
+            html, body {
+                width: 794px;
+                height: 1123px;
+            }
+
+            .resume-container {
+                padding: 56px 56px 56px 56px;
+            }
+
+            .section-title {
+                page-break-after: avoid;
+            }
+
+            .experience-entry,
+            .project-entry,
+            .education-entry {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Force page break before PROJECTS if needed */
+            .projects-section {
+                page-break-before: auto;
+            }
+        }
+
+        /* Page break utility class */
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume-container">
+
+        <!-- HEADER: Name centered -->
+        <div class="header">
+            <h1>{{FULL_NAME}}</h1>
+        </div>
+
+        <!-- CONTACT INFO: Single centered line -->
+        <div class="contact-info">
+            {{#if EMAIL}}<a href="mailto:{{EMAIL}}">{{EMAIL}}</a>{{/if}}{{#if PHONE}}<span class="separator">|</span>{{PHONE}}{{/if}}{{#if GITHUB}}<span class="separator">|</span><a href="{{GITHUB}}">{{GITHUB}}</a>{{/if}}{{#if LINKEDIN}}<span class="separator">|</span><a href="{{LINKEDIN}}">{{LINKEDIN}}</a>{{/if}}
+        </div>
+
+        <!-- PROFESSIONAL SUMMARY -->
+        {{#if PROFILE}}
+        <div class="section">
+            <div class="section-title">PROFESSIONAL SUMMARY</div>
+            <hr class="section-hr">
+            <p class="summary-text">{{PROFILE}}</p>
+        </div>
+        {{/if}}
+
+        <!-- SKILLS -->
+        {{#if SKILLS_TEXT}}
+        <div class="section">
+            <div class="section-title">SKILLS</div>
+            <hr class="section-hr">
+            <div class="skills-content">{{SKILLS_TEXT}}</div>
+        </div>
+        {{/if}}
+
+        <!-- EXPERIENCE -->
+        {{#if EXPERIENCE_ENTRIES}}
+        <div class="section">
+            <div class="section-title">EXPERIENCE</div>
+            <hr class="section-hr">
+            {{EXPERIENCE_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- PROJECTS -->
+        {{#if PROJECTS_ENTRIES}}
+        <div class="section projects-section">
+            <div class="section-title">PROJECTS</div>
+            <hr class="section-hr">
+            {{PROJECTS_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- ACHIEVEMENTS & CERTIFICATIONS -->
+        {{#if ACHIEVEMENTS_TEXT}}
+        <div class="section">
+            <div class="section-title">ACHIEVEMENTS & CERTIFICATIONS</div>
+            <hr class="section-hr">
+            <div class="achievements-list">{{ACHIEVEMENTS_TEXT}}</div>
+        </div>
+        {{/if}}
+
+        <!-- EDUCATION -->
+        {{#if EDUCATION_ENTRIES}}
+        <div class="section">
+            <div class="section-title">EDUCATION</div>
+            <hr class="section-hr">
+            {{EDUCATION_ENTRIES}}
+        </div>
+        {{/if}}
+
+    </div>
+</body>
+
+</html>

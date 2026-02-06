@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <title>{{FULL_NAME}} - Resume</title>
+    <style>
+        /* ===========================================
+           ATS-OPTIMIZED TEMPLATE
+           - NO profile image
+           - Single column layout
+           - Maximum ATS compatibility
+           =========================================== */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 794px;
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            line-height: 1.15;
+            color: #000000;
+        }
+
+        .resume-container {
+            width: 794px;
+            min-height: 1123px;
+            padding: 0.75in;
+            background: #FFFFFF;
+        }
+
+        /* ===========================================
+           HEADER - FULL WIDTH FOR ATS
+           No image, no columns - pure text
+           =========================================== */
+        .header {
+            width: 100%;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .header h1 {
+            font-size: 16pt;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: #000000;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .target-role {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 6px;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .contact-info {
+            font-size: 11pt;
+            color: #000000;
+            text-align: left;
+            line-height: 1.3;
+        }
+
+        .contact-info a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        /* ===========================================
+           SECTION HEADERS
+           =========================================== */
+        .section-title {
+            font-size: 12pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 2px;
+            margin-top: 12px;
+            margin-bottom: 8px;
+            color: #000000;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .section:first-of-type .section-title {
+            margin-top: 0;
+        }
+
+        /* ===========================================
+           PROFESSIONAL SUMMARY
+           =========================================== */
+        .summary-text {
+            font-size: 11pt;
+            line-height: 1.15;
+            text-align: justify;
+            margin-bottom: 8px;
+        }
+
+        /* ===========================================
+           EXPERIENCE - STRICT TWO-COLUMN FOR DATES
+           =========================================== */
+        .experience-entry {
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .experience-header {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 2px;
+        }
+
+        .job-title {
+            display: table-cell;
+            width: 70%;
+            font-size: 11pt;
+            font-weight: 700;
+            color: #000000;
+            vertical-align: baseline;
+            padding-right: 10px;
+        }
+
+        .date-range {
+            display: table-cell;
+            width: 30%;
+            font-size: 11pt;
+            font-weight: 400;
+            color: #000000;
+            text-align: right;
+            vertical-align: baseline;
+            white-space: nowrap;
+        }
+
+        .company-name {
+            font-size: 11pt;
+            font-weight: 400;
+            font-style: italic;
+            margin-bottom: 4px;
+        }
+
+        .experience-entry ul {
+            margin: 0 0 0 20px;
+            padding: 0;
+        }
+
+        .experience-entry li {
+            font-size: 11pt;
+            line-height: 1.15;
+            margin-bottom: 3px;
+        }
+
+        /* ===========================================
+           PROJECTS
+           =========================================== */
+        .project-entry {
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .project-header {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 2px;
+        }
+
+        .project-title {
+            display: table-cell;
+            width: 70%;
+            font-size: 11pt;
+            font-weight: 700;
+            vertical-align: baseline;
+            padding-right: 10px;
+        }
+
+        .project-date {
+            display: table-cell;
+            width: 30%;
+            font-size: 11pt;
+            text-align: right;
+            vertical-align: baseline;
+            white-space: nowrap;
+        }
+
+        .project-entry ul {
+            margin: 0 0 0 20px;
+            padding: 0;
+        }
+
+        .project-entry li {
+            font-size: 11pt;
+            line-height: 1.15;
+            margin-bottom: 3px;
+        }
+
+        /* ===========================================
+           EDUCATION
+           =========================================== */
+        .education-entry {
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .education-header {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 2px;
+        }
+
+        .degree {
+            display: table-cell;
+            width: 70%;
+            font-size: 11pt;
+            font-weight: 700;
+            vertical-align: baseline;
+            padding-right: 10px;
+        }
+
+        .education-year {
+            display: table-cell;
+            width: 30%;
+            font-size: 11pt;
+            text-align: right;
+            vertical-align: baseline;
+            white-space: nowrap;
+        }
+
+        .institution {
+            font-size: 11pt;
+            font-style: italic;
+        }
+
+        /* ===========================================
+           SKILLS
+           =========================================== */
+        .skills-content {
+            column-count: 2;
+            column-gap: 20px;
+            font-size: 11pt;
+            line-height: 1.3;
+        }
+
+        /* ===========================================
+           ACHIEVEMENTS & CERTIFICATIONS
+           =========================================== */
+        .achievements ul,
+        .certifications ul {
+            margin: 0 0 0 12pt;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        .achievements li,
+        .certifications li {
+            font-size: 11pt;
+            line-height: 1.45;
+            margin-bottom: 4px;
+            padding-left: 6pt;
+            color: #000000;
+        }
+
+        /* ===========================================
+           KEYWORD HIGHLIGHTING
+           =========================================== */
+        strong {
+            font-weight: 700 !important;
+            color: #000000 !important;
+        }
+
+        /* ===========================================
+           PAGE BREAK CONTROL
+           =========================================== */
+        @media print {
+            html, body {
+                width: 794px;
+                height: auto;
+            }
+
+            body {
+                padding: 0.75in;
+            }
+
+            .resume-container {
+                padding: 0;
+            }
+
+            .section-title {
+                page-break-after: avoid;
+                break-after: avoid;
+                orphans: 3;
+                widows: 3;
+            }
+
+            .experience-entry,
+            .project-entry,
+            .education-entry {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .section.education,
+            .section.achievements,
+            .section.certifications {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            h1, h2, h3, h4,
+            .section-title,
+            .job-title,
+            .project-title,
+            .degree,
+            .company-name {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            a {
+                color: #0066cc !important;
+                text-decoration: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume-container">
+        <!-- HEADER - ATS OPTIMIZED (NO IMAGE) -->
+        <div class="header">
+            <h1>{{FULL_NAME}}</h1>
+            {{#if JOB_TITLE}}
+            <div class="target-role">{{JOB_TITLE}}</div>
+            {{/if}}
+            <div class="contact-info">
+                {{#if EMAIL}}<a href="mailto:{{EMAIL}}">{{EMAIL}}</a>{{/if}}
+                {{#if PHONE}} | {{PHONE}}{{/if}}
+                {{#if LINKEDIN}} | <a href="{{LINKEDIN}}">LinkedIn</a>{{/if}}
+                {{#if GITHUB}} | <a href="{{GITHUB}}">GitHub</a>{{/if}}
+            </div>
+        </div>
+
+        <!-- PROFESSIONAL SUMMARY -->
+        {{#if PROFILE}}
+        <div class="section">
+            <div class="section-title">PROFESSIONAL SUMMARY</div>
+            <p class="summary-text">{{PROFILE}}</p>
+        </div>
+        {{/if}}
+
+        <!-- EXPERIENCE -->
+        {{#if EXPERIENCE_ENTRIES}}
+        <div class="section">
+            <div class="section-title">EXPERIENCE</div>
+            {{EXPERIENCE_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- PROJECTS -->
+        {{#if PROJECTS_ENTRIES}}
+        <div class="section">
+            <div class="section-title">PROJECTS</div>
+            {{PROJECTS_ENTRIES}}
+        </div>
+        {{/if}}
+
+        <!-- SKILLS -->
+        {{#if SKILLS_LIST}}
+        <div class="section">
+            <div class="section-title">SKILLS</div>
+            <div class="skills-content">
+                {{SKILLS_LIST}}
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- ACHIEVEMENTS & CERTIFICATIONS -->
+        {{#if ACHIEVEMENTS_ENTRIES}}
+        <div class="section achievements">
+            <div class="section-title">ACHIEVEMENTS & CERTIFICATIONS</div>
+            <ul>
+                {{ACHIEVEMENTS_ENTRIES}}
+            </ul>
+        </div>
+        {{/if}}
+
+        <!-- EDUCATION -->
+        {{#if EDUCATION_ENTRIES}}
+        <div class="section education">
+            <div class="section-title">EDUCATION</div>
+            {{EDUCATION_ENTRIES}}
+        </div>
+        {{/if}}
+
+    </div>
+</body>
+
+</html>

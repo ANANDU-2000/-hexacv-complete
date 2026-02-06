@@ -1,0 +1,15 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import './mobile.css'
+import App from './AppNew.tsx'
+import { initAnalytics } from './analytics/googleAnalytics'
+
+// Initialize analytics on app load
+initAnalytics()
+
+createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+        <App />
+    </StrictMode>,
+)

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexaCV Admin - Payment Approvals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: #000;
+            color: #fff;
+            padding: 24px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .auth-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .auth-form input {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 200px;
+        }
+        
+        .auth-form button {
+            padding: 10px 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .auth-form button:hover {
+            background: #e5e5e5;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+        }
+        
+        .stat-card.pending .value { color: #f59e0b; }
+        .stat-card.unlocked .value { color: #10b981; }
+        .stat-card.revenue .value { color: #3b82f6; }
+        
+        table {
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-unlocked {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-verified {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-unlock {
+            background: #000;
+            color: #fff;
+        }
+        
+        .btn-unlock:hover {
+            background: #333;
+        }
+        
+        .btn-unlock:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        
+        .refresh-notice {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 16px;
+        }
+        
+        .manual-unlock {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 24px;
+        }
+        
+        .manual-unlock h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .manual-unlock form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .manual-unlock input {
+            padding: 10px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .manual-unlock button {
+            padding: 10px 24px;
+            background: #10b981;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .manual-unlock button:hover {
+            background: #059669;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #000;
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HexaCV Admin</h1>
+            <div class="auth-form">
+                <input type="password" id="adminKey" placeholder="Admin Key" />
+                <button onclick="authenticate()">Connect</button>
+            </div>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card pending">
+                <div class="label">Pending Approvals</div>
+                <div class="value" id="pendingCount">-</div>
+            </div>
+            <div class="stat-card unlocked">
+                <div class="label">Unlocked Today</div>
+                <div class="value" id="unlockedCount">-</div>
+            </div>
+            <div class="stat-card revenue">
+                <div class="label">Total Revenue</div>
+                <div class="value" id="totalRevenue">-</div>
+            </div>
+        </div>
+        
+        <div class="manual-unlock">
+            <h3>Manual Unlock</h3>
+            <form onsubmit="manualUnlock(event)">
+                <input type="text" id="unlockSessionId" placeholder="Session ID" required />
+                <input type="text" id="unlockTemplateId" placeholder="Template ID (e.g., template2)" required />
+                <input type="text" id="unlockPaymentId" placeholder="Payment ID (optional)" />
+                <button type="submit">Unlock Template</button>
+            </form>
+        </div>
+        
+        <table id="paymentsTable">
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Email</th>
+                    <th>Template</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="paymentsBody">
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>Enter admin key to load payments</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p class="refresh-notice">Auto-refreshes every 10 seconds when connected</p>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let adminKey = '';
+        let refreshInterval = null;
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+        
+        async function authenticate() {
+            adminKey = document.getElementById('adminKey').value;
+            if (!adminKey) {
+                showToast('Please enter admin key', 'error');
+                return;
+            }
+            
+            try {
+                await loadPayments();
+                showToast('Connected successfully');
+                
+                // Start auto-refresh
+                if (refreshInterval) clearInterval(refreshInterval);
+                refreshInterval = setInterval(loadPayments, 10000);
+            } catch (e) {
+                showToast('Authentication failed', 'error');
+            }
+        }
+        
+        async function loadPayments() {
+            try {
+                const response = await fetch('/api/admin/payments?adminKey=' + adminKey);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load payments');
+                }
+                
+                const data = await response.json();
+                renderPayments(data.payments || []);
+                updateStats(data.payments || []);
+            } catch (error) {
+                console.error('Load payments error:', error);
+            }
+        }
+        
+        function updateStats(payments) {
+            const pending = payments.filter(p => p.status === 'pending').length;
+            const today = new Date().toDateString();
+            const unlockedToday = payments.filter(p => 
+                p.status === 'unlocked' && 
+                new Date(p.unlockedAt || p.timestamp).toDateString() === today
+            ).length;
+            const totalRevenue = payments
+                .filter(p => p.status === 'unlocked')
+                .reduce((sum, p) => sum + (p.amount || 0), 0);
+            
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('unlockedCount').textContent = unlockedToday;
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue;
+        }
+        
+        function renderPayments(payments) {
+            const tbody = document.getElementById('paymentsBody');
+            
+            if (payments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p>No payments found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = payments.map(p => `
+                <tr data-payment-id="${p.paymentId}">
+                    <td><code>${p.paymentId || '-'}</code></td>
+                    <td>${p.email || '-'}</td>
+                    <td><strong>${p.templateId || '-'}</strong></td>
+                    <td>₹${p.amount || 0}</td>
+                    <td>${p.timestamp ? new Date(p.timestamp).toLocaleString() : '-'}</td>
+                    <td>
+                        <span class="status-badge status-${p.status}">
+                            ${p.status?.toUpperCase() || 'UNKNOWN'}
+                        </span>
+                    </td>
+                    <td>
+                        ${p.status === 'pending' 
+                            ? `<button class="btn btn-unlock" onclick="unlockTemplate('${p.paymentId}', '${p.sessionId}', '${p.templateId}')">
+                                Unlock
+                               </button>`
+                            : '<span style="color: #10b981;">✓ Done</span>'
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        async function unlockTemplate(paymentId, sessionId, templateId) {
+            if (!confirm('Unlock template for this payment?')) return;
+            
+            try {
+                const response = await fetch('/api/admin/unlock-template', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Key': adminKey
+                    },
+                    body: JSON.stringify({ paymentId, sessionId, templateId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to unlock');
+                }
+                
+                showToast('Template unlocked successfully!');
+                await loadPayments();
+            } catch (error) {
+                showToast('Failed to unlock: ' + error.message, 'error');
+            }
+        }
+        
+        async function manualUnlock(event) {
+            event.preventDefault();
+            
+            const sessionId = document.getElementById('unlockSessionId').value;
+            const templateId = document.getElementById('unlockTemplateId').value;
+            const paymentId = document.getElementById('unlockPaymentId').value || `manual_${Date.now()}`;
+            
+            if (!sessionId || !templateId) {
+                showToast('Session ID and Template ID are required', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/unlock-template', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Key': adminKey
+                    },
+                    body: JSON.stringify({ paymentId, sessionId, templateId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to unlock');
+                }
+                
+                showToast(`Template ${templateId} unlocked for session ${sessionId}!`);
+                
+                // Clear form
+                document.getElementById('unlockSessionId').value = '';
+                document.getElementById('unlockTemplateId').value = '';
+                document.getElementById('unlockPaymentId').value = '';
+                
+            } catch (error) {
+                showToast('Failed to unlock: ' + error.message, 'error');
+            }
+        }
+        
+        // Check if admin key is in URL (for bookmarking)
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyFromUrl = urlParams.get('key');
+        if (keyFromUrl) {
+            document.getElementById('adminKey').value = keyFromUrl;
+            authenticate();
+        }
+    </script>
+</body>
+</html>

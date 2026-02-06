@@ -1,0 +1,90 @@
+/* ===============================================
+   MOBILE DESIGN TOKENS
+   Design system variables for iOS-style mobile theme
+   =============================================== */
+
+:root {
+    /* Spacing Scale - Apple Standard */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 32px;
+    --space-8: 48px;
+
+    /* Typography Scale - Modern System Fonts */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 32px;
+
+    /* Color System - Monochromatic Premium */
+    --bw-white: #ffffff;
+    --bw-black: #000000;
+    --bw-gray-50: #f9f9f9;
+    --bw-gray-100: #f2f2f7;
+    --bw-gray-200: #e5e5ea;
+    --bw-gray-300: #d1d1d6;
+    --bw-gray-400: #c7c7cc;
+    --bw-gray-500: #aeaeb2;
+    --bw-gray-600: #8e8e93;
+    --bw-gray-700: #636366;
+    --bw-gray-800: #3a3a3c;
+    --bw-gray-900: #1c1c1e;
+
+    /* Semantic Colors (BW Variants) */
+    --bw-primary: #000000;
+    --bw-accent: #333333;
+    --bw-success: #000000;
+    --bw-error: #ff3b30;
+    --bw-warning: #ffcc00;
+
+    /* Gradients */
+    --gradient-vibrant: linear-gradient(135deg, #000000 0%, #333333 100%);
+    --gradient-subtle: linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%);
+
+    /* Glassmorphism Presets */
+    --glass-white: rgba(255, 255, 255, 0.7);
+    --glass-black: rgba(0, 0, 0, 0.7);
+    --glass-border-white: rgba(255, 255, 255, 0.3);
+    --glass-border-black: rgba(0, 0, 0, 0.2);
+    --blur-intensity: 20px;
+    --saturate-intensity: 180%;
+
+    /* Shadows - iOS Depth */
+    --shadow-ios-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-ios-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-ios-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --shadow-sm: var(--shadow-ios-sm);
+    --shadow-md: var(--shadow-ios-md);
+    --shadow-lg: var(--shadow-ios-lg);
+    --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 20px rgba(0, 0, 0, 0.1);
+
+    /* Border Radius - iOS Curvature */
+    --radius-ios-sm: 10px;
+    --radius-ios-md: 12px;
+    --radius-ios-lg: 14px;
+    --radius-ios-xl: 24px;
+    --radius-full: 999px;
+    --radius-sm: var(--radius-ios-sm);
+    --radius-md: var(--radius-ios-md);
+    --radius-lg: var(--radius-ios-lg);
+    --radius-xl: var(--radius-ios-xl);
+
+    /* UI Measurements */
+    --touch-target: 44px;
+    --button-height: 48px;
+
+    /* Legacy compatibility (bridging labels) */
+    --primary: var(--bw-black);
+    --gray-50: var(--bw-gray-50);
+    --gray-200: var(--bw-gray-200);
+    --gray-600: var(--bw-gray-600);
+    --gray-900: var(--bw-gray-900);
+}

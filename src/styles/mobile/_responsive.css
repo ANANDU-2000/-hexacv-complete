@@ -1,0 +1,266 @@
+/* ===============================================
+   MOBILE RESPONSIVE
+   Screen-specific breakpoints and overrides
+   =============================================== */
+
+/* ===== SMALL MOBILE (320px - 480px) ===== */
+@media (max-width: 480px) {
+    .grid.md\:grid-cols-2>label>div,
+    .grid.md\:grid-cols-2>button>div {
+        padding: 16px !important;
+    }
+
+    .min-h-screen h1 {
+        font-size: 28px !important;
+    }
+
+    section#home {
+        min-height: auto !important;
+        padding: 20px 0 80px 0 !important;
+    }
+
+    section#home h1 {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+        padding: 12px !important;
+    }
+
+    section#home .text-5xl {
+        font-size: 28px !important;
+    }
+
+    section#home .md\:text-8xl,
+    section#home .lg\:text-8xl {
+        font-size: 28px !important;
+    }
+
+    section#home p {
+        font-size: 14px !important;
+        padding: 0 20px !important;
+    }
+
+    button,
+    .btn,
+    a[role="button"] {
+        min-height: 48px !important;
+        font-size: 15px !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+
+    .upload-area,
+    .dropzone,
+    [data-upload] {
+        min-height: 180px !important;
+        padding: 20px !important;
+        margin: 16px 0 !important;
+    }
+
+    .upload-area svg,
+    .dropzone svg {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    header {
+        padding: 12px 16px !important;
+        height: auto !important;
+    }
+
+    .logo {
+        font-size: 16px !important;
+    }
+
+    .step-nav,
+    .step-nav-enhanced {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        justify-content: flex-start !important;
+    }
+
+    .step-item,
+    .step-item-enhanced {
+        padding: 6px 10px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+
+    .step-label {
+        display: none !important;
+    }
+
+    .step-num-enhanced {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 11px !important;
+    }
+
+    .step-connector {
+        width: 16px !important;
+    }
+}
+
+/* ===== MOBILE (481px - 768px) ===== */
+@media (min-width: 481px) and (max-width: 768px) {
+    section#home h1 {
+        font-size: 36px !important;
+    }
+
+    section#home .text-5xl {
+        font-size: 36px !important;
+    }
+
+    section#home .md\:text-8xl,
+    section#home .lg\:text-8xl {
+        font-size: 36px !important;
+    }
+
+    button {
+        min-height: 52px !important;
+        font-size: 16px !important;
+    }
+
+    .step-label {
+        display: inline-block !important;
+    }
+}
+
+/* ===== ALL MOBILE (max-width: 768px) ===== */
+@media (max-width: 768px) {
+    /* Forms & Inputs */
+    input,
+    textarea,
+    select {
+        min-height: 48px !important;
+        font-size: 16px !important;
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
+    }
+
+    textarea {
+        min-height: 120px !important;
+    }
+
+    /* Tabs */
+    .tabs,
+    [role="tablist"] {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 8px !important;
+    }
+
+    .tab,
+    [role="tab"] {
+        min-width: 100px !important;
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Modals & Popups */
+    .modal,
+    .popup,
+    [role="dialog"] {
+        max-width: calc(100vw - 32px) !important;
+        margin: 16px !important;
+        padding: 20px !important;
+    }
+
+    /* Preview Sections */
+    .preview-desktop {
+        display: none !important;
+    }
+
+    .preview-mobile {
+        display: block !important;
+        margin-top: 24px !important;
+        padding-top: 24px !important;
+        border-top: 1px solid #e5e7eb !important;
+    }
+
+    /* Template Cards */
+    .template-card {
+        max-width: 100% !important;
+    }
+
+    .template-card img {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 400px !important;
+        object-fit: contain !important;
+    }
+
+    /* Editor Components */
+    .editor-toolbar {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .editor-toolbar button {
+        min-width: 44px !important;
+        padding: 8px !important;
+    }
+
+    /* Sticky CTA */
+    .mobile-cta,
+    .sticky-footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        padding: 16px !important;
+        background: #fff !important;
+        border-top: 1px solid #e5e7eb !important;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1) !important;
+        z-index: 100 !important;
+    }
+
+    /* Touch Targets */
+    a,
+    button,
+    [role="button"],
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+}
+
+/* ===== TABLET (769px - 1024px) ===== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    main {
+        padding: 0 32px !important;
+    }
+}
+
+/* ===== LANDSCAPE MOBILE ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+    section#home {
+        min-height: auto !important;
+        padding: 40px 0 !important;
+    }
+
+    section#home h1 {
+        font-size: 24px !important;
+    }
+
+    section#home p {
+        font-size: 13px !important;
+    }
+
+    button {
+        min-height: 40px !important;
+        font-size: 14px !important;
+    }
+}

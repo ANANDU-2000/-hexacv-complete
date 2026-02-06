@@ -1,0 +1,276 @@
+/* ===============================================
+   MOBILE LAYOUT
+   Homepage, editor layout, grids, containers
+   =============================================== */
+
+/* ===== HOMEPAGE - PREMIUM DRIBBBLE STYLE ===== */
+@media (max-width: 768px) {
+    /* Main Container */
+    .min-h-screen.bg-white {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+        background: white !important;
+    }
+
+    /* Center content area */
+    .flex-1.flex.items-center {
+        padding: var(--space-5) var(--space-4) !important;
+    }
+
+    /* Text center wrapper */
+    .text-center.mb-16 {
+        margin-bottom: var(--space-6) !important;
+    }
+
+    /* Headline */
+    .text-4xl.md\:text-5xl {
+        font-size: var(--text-3xl) !important;
+        line-height: 1.1 !important;
+        margin-bottom: var(--space-5) !important;
+        font-weight: 900 !important;
+        letter-spacing: -1px !important;
+    }
+
+    /* Tagline */
+    .text-lg.md\:text-xl {
+        font-size: var(--text-lg) !important;
+        line-height: 1.6 !important;
+        margin-bottom: var(--space-4) !important;
+        max-width: 90% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Trust signals - hide on mobile */
+    .flex.flex-wrap.items-center.justify-center {
+        display: none !important;
+    }
+
+    /* Button Grid */
+    .grid.md\:grid-cols-2.gap-4 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: var(--space-4) !important;
+        margin-top: var(--space-5) !important;
+    }
+
+    /* Upload button (first) */
+    .grid.md\:grid-cols-2 label .bg-gradient-to-br {
+        min-height: 60px !important;
+        background: var(--gradient-vibrant) !important;
+        border-radius: var(--radius-lg) !important;
+        padding: var(--space-5) var(--space-4) !important;
+        box-shadow: var(--shadow-xl), var(--shadow-glow) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    /* Start from scratch button (second) */
+    .grid.md\:grid-cols-2 button .bg-black {
+        min-height: 60px !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 2px solid rgba(99, 102, 241, 0.2) !important;
+        border-radius: var(--radius-lg) !important;
+        padding: var(--space-5) var(--space-4) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+
+    /* Button titles */
+    .text-sm.md\:text-base.font-bold {
+        font-size: var(--text-lg) !important;
+        font-weight: 800 !important;
+        color: white !important;
+    }
+
+    /* Button descriptions */
+    .text-\[11px\].md\:text-xs {
+        font-size: var(--text-sm) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    /* Icon containers */
+    .bg-black.rounded-lg.p-2,
+    .bg-white.rounded-lg.p-2 {
+        padding: var(--space-3) !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    /* Icons */
+    .bg-black.rounded-lg svg,
+    .bg-white.rounded-lg svg {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    /* Hide feedback ticker */
+    .bg-gray-50.border-t {
+        display: none !important;
+    }
+
+    main {
+        padding: 0 16px 80px 16px !important;
+    }
+}
+
+/* ===== EDITOR PAGE LAYOUT ===== */
+@media (max-width: 768px) {
+    /* HIDE DESKTOP SIDEBAR */
+    .w-\[65\%\] {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .w-\[35\%\] {
+        display: none !important;
+    }
+
+    /* NAVIGATION BAR: 44px COMPACT HEADER */
+    .h-16.bg-white.border-b {
+        height: var(--touch-target) !important;
+        min-height: var(--touch-target) !important;
+        padding: 0 var(--space-4) !important;
+        background: white !important;
+        border-bottom: 1px solid var(--gray-200) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 200 !important;
+    }
+
+    /* Back button */
+    .h-16.bg-white.border-b button:first-child {
+        color: var(--gray-900) !important;
+        font-size: var(--text-base) !important;
+        padding: 0 !important;
+        min-width: var(--touch-target) !important;
+        min-height: var(--touch-target) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Continue button */
+    .h-16.bg-white.border-b .bg-black,
+    .h-16.bg-white.border-b button[class*="bg-"] {
+        background: var(--primary) !important;
+        color: white !important;
+        padding: var(--space-2) var(--space-4) !important;
+        font-size: var(--text-sm) !important;
+        font-weight: 700 !important;
+        border-radius: var(--radius-md) !important;
+        min-height: 36px !important;
+        box-shadow: none !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    /* TABS: HORIZONTAL SCROLL PILLS */
+    .flex.border-b.bg-white {
+        display: flex !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        gap: var(--space-2) !important;
+        padding: var(--space-3) var(--space-4) !important;
+        background: white !important;
+        border-bottom: 1px solid var(--gray-200) !important;
+        scrollbar-width: none !important;
+        position: sticky !important;
+        top: var(--touch-target) !important;
+        z-index: 199 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .flex.border-b.bg-white::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* Tab buttons - 12px text, pill style */
+    .flex.border-b.bg-white>button {
+        flex-shrink: 0 !important;
+        min-width: auto !important;
+        padding: var(--space-2) var(--space-4) !important;
+        font-size: var(--text-sm) !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        border-radius: 20px !important;
+        border: 1.5px solid var(--gray-200) !important;
+        transition: all 0.15s ease !important;
+        white-space: nowrap !important;
+        background: white !important;
+        color: var(--gray-600) !important;
+        min-height: 36px !important;
+    }
+
+    /* Active tab */
+    .flex.border-b.bg-white>button.text-slate-900,
+    .flex.border-b.bg-white>button[aria-selected="true"] {
+        background: var(--primary) !important;
+        color: white !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25) !important;
+    }
+
+    /* Inactive tab */
+    .flex.border-b.bg-white>button.text-slate-400 {
+        background: white !important;
+        color: var(--gray-600) !important;
+        border-color: var(--gray-200) !important;
+    }
+
+    .flex.border-b.bg-white>button:active {
+        transform: scale(0.97) !important;
+    }
+
+    /* FORM CONTAINER: SINGLE COLUMN STACK */
+    .w-\[65\%\]>div {
+        padding: var(--space-4) !important;
+        max-width: 100% !important;
+    }
+
+    /* All grid layouts become single column */
+    .grid,
+    .grid-cols-2,
+    .grid-cols-3,
+    [class*="grid-cols"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: var(--space-3) !important;
+    }
+
+    /* Grid Layouts */
+    .start-cards,
+    .template-grid,
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .review-layout,
+    .template-layout {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    /* Spacing */
+    .space-y-4,
+    .space-y-6,
+    [class*="space-y"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: var(--space-3) !important;
+    }
+
+    /* Section spacing */
+    section,
+    .section {
+        margin-bottom: var(--space-5) !important;
+        padding: 40px 16px !important;
+    }
+}

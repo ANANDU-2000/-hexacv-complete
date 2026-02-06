@@ -1,0 +1,264 @@
+/* Template Selector Page - Split Panel Layout */
+/* Design Document Implementation: 60/40 Layout with Responsive Breakpoints */
+
+/* ====== DESKTOP LAYOUT (≥1366px) ====== */
+.template-selector-layout {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    height: calc(100vh - 80px);
+    overflow: hidden;
+}
+
+.template-selection-panel {
+    background: #F8FAFC;
+    padding: 40px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.live-preview-panel {
+    background: #1A1A1A;
+    display: flex;
+    flexDirection: column;
+    height: 100%;
+    position: sticky;
+    top: 0;
+}
+
+/* Smooth Scrolling */
+.template-selection-panel {
+    scroll-behavior: smooth;
+}
+
+.template-selection-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.template-selection-panel::-webkit-scrollbar-track {
+    background: #e2e8f0;
+}
+
+.template-selection-panel::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 4px;
+}
+
+.template-selection-panel::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* ====== LAPTOP (1024px-1365px) ====== */
+@media (max-width: 1365px) and (min-width: 1024px) {
+    .template-selector-layout {
+        grid-template-columns: 55% 45%;
+    }
+
+    .template-selection-panel {
+        padding: 32px;
+    }
+}
+
+/* ====== TABLET (768px-1023px) ====== */
+@media (max-width: 1023px) and (min-width: 768px) {
+    .template-selector-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .template-selection-panel {
+        padding: 24px;
+        height: auto;
+    }
+
+    /* Change to 1-column grid on tablets */
+    .template-selection-panel > div > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        max-width: 500px !important;
+        margin: 0 auto !important;
+    }
+
+    .live-preview-panel {
+        position: relative;
+        height: 600px;
+        margin-top: 24px;
+    }
+
+    /* Preview panel becomes bottom sheet */
+    .live-preview-panel {
+        border-top: 2px solid #404040;
+    }
+}
+
+/* ====== MOBILE (<768px) ====== */
+@media (max-width: 767px) {
+    .template-selector-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .template-selection-panel {
+        padding: 16px;
+        height: auto;
+    }
+
+    /* 1-column layout on mobile */
+    .template-selection-panel > div > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Hide preview panel on mobile, show as modal */
+    .live-preview-panel {
+        display: none;
+    }
+
+    /* Stack navigation buttons */
+    header > div {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+    }
+
+    header > div > div {
+        width: 100% !important;
+    }
+
+    header > div > div > button {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Adjust card height on mobile */
+    .template-selection-panel div[style*="height: 350px"] {
+        height: 280px !important;
+    }
+}
+
+/* ====== LARGE DESKTOP (≥1920px) ====== */
+@media (min-width: 1920px) {
+    .template-selector-layout {
+        grid-template-columns: 60% 40%;
+        max-width: 2400px;
+        margin: 0 auto;
+    }
+
+    .template-selection-panel {
+        padding: 48px 64px;
+    }
+}
+
+/* ====== ACCESSIBILITY ====== */
+
+/* Focus indicators for keyboard navigation */
+button:focus-visible,
+[role="button"]:focus-visible {
+    outline: 3px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .template-selector-layout {
+        border: 2px solid currentColor;
+    }
+
+    button {
+        border: 2px solid currentColor !important;
+    }
+}
+
+/* ====== PRINT STYLES ====== */
+@media print {
+    .template-selector-layout {
+        display: block !important;
+    }
+
+    .template-selection-panel {
+        display: none;
+    }
+
+    .live-preview-panel {
+        background: white !important;
+        display: block !important;
+    }
+
+    header,
+    .live-preview-panel > div:first-child,
+    .live-preview-panel > div:last-child {
+        display: none !important;
+    }
+}
+
+/* ====== TOUCH DEVICE ENHANCEMENTS ====== */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Remove hover effects on touch devices */
+    *:hover {
+        transform: none !important;
+    }
+
+    /* Enable pinch-to-zoom on preview */
+    .live-preview-panel > div:nth-child(2) {
+        touch-action: pinch-zoom;
+    }
+}
+
+/* ====== ANIMATION TRANSITIONS ====== */
+
+/* Template selection animation */
+.template-selection-panel > div > div > div {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Preview zoom transition */
+.live-preview-panel div[style*="transform: scale"] {
+    transition: transform 0.25s ease-in-out;
+}
+
+/* Button press animation */
+button {
+    transition: all 0.15s ease-out;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ====== LOADING STATES ====== */
+.template-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.template-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #3B82F6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

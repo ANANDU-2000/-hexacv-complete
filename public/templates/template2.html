@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <title>{{FULL_NAME}} - Resume</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* A4 PAGE FRAME - Standard ATS scale */
+        html,
+        body {
+            width: 794px;
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: 'Inter', Arial, Helvetica, sans-serif;
+            font-size: 10.5pt;
+            /* Standard resume font size */
+            line-height: 1.4;
+            color: #111827;
+        }
+
+        .resume-container {
+            width: 794px;
+            min-height: 1123px;
+            padding: 40px 50px 40px 50px;
+            /* Consistent padding on all pages */
+            background: #FFFFFF;
+        }
+
+        /* HEADER - Clean & Professional */
+        .header {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .header h1 {
+            font-size: 24pt;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #000000;
+        }
+
+        .target-role {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 10px;
+        }
+
+        .contact-line {
+            font-size: 9.5pt;
+            color: #4b5563;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .contact-line .sep {
+            color: #d1d5db;
+        }
+
+        .contact-line a {
+            color: #111827;
+            text-decoration: none;
+        }
+
+        .header-divider {
+            height: 1.5pt;
+            background: #111827;
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        /* SECTIONS */
+        .section {
+            margin-bottom: 18px;
+            page-break-inside: auto;
+        }
+
+        .section-title {
+            font-size: 12pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #000000;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 3px;
+            letter-spacing: 0.05em;
+        }
+
+        /* SUMMARY */
+        .summary-text {
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #374151;
+            text-align: justify;
+        }
+
+        /* ENTRIES */
+        .entry {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .experience-entry {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .experience-header,
+        .job-header,
+        .project-header,
+        .edu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .job-title,
+        .project-title,
+        .degree {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #000000;
+            flex: 1;
+        }
+
+        .company-name,
+        .institution {
+            font-size: 11pt;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .date-range,
+        .project-date,
+        .education-date {
+            font-size: 10pt;
+            font-weight: 500;
+            color: #4b5563;
+            text-align: right;
+            white-space: nowrap;
+            margin-left: 20px;
+            flex-shrink: 0;
+        }
+
+        /* LISTS - ATS Preferred Format */
+        ul {
+            margin: 5px 0 5px 18px;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        li {
+            font-size: 10.5pt;
+            line-height: 1.4;
+            margin-bottom: 3px;
+            color: #1f2937;
+        }
+
+        /* SKILLS */
+        .skills-list {
+            columns: 2;
+            column-gap: 30px;
+            margin-left: 20px;
+        }
+
+        /* ADDITIONAL INFO */
+        .additional-info {
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #374151;
+        }
+
+        .info-item {
+            margin-bottom: 4px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* KEYWORD HIGHLIGHTING - ATS-safe bold */
+        strong {
+            font-weight: 700 !important;
+            color: #000000 !important;
+        }
+
+        /* PREMIUM KEYWORD HIGHLIGHTING SYSTEM */
+        /* Exact keyword match from JD - GREEN */
+        .keyword-exact {
+            background: rgba(34, 197, 94, 0.15);
+            font-weight: 600;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* Semantic match (synonym/related term) - YELLOW */
+        .keyword-semantic {
+            background: rgba(234, 179, 8, 0.15);
+            font-weight: 500;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* Skill inferred from context - BLUE */
+        .keyword-inferred {
+            background: rgba(59, 130, 246, 0.15);
+            font-weight: 500;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* Keyword match score card */
+        .keyword-score-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .keyword-score-card .score {
+            font-size: 24pt;
+            font-weight: 700;
+            color: #166534;
+        }
+
+        .keyword-score-card .label {
+            font-size: 10pt;
+            color: #15803d;
+        }
+
+        .keyword-score-card .details {
+            font-size: 9pt;
+            color: #166534;
+        }
+
+        /* Keyword legend panel */
+        .keyword-legend {
+            background: #fafafa;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            font-size: 9pt;
+        }
+
+        .keyword-legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .keyword-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .keyword-legend-item .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .keyword-legend-item .dot.exact { background: #22c55e; }
+        .keyword-legend-item .dot.semantic { background: #eab308; }
+        .keyword-legend-item .dot.inferred { background: #3b82f6; }
+
+        .keyword-legend-item .check { color: #22c55e; }
+        .keyword-legend-item .missing { color: #ef4444; }
+
+        /* AI Rewrite indicator */
+        .ai-rewrite-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            font-size: 8pt;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        /* Change highlight for before/after comparison */
+        .text-changed {
+            background: rgba(147, 51, 234, 0.1);
+            border-bottom: 2px solid #9333ea;
+        }
+
+        /* PRINT SETTINGS */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .section-title {
+                page-break-after: avoid !important;
+            }
+
+            .entry {
+                page-break-inside: avoid !important;
+                orphans: 3;
+                widows: 3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume-container">
+        <header class="header">
+            <h1>{{FULL_NAME}}</h1>
+            {{#if JOB_TITLE}}
+            <div class="target-role">{{JOB_TITLE}}</div>
+            {{/if}}
+            <div class="contact-line">
+                {{#if ADDRESS}}<span>{{ADDRESS}}</span>{{/if}}
+                {{#if PHONE}}<span class="sep">|</span><span>{{PHONE}}</span>{{/if}}
+                {{#if EMAIL}}<span class="sep">|</span><span><a href="mailto:{{EMAIL}}">{{EMAIL}}</a></span>{{/if}}
+                {{#if LINKEDIN}}<span class="sep">|</span><span><a href="{{LINKEDIN}}">{{LINKEDIN}}</a></span>{{/if}}
+                {{#if GITHUB}}<span class="sep">|</span><span><a href="{{GITHUB}}">{{GITHUB}}</a></span>{{/if}}
+            </div>
+            <div class="header-divider"></div>
+        </header>
+
+        <main>
+            {{TEMPLATE2_CONTENT}}
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ResumeData, TemplateConfig } from '../types';
 import ResumeRenderer from './ResumeRenderer';
-import { X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, Download, Lock } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, Download, Lock, Maximize2, Minimize2, RotateCcw } from 'lucide-react';
 import { A4_WIDTH, A4_HEIGHT } from '../constants';
 
 interface Step3PreviewProps {
@@ -16,14 +16,93 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
     const [currentPage, setCurrentPage] = useState(1);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [isAnimating, setIsAnimating] = useState(true);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
 
     const [totalPages, setTotalPages] = useState(1);
     const isPaidTemplate = (config as any).price > 0;
+    const previewContainerRef = useRef<HTMLDivElement>(null);
 
     // Entrance animation
     useEffect(() => {
         const timer = setTimeout(() => setIsAnimating(false), 500);
         return () => clearTimeout(timer);
+    }, []);
+
+    // Mouse wheel zoom with Ctrl/Cmd key
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                setZoom(prev => Math.max(0.5, Math.min(2, prev + delta)));
+            }
+        };
+
+        const container = previewContainerRef.current;
+        if (container) {
+            container.addEventListener('wheel', handleWheel, { passive: false });
+            return () => container.removeEventListener('wheel', handleWheel);
+        }
+    }, []);
+
+    // Fullscreen change listener
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    // Toggle fullscreen
+    const toggleFullscreen = useCallback(async () => {
+        try {
+            if (!document.fullscreenElement) {
+                await previewContainerRef.current?.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch (err) {
+            console.error('Fullscreen error:', err);
+        }
+    }, []);
+
+    // Touch handlers for swipe gestures
+    const handleTouchStart = (e: React.TouchEvent) => {
+        setTouchStart({
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+        });
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (!touchStart) return;
+
+        const touchEnd = {
+            x: e.changedTouches[0].clientX,
+            y: e.changedTouches[0].clientY
+        };
+
+        const deltaX = touchEnd.x - touchStart.x;
+        const deltaY = touchEnd.y - touchStart.y;
+
+        // Only trigger if horizontal swipe is dominant and significant
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+            if (deltaX < 0 && currentPage < totalPages) {
+                setCurrentPage(prev => prev + 1);
+            } else if (deltaX > 0 && currentPage > 1) {
+                setCurrentPage(prev => prev - 1);
+            }
+        }
+
+        setTouchStart(null);
+    };
+
+    // Fit to width zoom
+    const handleFitToWidth = useCallback(() => {
+        setZoom(0.75);
     }, []);
 
     // Disable right-click for security
@@ -40,7 +119,7 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
         }
     }, []);
 
-    const handleZoomIn = () => setZoom(prev => Math.min(1.5, prev + 0.1));
+    const handleZoomIn = () => setZoom(prev => Math.min(2, prev + 0.1));
     const handleZoomOut = () => setZoom(prev => Math.max(0.5, prev - 0.1));
     const handlePrevPage = () => setCurrentPage(prev => Math.max(1, prev - 1));
     const handleNextPage = () => setCurrentPage(prev => Math.min(totalPages, prev + 1));
@@ -58,6 +137,7 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
         <>
             {/* Full Screen Modal Overlay */}
             <div
+                ref={previewContainerRef}
                 className={`
                     fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[9999]
                     flex flex-col
@@ -78,16 +158,25 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
                     {/* Center: Template Name */}
                     <div className="text-center">
                         <h2 className="text-white font-black text-lg tracking-tight">{config.name}</h2>
-                        <p className="text-white/40 text-xs font-medium">Preview Mode</p>
+                        <p className="text-white/40 text-xs font-medium">Preview Mode • Ctrl+Scroll to zoom</p>
                     </div>
 
-                    {/* Right: Close Button */}
-                    <button
-                        onClick={onBack}
-                        className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                    >
-                        <X size={20} />
-                    </button>
+                    {/* Right: Fullscreen + Close */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={toggleFullscreen}
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                        >
+                            {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                        </button>
+                        <button
+                            onClick={onBack}
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Main Preview Area */}
@@ -95,6 +184,8 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
                     id="preview-area"
                     className="flex-1 overflow-auto flex items-center justify-center p-12 custom-scrollbar select-none"
                     style={{ userSelect: 'none' }}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
                 >
                     <div
                         className={`
@@ -154,6 +245,7 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
                             onClick={handleZoomOut}
                             disabled={zoom <= 0.5}
                             className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Zoom Out"
                         >
                             <ZoomOut size={18} />
                         </button>
@@ -162,10 +254,20 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
                         </span>
                         <button
                             onClick={handleZoomIn}
-                            disabled={zoom >= 1.5}
+                            disabled={zoom >= 2}
                             className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Zoom In"
                         >
                             <ZoomIn size={18} />
+                        </button>
+                        <div className="w-px h-6 bg-white/20 mx-1"></div>
+                        <button
+                            onClick={handleFitToWidth}
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all flex items-center gap-1"
+                            title="Fit to Width"
+                        >
+                            <RotateCcw size={16} />
+                            <span className="text-xs font-medium">Fit</span>
                         </button>
                     </div>
 
@@ -175,16 +277,18 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
                             onClick={handlePrevPage}
                             disabled={currentPage === 1}
                             className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Previous Page"
                         >
                             <ChevronLeft size={18} />
                         </button>
-                        <span className="text-white font-bold text-sm">
+                        <span className="text-white font-bold text-sm min-w-[100px] text-center">
                             Page {currentPage} of {totalPages}
                         </span>
                         <button
                             onClick={handleNextPage}
                             disabled={currentPage === totalPages}
                             className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Next Page"
                         >
                             <ChevronRight size={18} />
                         </button>
@@ -220,7 +324,7 @@ const Step3Preview: React.FC<Step3PreviewProps> = ({ data, setData, config, onBa
             </div>
 
             {/* Payment Modal */}
-            {showPaymentModal && (
+            {isPaidTemplate && showPaymentModal && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[99999] flex items-center justify-center p-6 animate-in fade-in duration-300">
                     <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative animate-in zoom-in-95 duration-500">
                         <button

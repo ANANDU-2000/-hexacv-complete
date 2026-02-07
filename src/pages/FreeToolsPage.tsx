@@ -31,7 +31,7 @@ export default function FreeToolsPage({ onNavigate, onBack }: FreeToolsPageProps
             icon: Search,
             description: 'Harness AI to dissect job descriptions. Identify high-priority keywords that Applicant Tracking Systems prioritize for your specific role.',
             features: ['Semantic Analysis', 'Frequency Ranking', 'Contextual Mapping'],
-            route: '#/free-ats-keyword-extractor',
+            route: '/free-ats-keyword-extractor',
             badge: 'Popular',
             gradient: 'from-blue-600 to-indigo-600',
             iconColor: 'text-white'
@@ -42,7 +42,7 @@ export default function FreeToolsPage({ onNavigate, onBack }: FreeToolsPageProps
             icon: FileText,
             description: 'An intelligent auditing tool for your CV. Instantly verify the presence of critical keywords and close the gap between your resume and the JD.',
             features: ['Gap Detection', 'Alignment Scoring', 'Instant Reporting'],
-            route: '#/resume-keyword-checker',
+            route: '/resume-keyword-checker',
             gradient: 'from-emerald-500 to-teal-600',
             iconColor: 'text-white'
         },
@@ -52,7 +52,7 @@ export default function FreeToolsPage({ onNavigate, onBack }: FreeToolsPageProps
             icon: Sparkles,
             description: 'Elevate your experience descriptions. Our AI refines passive phrasing into high-impact, achievement-oriented bullet points.',
             features: ['Quantifiable Metrics', 'Active Voice Polish', 'Action Verbs'],
-            route: '#/resume-bullet-improver',
+            route: '/resume-bullet-improver',
             gradient: 'from-amber-500 to-orange-600',
             iconColor: 'text-white'
         },
@@ -62,7 +62,7 @@ export default function FreeToolsPage({ onNavigate, onBack }: FreeToolsPageProps
             icon: Briefcase,
             description: 'Strategic role analysis. Gain insights into seniority expectations, required tech stacks, and cultural indicators buried in job descriptions.',
             features: ['Market Benchmark', 'Tech Stack Audit', 'Soft Skill Mapping'],
-            route: '#/job-description-analyzer',
+            route: '/job-description-analyzer',
             gradient: 'from-purple-600 to-violet-600',
             iconColor: 'text-white'
         },
@@ -72,7 +72,7 @@ export default function FreeToolsPage({ onNavigate, onBack }: FreeToolsPageProps
             icon: List,
             description: 'Structural integrity verification. Ensure your resume adheres to industry standards with every critical section placed for maximum impact.',
             features: ['Layout Validation', 'Missing Section Alerts', 'Industry Standards'],
-            route: '#/resume-section-checker',
+            route: '/resume-section-checker',
             gradient: 'from-rose-500 to-pink-600',
             iconColor: 'text-white'
         }

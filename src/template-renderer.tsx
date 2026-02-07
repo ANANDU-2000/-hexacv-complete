@@ -163,9 +163,9 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
                     body {
                         margin: 0 !important;
                         padding: 0 !important;
-                        height: ${A4_DIMENSIONS.HEIGHT}px !important;
-                        width: max-content !important;
+                        width: 210mm !important;
                         min-width: ${A4_DIMENSIONS.WIDTH}px !important;
+                        max-width: ${A4_DIMENSIONS.WIDTH}px !important;
                         position: relative;
                         
                         /* Column-based pagination */
@@ -187,14 +187,15 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
                         background: white;
                         
                         /* Allow breaking anywhere to fill pages properly */
-                        orphans: 1 !important;
-                        widows: 1 !important;
+                        orphans: 3 !important;
+                        widows: 3 !important;
                     }
                     
                     /* Ensure containers occupy full column width */
                     .resume-container, .main-container, .page-content, .page, body > div {
                         width: ${A4_DIMENSIONS.WIDTH}px !important;
                         max-width: ${A4_DIMENSIONS.WIDTH}px !important;
+                        /* MARGIN CONTROL: Allow template to set its own padding/margins */
                         margin: 0 !important;
                         min-height: 100% !important;
                         height: auto !important; /* Allow dynamic height across columns */
@@ -386,19 +387,23 @@ export const generatePDFFromHTMLTemplate = async (
                     margin: 0 !important;
                     padding: 0 !important;
                     overflow: visible !important;
-                    width: ${A4_DIMENSIONS.WIDTH}px !important;
+                    width: 210mm !important;
                 }
                 body {
                     background: white;
+                    orphans: 3;
+                    widows: 3;
                 }
                 /* Ensure all templates take full width */
                 .resume-container, .main-container, body > div {
-                    width: ${A4_DIMENSIONS.WIDTH}px !important;
+                    width: 210mm !important;
                 }
-                /* Page break support */
-                .page, .resume-page, .section {
+                /* Page break support - REMOVED .section to avoid whitespace gaps */
+                .page, .resume-page {
                     page-break-inside: avoid;
                 }
+                /* Protect entries from breaking inside if possible */
+                .entry, .experience-entry, .education-entry, .project-entry {
                 h1, h2, h3, .section-title {
                     page-break-after: avoid;
                 }

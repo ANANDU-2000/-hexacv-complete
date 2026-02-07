@@ -1,20 +1,6 @@
-# HexaCV Robots.txt
-# https://hexacv.online
-
 User-agent: *
 Allow: /
-
-# Disallow admin and analytics paths
 Disallow: /admin
-Disallow: /analytics
-Disallow: /api/
+Disallow: /admin/*
 
-# Allow search engine crawlers to access all public pages
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-# Sitemap location
-Sitemap: https://hexacv.online/sitemap.xml
+Sitemap: https://hexacv.com/sitemap.xml

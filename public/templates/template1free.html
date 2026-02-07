@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{FULL_NAME}} - Resume</title>
     <style>
-        /* ===========================================
-           A4 PAGE SETUP - FIXED DIMENSIONS
-           =========================================== */
-        @page {
-            size: A4;
-            margin: 0;
-        }
+        /* ================================================
+           PRINT-FIRST ATS RESUME
+           Fixed 210mm Width, Block Layout (No Flex/Grid)
+           ================================================ */
 
         * {
             margin: 0;
@@ -19,427 +17,223 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 794px;
-            margin: 0;
-            padding: 0;
-            background: #FFFFFF;
-        }
-
         body {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 11pt;
-            line-height: 1.15;
-            color: #000000;
-        }
-
-        .resume-container {
-            width: 794px;
-            min-height: 1123px;
-            padding: 0.75in;
-            background: #FFFFFF;
-        }
-
-        /* ===========================================
-           HEADER - FIXED GRID LAYOUT (70/30)
-           Name, Role, Contacts LEFT | Photo RIGHT
-           NEVER wraps, NEVER shifts
-           =========================================== */
-        .header {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            margin-bottom: 12px;
-        }
-
-        .header-left {
-            display: table-cell;
-            width: 70%;
-            vertical-align: top;
-            padding-right: 20px;
-        }
-
-        .header-right {
-            display: table-cell;
-            width: 30%;
-            vertical-align: top;
-            text-align: right;
-        }
-
-        .header h1 {
-            font-size: 16pt;
-            font-weight: 700;
-            margin: 0 0 4px 0;
-            color: #000000;
-            text-align: left;
-            line-height: 1.2;
-        }
-
-        .target-role {
-            font-size: 13pt;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 6px;
-            text-align: left;
-            line-height: 1.2;
-        }
-
-        .contact-info {
-            font-size: 11pt;
-            color: #000000;
-            text-align: left;
-            line-height: 1.3;
-            white-space: normal;
-            word-wrap: break-word;
-        }
-
-        .contact-info a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-
-        /* ===========================================
-           PROFILE PHOTO - RECRUITER VERSION ONLY
-           Fixed 90x90 container, does NOT push text
-           =========================================== */
-        .profile-photo {
-            width: 90px;
-            height: 90px;
-            object-fit: cover;
-            border: 1px solid #333333;
-            display: block;
-            margin-left: auto;
-        }
-
-        /* ===========================================
-           SECTION HEADERS - 12pt Bold ALL CAPS
-           =========================================== */
-        .section-title {
-            font-size: 12pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-bottom: 1px solid #000000;
-            padding-bottom: 2px;
-            margin-top: 12px;
-            margin-bottom: 8px;
-            color: #000000;
-            page-break-after: avoid;
-            break-after: avoid;
-        }
-
-        .section:first-of-type .section-title {
-            margin-top: 0;
-        }
-
-        /* ===========================================
-           PROFESSIONAL SUMMARY
-           =========================================== */
-        .summary-text {
-            font-size: 11pt;
-            line-height: 1.15;
-            text-align: justify;
-            margin-bottom: 8px;
-        }
-
-        /* ===========================================
-           EXPERIENCE - STRICT TWO-COLUMN LAYOUT
-           Role LEFT (70%) | Date RIGHT (30%)
-           Dates NEVER wrap, NEVER move to next line
-           =========================================== */
-        .experience-entry {
-            margin-bottom: 12px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        .experience-header {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            margin-bottom: 2px;
-        }
-
-        .job-title {
-            display: table-cell;
-            width: 70%;
-            font-size: 11pt;
-            font-weight: 700;
-            color: #000000;
-            vertical-align: baseline;
-            padding-right: 10px;
-        }
-
-        .date-range {
-            display: table-cell;
-            width: 30%;
-            font-size: 11pt;
-            font-weight: 400;
-            color: #000000;
-            text-align: right;
-            vertical-align: baseline;
-            white-space: nowrap;
-        }
-
-        .company-name {
-            font-size: 11pt;
-            font-weight: 400;
-            font-style: italic;
-            margin-bottom: 4px;
-        }
-
-        .experience-entry ul {
-            margin: 0 0 0 20px;
-            padding: 0;
-        }
-
-        .experience-entry li {
-            font-size: 11pt;
-            line-height: 1.15;
-            margin-bottom: 3px;
-        }
-
-        /* ===========================================
-           PROJECTS - FIXED TWO-COLUMN LAYOUT
-           =========================================== */
-        .project-entry {
-            margin-bottom: 12px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        .project-header {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            margin-bottom: 2px;
-        }
-
-        .project-title {
-            display: table-cell;
-            width: 70%;
-            font-size: 11pt;
-            font-weight: 700;
-            vertical-align: baseline;
-            padding-right: 10px;
-        }
-
-        .project-date {
-            display: table-cell;
-            width: 30%;
-            font-size: 11pt;
-            text-align: right;
-            vertical-align: baseline;
-            white-space: nowrap;
-        }
-
-        .project-entry ul {
-            margin: 0 0 0 20px;
-            padding: 0;
-        }
-
-        .project-entry li {
-            font-size: 11pt;
-            line-height: 1.15;
-            margin-bottom: 3px;
-        }
-
-        /* ===========================================
-           EDUCATION - FIXED TWO-COLUMN LAYOUT
-           =========================================== */
-        .education-entry {
-            margin-bottom: 8px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        .education-header {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            margin-bottom: 2px;
-        }
-
-        .degree {
-            display: table-cell;
-            width: 70%;
-            font-size: 11pt;
-            font-weight: 700;
-            vertical-align: baseline;
-            padding-right: 10px;
-        }
-
-        .education-year {
-            display: table-cell;
-            width: 30%;
-            font-size: 11pt;
-            text-align: right;
-            vertical-align: baseline;
-            white-space: nowrap;
-        }
-
-        .institution {
-            font-size: 11pt;
-            font-style: italic;
-        }
-
-        /* ===========================================
-           SKILLS - TWO COLUMN LAYOUT
-           =========================================== */
-        .skills-content {
-            column-count: 2;
-            column-gap: 20px;
+            font-family: 'Arial', sans-serif;
             font-size: 11pt;
             line-height: 1.3;
+            color: #2c3e50;
+            background: #fff;
+            orphans: 3;
+            widows: 3;
         }
 
-        /* ===========================================
-           ACHIEVEMENTS & CERTIFICATIONS
-           =========================================== */
-        .achievements ul,
-        .certifications ul {
-            margin: 0 0 0 12pt;
-            padding: 0;
-            list-style-type: disc;
+        /* STRICT PDF METADATA REMOVAL */
+        @page {
+            size: A4;
+            margin: 0.6in 0.7in;
         }
 
-        .achievements li,
-        .certifications li {
-            font-size: 11pt;
-            line-height: 1.45;
-            margin-bottom: 4px;
-            padding-left: 6pt;
-            color: #000000;
-        }
-
-        /* ===========================================
-           KEYWORD HIGHLIGHTING - ATS-safe bold
-           =========================================== */
-        strong {
-            font-weight: 700 !important;
-            color: #000000 !important;
-        }
-
-        /* ===========================================
-           PAGE BREAK CONTROL - SMART BREAKING
-           Rules:
-           - Never split one experience across pages
-           - If < 4 lines fit, move entire block to next page
-           - Education must stay together
-           - Section titles must not be orphaned
-           =========================================== */
         @media print {
-            html, body {
-                width: 794px;
-                height: auto;
-            }
-
             body {
-                padding: 0.75in;
-            }
-
-            .resume-container {
-                padding: 0;
-            }
-
-            /* Section titles must not appear alone at bottom */
-            .section-title {
-                page-break-after: avoid;
-                break-after: avoid;
-                orphans: 3;
-                widows: 3;
-            }
-
-            /* Keep individual entries together - NEVER split */
-            .experience-entry,
-            .project-entry,
-            .education-entry {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-
-            /* Keep sections that should stay together */
-            .section.education,
-            .section.achievements,
-            .section.certifications {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-
-            /* Prevent orphan headers */
-            h1, h2, h3, h4,
-            .section-title,
-            .job-title,
-            .project-title,
-            .degree,
-            .company-name {
-                page-break-after: avoid;
-                break-after: avoid;
-            }
-
-            /* Allow breaking after complete entries */
-            .experience-entry:last-child,
-            .project-entry:last-child {
-                page-break-after: auto;
-                break-after: auto;
-            }
-        }
-
-        /* ===========================================
-           PRINT-SPECIFIC OVERRIDES
-           Ensures PDF matches preview exactly
-           =========================================== */
-        @media print {
-            @page {
-                size: A4;
                 margin: 0;
             }
 
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            header,
+            footer {
+                display: none !important;
             }
+        }
 
-            a {
-                color: #0066cc !important;
-                text-decoration: none !important;
-            }
+        .resume-container {
+            display: block;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 18mm;
+            margin: 0 auto;
+            background: #fff;
+            overflow: visible;
+        }
 
-            .profile-photo {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+        /* HEADER SECTION (STRICT LEFT ALIGN) */
+        .header {
+            margin-bottom: 8mm;
+            text-align: left;
+            border-bottom: 4pt solid #2c3e50;
+            padding-bottom: 4mm;
+            page-break-inside: avoid;
+            display: block;
+            clear: both;
+        }
+
+        h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 1.5mm;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .header-role {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 2mm;
+            display: block;
+        }
+
+        .contact-line {
+            font-size: 10.5pt;
+            color: #4b5e71;
+            display: block;
+            line-height: 1.3;
+        }
+
+        .profile-photo {
+            width: 30mm;
+            height: 30mm;
+            border-radius: 50%;
+            object-fit: cover;
+            float: right;
+            margin-left: 5mm;
+            margin-bottom: 5mm;
+        }
+
+        /* SECTION STYLES */
+        .section {
+            margin-bottom: 5mm;
+            page-break-inside: auto;
+            display: block;
+            clear: both;
+        }
+
+        .section-title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1pt solid #000;
+            margin-bottom: 3mm;
+            page-break-after: avoid;
+            display: block;
+        }
+
+        /* ENTRY LAYOUT (FLOAT-BASED) */
+        .experience-entry,
+        .project-entry,
+        .education-entry,
+        .entry {
+            margin-bottom: 4mm;
+            page-break-inside: avoid;
+            display: block;
+            clear: both;
+        }
+
+        .entry-header {
+            display: block;
+            width: 100%;
+            margin-bottom: 1mm;
+            clear: both;
+            height: auto;
+            overflow: hidden;
+        }
+
+        .left-col {
+            float: left;
+            width: 75%;
+            text-align: left;
+        }
+
+        .right-col {
+            float: right;
+            width: 25%;
+            text-align: right;
+        }
+
+        .job-title,
+        .project-title,
+        .degree {
+            font-weight: bold;
+            font-size: 11pt;
+            display: block;
+        }
+
+        .company-info,
+        .institution {
+            display: block;
+            font-style: italic;
+            font-size: 10.5pt;
+            margin-top: 0.5mm;
+        }
+
+        .date-range,
+        .project-date,
+        .date {
+            font-weight: bold;
+            font-size: 10pt;
+            color: #000;
+        }
+
+        /* CONTENT STYLES */
+        .summary-text,
+        .skills-content,
+        .entry-content {
+            font-size: 10.5pt;
+            line-height: 1.3;
+            display: block;
+            clear: both;
+            text-align: justify;
+        }
+
+        ul {
+            margin-left: 6mm;
+            margin-top: 1mm;
+            display: block;
+            list-style-type: disc;
+        }
+
+        li {
+            margin-bottom: 1mm;
+            display: list-item;
+            padding-left: 1mm;
+        }
+
+        .achievement-item {
+            margin-bottom: 1mm;
+            display: block;
         }
     </style>
 </head>
 
 <body>
     <div class="resume-container">
-        <!-- HEADER - Fixed Grid Layout -->
+        <!-- HEADER -->
         <div class="header">
-            <div class="header-left">
-                <h1>{{FULL_NAME}}</h1>
-                {{#if JOB_TITLE}}
-                <div class="target-role">{{JOB_TITLE}}</div>
-                {{/if}}
-                <div class="contact-info">
-                    {{#if EMAIL}}<a href="mailto:{{EMAIL}}">{{EMAIL}}</a>{{/if}}
-                    {{#if PHONE}} | {{PHONE}}{{/if}}
-                    {{#if LINKEDIN}} | <a href="{{LINKEDIN}}">LinkedIn</a>{{/if}}
-                    {{#if GITHUB}} | <a href="{{GITHUB}}">GitHub</a>{{/if}}
-                </div>
-            </div>
-            <div class="header-right">
-                {{#if PHOTO_URL}}
-                <img class="profile-photo" src="{{PHOTO_URL}}" alt="{{FULL_NAME}}" />
-                {{/if}}
-            </div>
+            {{#if PHOTO_URL}}
+            <img class="profile-photo" src="{{PHOTO_URL}}" alt="{{FULL_NAME}}" />
+            {{/if}}
+
+            <h1>{{FULL_NAME}}</h1>
+
+            {{#if JOB_TITLE}}
+            <div class="header-role">{{JOB_TITLE}}</div>
+            {{/if}}
+
+            <div class="contact-line">{{CONTACT_LINE}}</div>
         </div>
 
-        <!-- PROFESSIONAL SUMMARY -->
+        <!-- SUMMARY -->
         {{#if PROFILE}}
         <div class="section">
             <div class="section-title">PROFESSIONAL SUMMARY</div>
-            <p class="summary-text">{{PROFILE}}</p>
+            <div class="summary-text">{{PROFILE}}</div>
+        </div>
+        {{/if}}
+
+        <!-- SKILLS -->
+        {{#if SKILLS_LIST}}
+        <div class="section">
+            <div class="section-title">SKILLS</div>
+            <div class="skills-content">{{SKILLS_TEXT}}</div>
         </div>
         {{/if}}
 
@@ -459,34 +253,23 @@
         </div>
         {{/if}}
 
-        <!-- SKILLS -->
-        {{#if SKILLS_LIST}}
+        <!-- EDUCATION -->
+        {{#if EDUCATION_ENTRIES}}
         <div class="section">
-            <div class="section-title">SKILLS</div>
-            <div class="skills-content">
-                {{SKILLS_LIST}}
-            </div>
+            <div class="section-title">EDUCATION</div>
+            {{EDUCATION_ENTRIES}}
         </div>
         {{/if}}
 
-        <!-- ACHIEVEMENTS & CERTIFICATIONS -->
+        <!-- ACHIEVEMENTS -->
         {{#if ACHIEVEMENTS_ENTRIES}}
-        <div class="section achievements">
+        <div class="section">
             <div class="section-title">ACHIEVEMENTS & CERTIFICATIONS</div>
             <ul>
                 {{ACHIEVEMENTS_ENTRIES}}
             </ul>
         </div>
         {{/if}}
-
-        <!-- EDUCATION -->
-        {{#if EDUCATION_ENTRIES}}
-        <div class="section education">
-            <div class="section-title">EDUCATION</div>
-            {{EDUCATION_ENTRIES}}
-        </div>
-        {{/if}}
-
     </div>
 </body>
 

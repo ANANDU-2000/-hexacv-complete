@@ -79,6 +79,7 @@ export function RoleMarketStep({ onComplete, initialData }: RoleMarketStepProps)
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>(
     initialData?.experienceLevel || 'fresher'
   );
+  const [activeTab, setActiveTab] = useState(1);
   const [showRoleSuggestions, setShowRoleSuggestions] = useState(false);
   const [roleCorrection, setRoleCorrection] = useState<string | null>(null);
   const [roleCategoryFilter, setRoleCategoryFilter] = useState<string>('All');
@@ -500,126 +501,157 @@ export function RoleMarketStep({ onComplete, initialData }: RoleMarketStepProps)
         </div>
       </div>
 
-      {/* Mobile Layout - Premium BW iOS */}
+      {/* Mobile Layout - Premium BW iOS with Tabs */}
       <div className="lg:hidden min-h-screen bg-white flex flex-col font-sans">
         {/* iOS Header */}
-        <div className="flex-none pt-12 pb-6 px-6 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex flex-col items-center">
+        <div className="flex-none pt-12 pb-4 px-6 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex flex-col items-center sticky top-0 z-[110]">
           <div className="w-12 h-1 bg-gray-200 rounded-full mb-6" />
-          <div className="flex items-center justify-between w-full mb-6">
-            <span className="text-[11px] font-black text-gray-300 uppercase tracking-widest">Step 1 of 6</span>
+          <div className="flex items-center justify-between w-full mb-4">
+            <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Setup Phase</span>
             <div className="flex gap-1">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === 1 ? 'w-8 bg-black' : 'w-2 bg-gray-100'}`} />
+              {[1, 2, 3].map(i => (
+                <div key={i} className={`h-1 rounded-full transition-all duration-500 ${activeTab === i ? 'w-8 bg-black' : 'w-2 bg-gray-100'}`} />
               ))}
             </div>
           </div>
 
-          <div className="w-full">
-            <h1 className="text-3xl font-black text-black tracking-tighter leading-tight">
-              What role are you <br />targeting?
-            </h1>
-            <p className="text-[13px] font-medium text-gray-500 mt-2">
-              Define your career path for AI optimization.
-            </p>
+          {/* Tab Navigation */}
+          <div className="flex w-full bg-gray-50 p-1 rounded-xl mb-4">
+            <button
+              onClick={() => setActiveTab(1)}
+              className={`flex-1 py-1.5 text-[11px] font-black uppercase tracking-tighter rounded-lg transition-all ${activeTab === 1 ? 'bg-white text-black shadow-sm' : 'text-gray-400'}`}
+            >
+              1. Target
+            </button>
+            <button
+              onClick={() => setActiveTab(2)}
+              className={`flex-1 py-1.5 text-[11px] font-black uppercase tracking-tighter rounded-lg transition-all ${activeTab === 2 ? 'bg-white text-black shadow-sm' : 'text-gray-400'}`}
+            >
+              2. Market
+            </button>
+            <button
+              onClick={() => setActiveTab(3)}
+              className={`flex-1 py-1.5 text-[11px] font-black uppercase tracking-tighter rounded-lg transition-all ${activeTab === 3 ? 'bg-white text-black shadow-sm' : 'text-gray-400'}`}
+            >
+              3. Level
+            </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 px-6 pt-8 pb-32 space-y-10 overflow-y-auto no-scrollbar">
-          {/* Target Role Input */}
-          <div className="space-y-4">
-            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Target Role</label>
-            <div className="relative" ref={inputRef}>
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={targetRole}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onFocus={() => setShowRoleSuggestions(true)}
-                placeholder="e.g. Software Engineer"
-                className={`w-full h-14 pl-12 pr-12 bg-gray-50 border-none rounded-2xl text-[16px] font-bold text-black placeholder:text-gray-300 focus:ring-2 focus:ring-black/5 transition-all`}
-              />
-              {selectedRole && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
-                  <Check size={14} strokeWidth={3} />
+        <div className="flex-1 px-6 pt-6 pb-40 space-y-8 overflow-y-auto no-scrollbar">
+          {activeTab === 1 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div>
+                <h1 className="text-3xl font-black text-black tracking-tighter leading-tight">What's your <br />target role?</h1>
+                <p className="text-[13px] font-medium text-gray-500 mt-2 italic">Search from 500+ SEO-verified job titles.</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="relative" ref={inputRef}>
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={targetRole}
+                    onChange={(e) => handleInputChange(e.target.value)}
+                    onFocus={() => setShowRoleSuggestions(true)}
+                    placeholder="e.g. Senior Frontend Engineer"
+                    className="w-full h-14 pl-12 pr-12 bg-gray-50 border-none rounded-2xl text-[16px] font-bold text-black placeholder:text-gray-300 focus:ring-2 focus:ring-black/5 transition-all"
+                  />
+                  {selectedRole && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                      <Check size={14} strokeWidth={3} />
+                    </div>
+                  )}
+
+                  {showRoleSuggestions && filteredRoles.length > 0 && (
+                    <div className="absolute z-[100] w-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                      {filteredRoles.slice(0, 10).map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); handleRoleSelect(role); setActiveTab(2); }}
+                          className="w-full px-6 py-4 text-left active:bg-gray-50 flex items-center justify-between border-b border-gray-50 last:border-none"
+                        >
+                          <span className="text-black text-[14px] font-bold">{role}</span>
+                          {selectedRole === role && <Check size={16} className="text-emerald-500" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+                <button
+                  onClick={() => setActiveTab(2)}
+                  className="w-full h-12 mt-4 bg-gray-100 text-black font-black text-[13px] rounded-xl flex items-center justify-center gap-2"
+                >
+                  Continue to Market
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
 
-              {showRoleSuggestions && filteredRoles.length > 0 && (
-                <div className="absolute z-[100] w-full mt-2 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-ios-lg border border-gray-100 overflow-hidden max-h-60 overflow-y-auto animate-in slide-in-from-top-2">
-                  {filteredRoles.slice(0, 10).map((role, idx) => (
-                    <button
-                      key={role}
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        handleRoleSelect(role);
-                      }}
-                      className={`w-full px-6 py-4 text-left active:bg-gray-50 transition-colors flex items-center justify-between border-b border-gray-50 last:border-none`}
-                    >
-                      <span className="text-black text-[14px] font-bold">{role}</span>
-                      {selectedRole === role && <Check size={16} className="text-black" />}
-                    </button>
-                  ))}
+          {activeTab === 2 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+              <div>
+                <h1 className="text-3xl font-black text-black tracking-tighter leading-tight">Regional <br />Preferences</h1>
+                <p className="text-[13px] font-medium text-gray-500 mt-2">ATS rules vary by region. Choose yours.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {MARKET_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => { setTargetMarket(option.value); setActiveTab(3); }}
+                    className={`h-20 rounded-2xl border-2 flex flex-col items-center justify-center gap-1 transition-all
+                      ${targetMarket === option.value
+                        ? 'bg-black border-black text-white'
+                        : 'bg-white border-gray-100 text-gray-400'
+                      }`}
+                  >
+                    <span className="text-[15px] font-black uppercase tracking-widest">{option.label}</span>
+                    <span className="text-[9px] font-bold opacity-60">Selection</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 3 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+              <div>
+                <h1 className="text-3xl font-black text-black tracking-tighter leading-tight">Professional <br />Seniority</h1>
+                <p className="text-[13px] font-medium text-gray-500 mt-2">We adapt section order to your level.</p>
+              </div>
+
+              <div className="space-y-2.5">
+                {EXPERIENCE_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setExperienceLevel(option.value as any)}
+                    className={`w-full h-16 px-6 rounded-2xl border transition-all flex items-center justify-between
+                      ${experienceLevel === option.value
+                        ? 'bg-black border-black text-white shadow-lg'
+                        : 'bg-white border-gray-100 text-black'
+                      }`}
+                  >
+                    <span className="text-[16px] font-black">{option.label} Level</span>
+                    <span className="text-[11px] font-bold opacity-60 uppercase">{option.years}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles size={12} className="text-blue-600" />
+                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">AI Strategy</span>
                 </div>
-              )}
+                <p className="text-[11px] font-bold text-blue-800 leading-relaxed">
+                  Your resume will focus on <span className="underline decoration-blue-300 decoration-2">{guidance.experience.focus}</span>.
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* Market Selection */}
-          <div className="space-y-4">
-            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Execution Market</label>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-              {MARKET_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setTargetMarket(option.value)}
-                  className={`h-11 px-6 rounded-full border-2 whitespace-nowrap text-sm font-bold transition-all
-                    ${targetMarket === option.value
-                      ? 'bg-black border-black text-white shadow-ios-sm'
-                      : 'bg-white border-gray-100 text-gray-400 hover:border-gray-200'
-                    }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Experience Grid - Matching User Screenshot but Premium */}
-          <div className="space-y-4">
-            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Experience Level</label>
-            <div className="space-y-2.5">
-              {EXPERIENCE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setExperienceLevel(option.value as any)}
-                  className={`w-full h-16 px-6 rounded-2xl border transition-all flex items-center justify-between active:scale-[0.98]
-                    ${experienceLevel === option.value
-                      ? 'bg-black border-black text-white shadow-ios-md'
-                      : 'bg-white border-gray-100 text-black shadow-ios-sm'
-                    }`}
-                >
-                  <span className={`text-[16px] font-bold ${experienceLevel === option.value ? 'text-white' : 'text-black'}`}>
-                    {option.label}
-                  </span>
-                  <span className={`text-[12px] font-medium transition-colors ${experienceLevel === option.value ? 'text-gray-400' : 'text-gray-400'}`}>
-                    {option.years}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-50/50 rounded-3xl p-6 border border-gray-100/50">
-            <div className="flex items-center gap-3 mb-3">
-              <Sparkles size={16} className="text-black" />
-              <h3 className="text-sm font-bold text-black uppercase tracking-wider">AI Optimization</h3>
-            </div>
-            <p className="text-xs font-medium text-gray-400 leading-relaxed">
-              Matching keywords for <span className="text-black font-bold">{selectedRole || 'your role'}</span> in the <span className="text-black font-bold">{targetMarket}</span> market.
-            </p>
-          </div>
+          )}
         </div>
 
         {/* Sticky iOS CTA */}
@@ -629,11 +661,11 @@ export function RoleMarketStep({ onComplete, initialData }: RoleMarketStepProps)
             disabled={!canContinue}
             className={`w-full h-16 rounded-2xl font-black text-[16px] flex items-center justify-center gap-3 transition-all
               ${canContinue
-                ? 'bg-black text-white shadow-ios-lg active:scale-[0.97]'
+                ? 'bg-black text-white shadow-2xl active:scale-[0.97]'
                 : 'bg-gray-100 text-gray-300'
               }`}
           >
-            <span>Continue to Build</span>
+            <span>Generate Structure</span>
             <ArrowRight size={20} strokeWidth={4} />
           </button>
         </div>

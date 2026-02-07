@@ -5,7 +5,7 @@
 
 // API Configuration - FREE TIER APIs
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || '';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -94,56 +94,80 @@ MANDATORY RULES:
 4. Use "Present" for current jobs
 5. Return valid JSON only.`;
 
-    const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${GROQ_API_KEY}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0,
-            max_tokens: 8000
-        })
-    });
+    // Add timeout for network requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-    if (!response.ok) {
-        console.error('Groq API error:', response.status);
+    try {
+        const response = await fetch(GROQ_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0,
+                max_tokens: 8000
+            }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Groq API error:', response.status, errorText);
+
+            // Handle specific error codes
+            if (response.status === 401) {
+                console.error('Invalid API key for Groq.');
+            } else if (response.status === 429) {
+                console.error('Rate limit exceeded for Groq.');
+            } else if (response.status === 400) {
+                console.error('Bad request to Groq API.');
+            }
+
+            return null;
+        }
+
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || '';
+
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) return null;
+
+        const parsed = JSON.parse(jsonMatch[0]);
+        const validated = validateParsedResume(parsed);
+
+        const extractedFields: string[] = [];
+        const missingFields: string[] = [];
+
+        if (validated.name) extractedFields.push('Name'); else missingFields.push('Name');
+        if (validated.email) extractedFields.push('Email'); else missingFields.push('Email');
+        if (validated.phone) extractedFields.push('Phone'); else missingFields.push('Phone');
+        if (validated.linkedin) extractedFields.push('LinkedIn');
+        if (validated.github) extractedFields.push('GitHub');
+        if (validated.profile) extractedFields.push('Profile');
+        if (validated.skills.length > 0) extractedFields.push('Skills'); else missingFields.push('Skills');
+        if (validated.experience.length > 0) extractedFields.push('Experience'); else missingFields.push('Experience');
+        if (validated.education.length > 0) extractedFields.push('Education'); else missingFields.push('Education');
+        if (validated.projects.length > 0) extractedFields.push('Projects');
+
+        const confidence = (extractedFields.length / (extractedFields.length + missingFields.length)) * 100;
+
+        return {
+            resume: validated,
+            confidence: Math.round(confidence),
+            extractedFields,
+            missingFields
+        };
+    } catch (e) {
+        clearTimeout(timeoutId);
+        console.error('Groq parse error:', e);
         return null;
     }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
-
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
-
-    const parsed = JSON.parse(jsonMatch[0]);
-    const validated = validateParsedResume(parsed);
-
-    const extractedFields: string[] = [];
-    const missingFields: string[] = [];
-
-    if (validated.name) extractedFields.push('Name'); else missingFields.push('Name');
-    if (validated.email) extractedFields.push('Email'); else missingFields.push('Email');
-    if (validated.phone) extractedFields.push('Phone'); else missingFields.push('Phone');
-    if (validated.linkedin) extractedFields.push('LinkedIn');
-    if (validated.github) extractedFields.push('GitHub');
-    if (validated.profile) extractedFields.push('Profile');
-    if (validated.skills.length > 0) extractedFields.push('Skills'); else missingFields.push('Skills');
-    if (validated.experience.length > 0) extractedFields.push('Experience'); else missingFields.push('Experience');
-    if (validated.education.length > 0) extractedFields.push('Education'); else missingFields.push('Education');
-    if (validated.projects.length > 0) extractedFields.push('Projects');
-
-    const confidence = (extractedFields.length / (extractedFields.length + missingFields.length)) * 100;
-
-    return {
-        resume: validated,
-        confidence: Math.round(confidence),
-        extractedFields,
-        missingFields
-    };
 }
 
 /**
@@ -156,8 +180,14 @@ export async function parseResumeWithAI(rawText: string): Promise<ExtractionResu
     const now = Date.now();
 
     // Reset availability after cooldown
-    if (!groqAvailable && (now - lastGroqError) >= ERROR_COOLDOWN) groqAvailable = true;
-    if (!geminiAvailable && (now - lastGeminiError) >= ERROR_COOLDOWN) geminiAvailable = true;
+    if (!groqAvailable && (now - lastGroqError) >= ERROR_COOLDOWN) {
+        console.log('Resetting Groq availability');
+        groqAvailable = true;
+    }
+    if (!geminiAvailable && (now - lastGeminiError) >= ERROR_COOLDOWN) {
+        console.log('Resetting Gemini availability');
+        geminiAvailable = true;
+    }
 
     // Try Groq first (2x faster than Gemini)
     if (groqAvailable) {
@@ -172,17 +202,8 @@ export async function parseResumeWithAI(rawText: string): Promise<ExtractionResu
     }
 
     // Fallback to Gemini
-    if (!geminiAvailable && (now - lastGeminiError) < ERROR_COOLDOWN) {
-        console.log('All APIs unavailable, using fallback');
-        return fallbackParse(cleanedText);
-    }
-
-    // Reset Gemini after cooldown
-    if (!geminiAvailable && (now - lastGeminiError) >= ERROR_COOLDOWN) {
-        geminiAvailable = true;
-    }
-
-    const prompt = `You are a VERBATIM resume extraction engine. COPY ALL TEXT EXACTLY AS WRITTEN.
+    if (geminiAvailable && GEMINI_API_KEY) {
+        const prompt = `You are a VERBATIM resume extraction engine. COPY ALL TEXT EXACTLY AS WRITTEN.
 
 RESUME TEXT:
 ${cleanedText.slice(0, 20000)}
@@ -236,94 +257,96 @@ MANDATORY RULES:
 
 Return ONLY valid JSON.`;
 
-    try {
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    temperature: 0,
-                    maxOutputTokens: 16000,
-                }
-            })
-        });
+        // Add timeout for network requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout for Gemini
 
-        if (!response.ok) {
-            console.error('Gemini API error:', response.status, await response.text());
+        try {
+            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0,
+                        maxOutputTokens: 16000,
+                    }
+                }),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Gemini API error:', response.status, errorText);
+
+                // Handle specific error codes
+                if (response.status === 404) {
+                    console.error('Gemini model not found. Please check the model name.');
+                } else if (response.status === 401) {
+                    console.error('Invalid API key for Gemini.');
+                } else if (response.status === 429) {
+                    console.error('Rate limit exceeded for Gemini.');
+                }
+
+                geminiAvailable = false;
+                lastGeminiError = Date.now();
+                return fallbackParse(cleanedText);
+            }
+
+            const data = await response.json();
+            const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+            // Clean the response - remove markdown code blocks if present
+            let jsonStr = responseText
+                .replace(/```json\s*/g, '')
+                .replace(/```\s*/g, '')
+                .trim();
+
+            // Try to extract JSON from response
+            const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                console.error('No valid JSON in response');
+                return fallbackParse(cleanedText);
+            }
+
+            const parsed = JSON.parse(jsonMatch[0]) as ParsedResume;
+            const validated = validateParsedResume(parsed);
+
+            const extractedFields: string[] = [];
+            const missingFields: string[] = [];
+
+            if (validated.name) extractedFields.push('Name'); else missingFields.push('Name');
+            if (validated.email) extractedFields.push('Email'); else missingFields.push('Email');
+            if (validated.phone) extractedFields.push('Phone'); else missingFields.push('Phone');
+            if (validated.linkedin) extractedFields.push('LinkedIn');
+            if (validated.github) extractedFields.push('GitHub');
+            if (validated.profile) extractedFields.push('Profile');
+            if (validated.skills.length > 0 && validated.skills.some(s => s.items.length > 0)) extractedFields.push('Skills'); else missingFields.push('Skills');
+            if (validated.experience.length > 0) extractedFields.push('Experience'); else missingFields.push('Experience');
+            if (validated.education.length > 0) extractedFields.push('Education'); else missingFields.push('Education');
+            if (validated.projects.length > 0) extractedFields.push('Projects');
+
+            const confidence = (extractedFields.length / (extractedFields.length + missingFields.length)) * 100;
+
+            return {
+                resume: validated,
+                confidence: Math.round(confidence),
+                extractedFields,
+                missingFields
+            };
+        } catch (e) {
+            clearTimeout(timeoutId);
+            console.error('Gemini failed, using fallback', e);
             geminiAvailable = false;
             lastGeminiError = Date.now();
             return fallbackParse(cleanedText);
         }
-
-        const data = await response.json();
-        const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-        // Clean the response - remove markdown code blocks if present
-        let jsonStr = responseText
-            .replace(/```json\s*/g, '')
-            .replace(/```\s*/g, '')
-            .trim();
-
-        // Try to extract JSON from response
-        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            console.error('No valid JSON in response');
-            return fallbackParse(cleanedText);
-        }
-
-        const parsed = JSON.parse(jsonMatch[0]) as ParsedResume;
-
-        // Validate and clean the parsed data
-        const validated = validateParsedResume(parsed);
-
-        // Determine what was extracted vs missing
-        const extractedFields: string[] = [];
-        const missingFields: string[] = [];
-
-        if (validated.name) extractedFields.push('Name');
-        else missingFields.push('Name');
-
-        if (validated.email) extractedFields.push('Email');
-        else missingFields.push('Email');
-
-        if (validated.phone) extractedFields.push('Phone');
-        else missingFields.push('Phone');
-
-        if (validated.linkedin) extractedFields.push('LinkedIn');
-        if (validated.github) extractedFields.push('GitHub');
-
-        if (validated.profile) extractedFields.push('Profile');
-
-        if (validated.skills.length > 0 && validated.skills.some(s => s.items.length > 0)) {
-            extractedFields.push('Skills');
-        } else {
-            missingFields.push('Skills');
-        }
-
-        if (validated.experience.length > 0) extractedFields.push('Experience');
-        else missingFields.push('Experience');
-
-        if (validated.education.length > 0) extractedFields.push('Education');
-        else missingFields.push('Education');
-
-        if (validated.projects.length > 0) extractedFields.push('Projects');
-
-        const confidence = (extractedFields.length / (extractedFields.length + missingFields.length)) * 100;
-
-        return {
-            resume: validated,
-            confidence: Math.round(confidence),
-            extractedFields,
-            missingFields
-        };
-
-    } catch (error) {
-        console.error('AI parsing error:', error);
-        geminiAvailable = false;
-        lastGeminiError = Date.now();
-        return fallbackParse(cleanedText);
     }
+
+    console.log('No AI available, using fallback');
+    return fallbackParse(cleanedText);
 }
 
 /**
@@ -343,7 +366,6 @@ function validateParsedResume(parsed: any): ParsedResume {
         }
 
         // Fix date format - prevent future dates
-        // Convert "01/2025" to "2025-01" for proper validation
         const dateMatch = d.match(/(\d{1,2})\/(\d{4})/);
         if (dateMatch) {
             const month = dateMatch[1].padStart(2, '0');
@@ -351,7 +373,6 @@ function validateParsedResume(parsed: any): ParsedResume {
             const dateObj = new Date(`${year}-${month}-01`);
             const now = new Date();
 
-            // If date is in future, cap to present
             if (dateObj > now) {
                 return 'Present';
             }
@@ -366,7 +387,7 @@ function validateParsedResume(parsed: any): ParsedResume {
         phone: clean(parsed.phone),
         linkedin: clean(parsed.linkedin),
         github: clean(parsed.github),
-        profile: clean(parsed.profile), // NO TRUNCATION - Keep full summary
+        profile: clean(parsed.profile),
         skills: Array.isArray(parsed.skills)
             ? parsed.skills.map((s: any) => ({
                 category: clean(s.category) || 'General',
@@ -596,9 +617,6 @@ function fallbackJDMatch(resume: ParsedResume, jdText: string): JDMatchResult {
 /**
  * Determine what validation issues are REAL (not just extraction misses)
  */
-/**
- * Determine what validation issues are REAL (not just extraction misses)
- */
 export function getSmartValidationIssues(result: ExtractionResult): {
     errors: { field: string; message: string }[];
     warnings: { field: string; message: string }[];
@@ -636,14 +654,12 @@ export function getSmartValidationIssues(result: ExtractionResult): {
         warnings.push({ field: 'experience', message: 'No experience listed' });
     } else {
         r.experience.forEach((exp, i) => {
-            // Check if this is part-time experience
             const isPartTime = /part[-\s]?time|intern|internship|contract|freelance|temporary|seasonal|student|trainee|apprentice/i.test(exp.role + ' ' + exp.company);
 
             if (!exp.role) errors.push({ field: `exp_${i}_role`, message: `Experience ${i + 1}: Role missing` });
             if (!exp.company) warnings.push({ field: `exp_${i}_company`, message: `Experience ${i + 1}: Company recommended` });
 
             if (exp.startDate && exp.endDate && exp.endDate.toLowerCase() !== 'present') {
-                // Only validate if both dates exist
                 const startYear = extractYear(exp.startDate);
                 const endYear = extractYear(exp.endDate);
                 if (startYear && endYear && startYear > endYear) {
@@ -662,7 +678,6 @@ export function getSmartValidationIssues(result: ExtractionResult): {
                     message: `${exp.role}: Consider adding achievements`
                 });
             } else if (exp.bullets.length > 0) {
-                // Strong Check: Look for metrics
                 const hasMetrics = exp.bullets.some(b => /\d+%|\$\d+|\d+x|\d+\+/.test(b));
                 if (!hasMetrics && !isPartTime) {
                     warnings.push({
@@ -671,7 +686,6 @@ export function getSmartValidationIssues(result: ExtractionResult): {
                     });
                 }
 
-                // Content length check
                 if (exp.bullets.some(b => b.length < 15)) {
                     warnings.push({
                         field: `exp_${i}_bullets`,
@@ -692,7 +706,7 @@ export function getSmartValidationIssues(result: ExtractionResult): {
         warnings.push({ field: 'skills', message: 'No skills extracted' });
     }
 
-    // Check for profile inconsistencies (e.g., saying "fresher" but having 10 years exp)
+    // Check for profile inconsistencies
     const profileText = r.profile.toLowerCase();
     const totalYears = r.experience.reduce((sum, exp) => {
         const isPartTime = /part[-\s]?time|intern|internship|contract|freelance|temporary|seasonal|student|trainee|apprentice/i.test(exp.role + ' ' + exp.company);
@@ -736,15 +750,12 @@ export function detectProfileType(resume: ParsedResume): { type: string; years: 
     const currentYear = now.getFullYear();
 
     for (const exp of resume.experience) {
-        // Check if this is part-time/internship experience
         const isPartTime = /part[-\s]?time|intern|internship|contract|freelance|temporary|seasonal|student|trainee|apprentice/i.test(exp.role + ' ' + exp.company);
-
         const startYear = extractYear(exp.startDate);
         let endYear = exp.endDate.toLowerCase() === 'present' ? currentYear : extractYear(exp.endDate);
 
         if (startYear && endYear) {
             const years = Math.max(0, endYear - startYear);
-            // Only count 100% of full-time experience, 50% of part-time
             totalYears += isPartTime ? years * 0.5 : years;
         }
     }
@@ -797,7 +808,6 @@ export async function refineResumeSummary(profile: string, jobTitle: string): Pr
 
         const data = await response.json();
         const refined = data.choices?.[0]?.message?.content?.trim() || profile;
-        // Clean up any potential markdown or quotes
         return refined.replace(/^["']|["']$/g, '');
     } catch (e) {
         console.error('Refine error:', e);

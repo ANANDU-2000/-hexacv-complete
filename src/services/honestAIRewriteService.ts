@@ -233,7 +233,7 @@ Return JSON:
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      throw new Error(`AI API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -322,8 +322,6 @@ function rewriteWithRules(
   const verbs = intelligence.bulletLanguage.actionVerbs;
   if (verbs.length > 0) {
     const firstVerb = verbs[0];
-    const lower = original.toLowerCase();
-
     // Replace weak verbs
     if (/^(built|created|made|worked on|helped|did)/i.test(original)) {
       rewritten = original.replace(/^[^ ]+/, firstVerb);

@@ -50,14 +50,14 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
     useEffect(() => {
         async function checkUnlocks() {
             setCheckingStatus(true);
-            
+
             // Get paid templates
             const paidTemplates = templates.filter(t => (t as any).finalPrice > 0 || t.price > 0);
-            
+
             // Check each paid template's unlock status from server
             const unlocks: string[] = [];
             const pending: string[] = [];
-            
+
             await Promise.all(
                 paidTemplates.map(async (template) => {
                     const isUnlocked = await checkTemplateUnlockStatus(template.id, sessionId);
@@ -72,14 +72,14 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
                     }
                 })
             );
-            
+
             setUnlockedTemplates(unlocks);
             setPendingTemplates(pending);
             setCheckingStatus(false);
         }
-        
+
         checkUnlocks();
-        
+
         // Re-check every 30 seconds in case admin unlocks during session
         const interval = setInterval(checkUnlocks, 30000);
         return () => clearInterval(interval);
@@ -233,8 +233,12 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
         }
     };
 
-    // Mouse wheel zoom handler
+    // Mouse wheel zoom handler - Only activate when Ctrl/Cmd key is pressed
     const handleWheelZoom = (e: React.WheelEvent) => {
+        if (!e.ctrlKey && !e.metaKey) {
+            // Allow normal scrolling when Ctrl/Cmd is not pressed
+            return;
+        }
         e.preventDefault();
         if (e.deltaY < 0) {
             setZoom(z => Math.min(1.2, z + 0.05));
@@ -244,6 +248,10 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
     };
 
     const handleFullscreenWheelZoom = (e: React.WheelEvent) => {
+        if (!e.ctrlKey && !e.metaKey) {
+            // Allow normal scrolling when Ctrl/Cmd is not pressed
+            return;
+        }
         e.preventDefault();
         if (e.deltaY < 0) {
             setFullscreenZoom(z => Math.min(2.0, z + 0.05));
@@ -425,13 +433,12 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
                                                 }
                                             }}
                                             disabled={isComingSoon || isLocked}
-                                            className={`w-full py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                                                isComingSoon || isLocked
+                                            className={`w-full py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${isComingSoon || isLocked
                                                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                     : isSelected
                                                         ? `${idx === 0 ? 'bg-blue-600' : 'bg-purple-600'} text-white shadow-md`
                                                         : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg'
-                                            }`}
+                                                }`}
                                         >
                                             {isComingSoon || isLocked ? '🔒 COMING SOON' : isSelected ? 'SELECTED' : 'CONTINUE TO PREVIEW'}
                                             {!isComingSoon && !isLocked && (
@@ -484,10 +491,10 @@ const Step3TemplateExport: React.FC<Step3TemplateExportProps> = ({ data, selecte
                             </button>
                         </div>
 
-                        {/* Single Page - No Scroll */}
+                        {/* Single Page - No Scroll - Disabled wheel zoom to allow normal scrolling */}
                         <div
-                            className="flex-1 flex items-center justify-center bg-gray-50"
-                            style={{ overflow: 'hidden' }}
+                            className="flex-1 flex items-center justify-center bg-gray-50 p-8"
+                            style={{ overflow: 'hidden', paddingTop: '32px', paddingLeft: '32px', paddingRight: '32px', paddingBottom: '32px' }}
                             onWheel={handleWheelZoom}
                         >
                             <div

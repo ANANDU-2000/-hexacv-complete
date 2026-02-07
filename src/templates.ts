@@ -42,27 +42,8 @@ export const TEMPLATES: TemplateStyle[] = [
             'Standard fonts for readability',
             'Free forever'
         ]
-    },
-    {
-        id: 'template2',
-        name: 'Premium ATS',
-        description: 'Recruiter-grade ATS layout with premium typography and spacing. AI-Enhanced.',
-        price: 49,
-        category: 'professional',
-        headerStyle: 'modern',
-        colorScheme: {
-            primary: '#000000',
-            secondary: '#333333',
-            accent: '#000000'
-        },
-        config: TEMPLATE_CONFIGS.template2,
-        features: [
-            'Deep Contextual Intelligence',
-            'Predictive Impact scoring',
-            'Recruiter-tuned keywords',
-            'Premium typography'
-        ],
-        comingSoon: true
+    }
+];
     }
 ];
 

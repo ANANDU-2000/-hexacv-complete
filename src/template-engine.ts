@@ -1,8 +1,7 @@
 import { ResumeData } from './types';
 import { extractJDKeywords } from './services/openaiService';
-// NOTE: Removed jsPDF and html2canvas imports
-// PDF generation now uses iframe + print() for Preview-PDF consistency
-// See generatePDFFromTemplate() for rationale
+// PDF generation uses window.print() with proper DOM/font waiting
+// html2pdf.js was removed - it rasterizes text which is bad for ATS
 
 // ============================================
 // SECURITY: HTML Escaping to prevent XSS
@@ -28,6 +27,45 @@ function escapeHTML(str: string | undefined | null): string {
 function escapeHTMLArray(arr: string[] | undefined | null): string[] {
     if (!arr) return [];
     return arr.map(escapeHTML);
+}
+
+// ============================================
+// URL NORMALIZATION FOR CONTACT LINE
+// ============================================
+
+/**
+ * Normalize URL for display in contact line
+ * - Removes https://, http://, www.
+ * - Shortens long paths
+ * - Keeps domain + username only
+ * 
+ * RULE: Contact line must be ONE line, no overflow
+ */
+function normalizeUrl(url: string | undefined | null, type: 'linkedin' | 'github' | 'other' = 'other'): string {
+    if (!url) return '';
+
+    let clean = url
+        .replace(/^https?:\/\//, '')  // Remove protocol
+        .replace(/^www\./, '')         // Remove www.
+        .replace(/\/$/, '');           // Remove trailing slash
+
+    // For LinkedIn: keep linkedin.com/in/username
+    if (type === 'linkedin' && clean.includes('linkedin.com')) {
+        const match = clean.match(/linkedin\.com\/in\/([^/]+)/);
+        if (match) {
+            clean = `linkedin.com/in/${match[1]}`;
+        }
+    }
+
+    // For GitHub: keep github.com/username
+    if (type === 'github' && clean.includes('github.com')) {
+        const match = clean.match(/github\.com\/([^/]+)/);
+        if (match) {
+            clean = `github.com/${match[1]}`;
+        }
+    }
+
+    return clean;
 }
 
 // ============================================
@@ -83,13 +121,18 @@ function renderExperience(experiences: ResumeData['experience'], keywords: strin
         const role = escapeHTML((exp as any).position || (exp as any).role || '');
         const company = escapeHTML(exp.company);
 
+        // New ATS-Optimized Structure
         return `
             <div class="experience-entry">
-                <div class="experience-header">
-                    <span class="job-title">${role}</span>
-                    <span class="date-range">${dateStr}</span>
+                <div class="entry-header">
+                    <div class="left-col">
+                        <span class="job-title">${role}</span>
+                        <span class="company-info">${company}</span>
+                    </div>
+                    <div class="right-col">
+                        <span class="date-range">${dateStr}</span>
+                    </div>
                 </div>
-                <div class="company-name">${company}</div>
                 ${bullets.length > 0 ? `<ul>
                     ${bullets.map((b: string) => `<li>${boldKeywords(b, keywords)}</li>`).join('\n                    ')}
                 </ul>` : ''}
@@ -143,14 +186,20 @@ function renderProjects(projects: ResumeData['projects'], keywords: string[] = [
             ? `${escapeHTML((proj as any).startDate)} - ${escapeHTML((proj as any).endDate)}`
             : (proj as any).date ? escapeHTML((proj as any).date) : '';
         const name = escapeHTML(proj.name);
+        const description = (proj as any).description ? escapeHTML((proj as any).description) : '';
         const highlights = (proj as any).highlights || [];
 
         return `
         <div class="project-entry">
-            <div class="project-header">
-                <span class="project-title">${name}</span>
-                ${dateRange ? `<span class="project-date">${dateRange}</span>` : ''}
+            <div class="entry-header">
+                <div class="left-col">
+                    <span class="project-title">${name}</span>
+                </div>
+                <div class="right-col">
+                    ${dateRange ? `<span class="project-date">${dateRange}</span>` : ''}
+                </div>
             </div>
+            ${description ? `<div class="entry-content">${description}</div>` : ''}
             ${highlights.length > 0 ? `<ul>
                 ${highlights.map((h: string) => `<li>${boldKeywords(h, keywords)}</li>`).join('\n                ')}
             </ul>` : ''}
@@ -188,15 +237,20 @@ function renderEducation(education: ResumeData['education']): string {
         const institution = escapeHTML((edu as any).institution || '');
         const degree = escapeHTML((edu as any).degree || '');
 
+        // ATS Critical Fix: Right Aligned Date, Italic Institution
         return `
             <div class="education-entry">
-                <div class="education-header">
-                    <span class="degree">${degree}</span>
-                    <span class="education-year">${year}</span>
+                <div class="entry-header">
+                    <div class="left-col">
+                        <span class="degree">${degree}</span>
+                         <span class="institution">${institution}</span>
+                    </div>
+                    <div class="right-col">
+                        <span class="date">${year}</span>
+                    </div>
                 </div>
-                <div class="institution">${institution}</div>
             </div>
-        `.trim();
+            `.trim();
     }).join('\n\n        ');
 }
 
@@ -205,7 +259,7 @@ function renderEducation(education: ResumeData['education']): string {
  */
 function renderLanguages(languages?: string[]): string {
     if (!languages || languages.length === 0) return '';
-    return escapeHTMLArray(languages).map(lang => `<li>${lang}</li>`).join('\n                    ');
+    return escapeHTMLArray(languages).map(lang => `< li > ${lang} </li>`).join('\n                    ');
 }
 
 /**
@@ -235,7 +289,7 @@ function renderAchievementsText(achievements?: any[]): string {
     if (!achievements || achievements.length === 0) return '';
     return achievements.map(a => {
         const text = typeof a === 'string' ? a : a.description;
-        return `<div class="achievement-item">${escapeHTML(text)}</div>`;
+        return `<li>${escapeHTML(text)}</li>`;
     }).join('\n                ');
 }
 
@@ -386,8 +440,8 @@ function renderReferences(references?: any[]): string {
 export async function populateTemplate(templateName: string, data: ResumeData): Promise<string> {
     console.log('🔧 populateTemplate called:', { templateName, data });
 
-    // Load template HTML
-    const templateUrl = `/templates/${templateName}.html`;
+    // Load template HTML with cache busting
+    const templateUrl = `/templates/${templateName}.html?t=${Date.now()}`;
     console.log('📥 Fetching:', templateUrl);
 
     try {
@@ -410,10 +464,22 @@ export async function populateTemplate(templateName: string, data: ResumeData): 
         const email = escapeHTML(basics.email || (data as any).email || 'email@example.com');
         const phone = escapeHTML(basics.phone || (data as any).phone || '');
         const address = escapeHTML(basics.location || (data as any).address || '');
-        const linkedin = escapeHTML(basics.linkedin || (data as any).linkedin || '');
-        const github = escapeHTML(basics.github || (data as any).github || '');
+        // Normalize URLs for rigid header
+        const linkedInUrl = normalizeUrl(basics.linkedin || (data as any).linkedin, 'linkedin');
+        const gitHubUrl = normalizeUrl(basics.github || (data as any).github, 'github');
         const summary = data.summary || (data as any).profile || '';
         const photoUrl = (data.includePhoto && data.photoUrl) ? escapeHTML(data.photoUrl) : '';
+
+        // Construct strict contact line parts (normalized)
+        const contactParts = [
+            email,
+            phone,
+            linkedInUrl ? `<a href="${basics.linkedin || (data as any).linkedin}" target="_blank">${linkedInUrl}</a>` : '',
+            gitHubUrl ? `<a href="${basics.github || (data as any).github}" target="_blank">${gitHubUrl}</a>` : ''
+        ].filter(Boolean);
+
+        // Assemble with a simple separator that allows wrapping
+        const contactLine = contactParts.join(' | ');
 
         // Replace placeholders (render functions already escape content)
         const replacements: Record<string, string> = {
@@ -423,25 +489,24 @@ export async function populateTemplate(templateName: string, data: ResumeData): 
             '{{PHONE}}': phone,
             '{{ADDRESS}}': address,
             '{{LOCATION}}': address,
-            '{{LINKEDIN}}': linkedin,
-            '{{GITHUB}}': github,
+            '{{LINKEDIN}}': linkedInUrl, // content only
+            '{{GITHUB}}': gitHubUrl,     // content only
+            '{{CONTACT_LINE}}': contactLine, // Pre-built strict line
             '{{PHOTO_URL}}': photoUrl,
             '{{PROFILE}}': boldKeywords(summary, keywords), // Bold keywords in summary
             '{{SUMMARY}}': boldKeywords(summary, keywords),
-            '{{EXPERIENCE_ENTRIES}}': renderExperience(data.experience, keywords), // Pass keywords
-            '{{SKILLS_LIST}}': renderSkills(data.skills, templateName),
-            '{{SKILLS_TEXT}}': renderSkills(data.skills, 'text'), // Comma-separated for ATS
-            '{{PROJECTS_ENTRIES}}': renderProjects(data.projects || [], keywords), // Pass keywords
-            '{{PROJECTS_SECTION}}': renderProjectsSection(data.projects || []),
-            '{{LINKEDIN_DISPLAY}}': linkedin ? ` | 🔗 ${linkedin}` : '',
-            '{{GITHUB_DISPLAY}}': github ? ` | 💻 ${github}` : '',
-            '{{EDUCATION_ENTRIES}}': renderEducation(data.education),
-            '{{LANGUAGES}}': renderLanguages((data as any).languages),
-            '{{CERTIFICATIONS_ENTRIES}}': renderCertifications((data as any).certifications),
-            '{{ACHIEVEMENTS_ENTRIES}}': renderAchievements(data.achievements),
+            '{{SKILLS_LIST}}': renderSkills(data.skills || (data as any).skills, templateName),
+            '{{SKILLS_TEXT}}': renderSkills(data.skills || (data as any).skills, 'ats-text'), // Comma-separated for ATS
+            '{{EXPERIENCE_ENTRIES}}': renderExperience(data.experience || (data as any).experience || (data as any).work, keywords),
+            '{{PROJECTS_ENTRIES}}': renderProjects(data.projects || (data as any).projects, keywords),
+            '{{PROJECTS_LIST}}': renderProjects(data.projects || (data as any).projects, keywords), // Alias
+            '{{EDUCATION_ENTRIES}}': renderEducation(data.education || (data as any).education),
+            '{{LANGUAGES}}': (data as any).languages?.map((l: any) => `<li>${l.language}${l.fluency ? ': ' + l.fluency : ''}</li>`).join('') || '',
+            '{{REFERENCES}}': (data as any).references?.map((r: any) => `<div class="reference-item"><div class="ref-name">${r.name}</div><div class="ref-org">${r.reference}</div></div>`).join('') || '',
             '{{ACHIEVEMENTS_TEXT}}': renderAchievementsText(data.achievements), // Simple lines for ATS
+            '{{ACHIEVEMENTS_ENTRIES}}': renderAchievementsText(data.achievements), // Alias and old support
+            '{{CERTIFICATIONS_ENTRIES}}': renderAchievementsText((data as any).certifications), // Share same list logic
             '{{ADDITIONAL_INFO}}': renderAdditionalInfo(data),
-            '{{REFERENCES}}': renderReferences((data as any).references),
             '{{TEMPLATE2_CONTENT}}': ''
         };
 
@@ -451,9 +516,10 @@ export async function populateTemplate(templateName: string, data: ResumeData): 
 
         console.log('🔄 Applying replacements:', Object.keys(replacements));
 
-        // Apply replacements
+        // Apply replacements (escape special characters for RegExp)
         for (const [placeholder, value] of Object.entries(replacements)) {
-            html = html.replace(new RegExp(placeholder, 'g'), value);
+            const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            html = html.replace(new RegExp(escapedPlaceholder, 'g'), value);
         }
 
         // Remove conditional blocks if empty
@@ -473,20 +539,13 @@ export async function populateTemplate(templateName: string, data: ResumeData): 
 /**
  * Generate PDF from populated template
  * 
- * CRITICAL FIX: Uses iframe + print() approach for Preview-PDF consistency
+ * Uses window.print() with proper DOM/font waiting.
  * 
- * WHY NOT html2canvas + jsPDF:
- * - html2canvas rasterizes the DOM, losing text quality
- * - Different rendering engine than browser preview
- * - Spacing, alignment, and fonts render differently
- * - Results in Preview ≠ PDF output
+ * NOTE: Browser print dialog will show. User MUST:
+ * - Uncheck "Headers and footers" in print settings
+ * - Select "Save as PDF" as destination
  * 
- * WHY iframe + print():
- * - Same browser rendering engine as preview
- * - Perfect 1:1 match with what user sees
- * - Maintains vector text (searchable, selectable)
- * - ATS can parse text properly
- * - Consistent spacing and alignment
+ * html2pdf.js was removed because it rasterizes text (bad for ATS).
  */
 export async function generatePDFFromTemplate(templateName: string, data: ResumeData): Promise<void> {
     const html = await populateTemplate(templateName, data);
@@ -507,8 +566,8 @@ export async function generatePDFFromTemplate(templateName: string, data: Resume
     // Create invisible iframe for printing
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
-    iframe.style.width = '794px';
-    iframe.style.height = '1123px';
+    iframe.style.width = '210mm';
+    iframe.style.height = '297mm';
     iframe.style.left = '-9999px';
     iframe.style.top = '0';
     iframe.style.border = 'none';
@@ -520,100 +579,58 @@ export async function generatePDFFromTemplate(templateName: string, data: Resume
     if (iframeDoc) {
         iframeDoc.open();
         iframeDoc.write(html);
-
-        // Set title for PDF filename
         iframeDoc.title = filename;
-
-        // Inject print-specific styles for perfect A4 rendering
-        const printStyle = iframeDoc.createElement('style');
-        printStyle.textContent = `
-            @page {
-                size: A4;
-                margin: 0.75in;
-            }
-            
-            @media print {
-                * {
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                }
-                
-                html, body {
-                    width: 100% !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    background: #ffffff !important;
-                }
-                
-                .resume-container {
-                    width: 100% !important;
-                    padding: 0 !important;
-                }
-                
-                /* Page break rules */
-                .section-title {
-                    page-break-after: avoid !important;
-                    break-after: avoid !important;
-                }
-                
-                .experience-entry,
-                .project-entry,
-                .education-entry {
-                    page-break-inside: avoid !important;
-                    break-inside: avoid !important;
-                }
-                
-                h1, h2, h3, h4,
-                .job-title, .project-title, .degree, .company-name {
-                    page-break-after: avoid !important;
-                    break-after: avoid !important;
-                }
-                
-                /* Ensure links are visible */
-                a {
-                    color: #0066cc !important;
-                    text-decoration: none !important;
-                }
-            }
-        `;
-        iframeDoc.head.appendChild(printStyle);
-
         iframeDoc.close();
 
-        // Wait for fonts and content to load
-        iframe.onload = () => {
-            // Additional wait for fonts
-            const fontWait = iframeDoc.fonts?.ready || Promise.resolve();
+        // Wait for iframe to fully load
+        await new Promise<void>((resolve) => {
+            iframe.onload = () => resolve();
+            setTimeout(resolve, 500);
+        });
 
-            fontWait.then(() => {
-                setTimeout(() => {
-                    try {
-                        iframe.contentWindow?.focus();
-                        iframe.contentWindow?.print();
+        // Wait for fonts
+        try {
+            await iframeDoc.fonts?.ready;
+        } catch {
+            // Ignore font loading errors
+        }
 
-                        console.log('PDF print dialog opened:', filename);
-                    } catch (error) {
-                        console.error('Print failed:', error);
-                        // Fallback: open in new window
-                        const printWindow = window.open('', '_blank');
-                        if (printWindow) {
-                            printWindow.document.write(html);
-                            printWindow.document.close();
-                            printWindow.print();
-                        }
-                    }
+        // Wait for images
+        const images = iframeDoc.querySelectorAll('img');
+        await Promise.all(
+            Array.from(images).map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            })
+        );
 
-                    // Cleanup after print dialog closes
-                    setTimeout(() => {
-                        if (document.body.contains(iframe)) {
-                            document.body.removeChild(iframe);
-                        }
-                    }, 1000);
-                }, 300);
-            });
-        };
+        // Additional render tick
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        try {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            console.log('✅ Print dialog opened for:', filename);
+        } catch (error) {
+            console.error('Print failed:', error);
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+                printWindow.document.write(html);
+                printWindow.document.close();
+                printWindow.print();
+            }
+        }
+
+        // Cleanup after print dialog closes
+        setTimeout(() => {
+            if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+            }
+        }, 2000);
     } else {
-        // Cleanup if iframe doc not available
         document.body.removeChild(iframe);
         console.error('Failed to access iframe document');
     }

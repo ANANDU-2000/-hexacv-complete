@@ -92,7 +92,7 @@
 }
 
 /* ===== MOBILE TYPOGRAPHY OVERHAUL ===== */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     :root {
         /* REDUCED FONT SIZES FOR MOBILE */
         --text-xs: 11px;
@@ -134,7 +134,7 @@
 }
 
 /* ===== GLOBAL MOBILE RESET & iOS THEME ===== */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     * {
         -webkit-tap-highlight-color: transparent !important;
         box-sizing: border-box;
@@ -242,7 +242,7 @@
 /* ===============================================
    HOMEPAGE - PREMIUM DRIBBBLE STYLE
    =============================================== */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
 
     /* Main Container */
     .min-h-screen.bg-white {
@@ -364,7 +364,7 @@
 /* ===============================================
    EDITOR PAGE - COMPLETE MOBILE REBUILD
    =============================================== */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
 
     /* ===== LAYOUT: HIDE DESKTOP SIDEBAR ===== */
     .w-\[65\%\] {
@@ -783,7 +783,7 @@
 }
 
 /* Mobile (481px - 768px) */
-@media (min-width: 481px) and (max-width: 767px) {
+@media (min-width: 481px) and (max-width: 768px) {
     section#home h1 {
         font-size: 36px !important;
     }
@@ -808,7 +808,7 @@
 }
 
 /* All Mobile Devices (max-width: 768px) */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
 
     /* General Layout */
     body {
@@ -1415,7 +1415,6 @@
     }
 }
 
-
 /* ===============================================
    MOBILE UI/UX ENHANCEMENTS - TASK 8
    Touch targets, preview zoom, responsive fixes
@@ -1452,11 +1451,8 @@
     }
 
     /* Touch-friendly spacing between interactive elements */
-    .btn+.btn,
-    button+button,
-    a+a {
-        margin-left: 8px !important;
-    }
+    margin-left: 8px !important;
+}
 }
 
 /* ===== IMPROVED MOBILE PREVIEW ZOOM ===== */
@@ -2209,6 +2205,7 @@
 
 /* ===== MOBILE ACCESSIBILITY ===== */
 @media (max-width: 768px) {
+
     /* Reduce motion for users who prefer it */
     @media (prefers-reduced-motion: reduce) {
 

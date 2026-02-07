@@ -248,7 +248,6 @@ Return JSON format:
 
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || '';
-
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
@@ -306,6 +305,7 @@ export function extractJDKeywords(jobDescription: string): string[] {
     const softMatches = jobDescription.match(softPattern) || [];
     keywords.push(...softMatches);
 
+
     // Dedupe, normalize, and limit
     const normalized = [...new Set(keywords.map(k => k.toLowerCase().trim()))];
     const filtered = normalized.filter(k => k.length >= 2);
@@ -343,9 +343,6 @@ export function calculateKeywordMatch(
     return { score, matched, missing };
 }
 
-/**
- * Check if AI Service is available
- */
 export function isOpenAIAvailable(): boolean {
     const config = getLLMConfig();
     return !!config;

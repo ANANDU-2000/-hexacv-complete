@@ -1,5 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Share2, Search, FileText, Sparkles, Briefcase, List, ChevronDown } from 'lucide-react';
+import { track } from './admin-analytics';
 import './index.css';
 import './design_overrides.css';
 import './mobile.css';
@@ -21,6 +23,7 @@ const Step3Preview = lazy(() => import('./components/Step3Preview'));
 const MobileFinalPreview = lazy(() => import('./components/mobile/MobileFinalPreview'));
 const Step2Templates = lazy(() => import('./components/Step2Templates'));
 const AnalyticsView = lazy(() => import('./components/AnalyticsView').then(m => ({ default: m.AnalyticsView })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 
 // SEO Landing Pages - lazy load since they're not needed on initial load
 const FreeATSResumeBuilder = lazy(() => import('./pages/FreeATSResumeBuilder'));
@@ -72,7 +75,7 @@ const LoadingSpinner = () => (
 // Step 3: Preview (view + download PDF)
 // SEO Pages: Landing pages for different keywords
 // Tools: Free SEO tools for ATS optimization
-type Step = 'homepage' | 'editor' | 'preview' | 'analytics'
+type Step = 'homepage' | 'editor' | 'preview' | 'analytics' | 'admin'
     | 'seo-free-ats' | 'seo-keyword-extractor' | 'seo-freshers' | 'seo-no-login' | 'seo-jd-tool'
     | 'tool-ats-keyword-extractor' | 'tool-resume-keyword-checker' | 'tool-resume-bullet-improver'
     | 'tool-jd-analyzer' | 'tool-resume-section-checker' | 'free-tools-page';
@@ -93,7 +96,8 @@ function validateResumeForTemplates(data: ResumeData): ValidationResult {
 
 // ============== MAIN APP ==============
 export default function AppNew() {
-    const [step, setStep] = useState<Step>('homepage');
+    const navigate = useNavigate();
+    const location = useLocation();
     const [processing, setProcessing] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [feedbackSent, setFeedbackSent] = useState(false);
@@ -131,58 +135,25 @@ export default function AppNew() {
             return;
         }
         setValidationErrors([]);
-        setStep('preview');
+        navigate('/preview');
         trackEvent('preview_opened');
     };
 
     // Handler to start new resume from scratch
     const handleStartNew = () => {
-        setStep('editor');
+        navigate('/editor');
         trackEvent('resume_started');
         trackEvent('editor_opened');
     };
 
-    // Deep link for feedback redirect, analytics, and SEO pages
+    // Feedback success handling
     useEffect(() => {
-        const handleHashChange = () => {
-            const hash = window.location.hash;
-            if (hash === '#/feedback-success') {
-                setFeedbackSent(true);
-                setStep('homepage');
-                window.location.hash = '#/';
-                setTimeout(() => setFeedbackSent(false), 6000);
-            } else if (hash === '#/analytics') {
-                setStep('analytics');
-            } else if (hash === '#/free-ats-resume-builder') {
-                setStep('seo-free-ats');
-            } else if (hash === '#/resume-keyword-extractor') {
-                setStep('seo-keyword-extractor');
-            } else if (hash === '#/ats-resume-for-freshers') {
-                setStep('seo-freshers');
-            } else if (hash === '#/no-login-resume-builder') {
-                setStep('seo-no-login');
-            } else if (hash === '#/job-description-keyword-tool') {
-                setStep('seo-jd-tool');
-            } else if (hash === '#/free-tools') {
-                setStep('free-tools-page');
-            }
-            // Free SEO Tools
-            else if (hash === '#/free-ats-keyword-extractor') {
-                setStep('tool-ats-keyword-extractor');
-            } else if (hash === '#/resume-keyword-checker') {
-                setStep('tool-resume-keyword-checker');
-            } else if (hash === '#/resume-bullet-improver') {
-                setStep('tool-resume-bullet-improver');
-            } else if (hash === '#/job-description-analyzer') {
-                setStep('tool-jd-analyzer');
-            } else if (hash === '#/resume-section-checker') {
-                setStep('tool-resume-section-checker');
-            }
-        };
-        handleHashChange();
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
+        if (location.pathname === '/feedback-success') {
+            setFeedbackSent(true);
+            navigate('/', { replace: true });
+            setTimeout(() => setFeedbackSent(false), 6000);
+        }
+    }, [location.pathname, navigate]);
 
     // Header shadow on scroll
     useEffect(() => {
@@ -199,9 +170,14 @@ export default function AppNew() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Initialize accessibility features
+    // Initialize accessibility and analytics
     useEffect(() => {
         initAccessibility();
+        track.page('homepage');
+        // Geographic hint for admin dashboard
+        import('./admin-analytics').then(({ analyticsCollector }) => {
+            analyticsCollector.trackGeographicHint();
+        });
     }, []);
 
     // Helper to map parsed result to ResumeData
@@ -269,7 +245,7 @@ export default function AppNew() {
             setResume(mapParsedToResumeData(result.resume));
 
             setTimeout(() => {
-                setStep('editor');
+                navigate('/editor');
                 setProcessing(false);
                 trackEvent('resume_uploaded');
                 trackEvent('editor_opened');
@@ -283,98 +259,87 @@ export default function AppNew() {
 
     return (
         <MobileOptimizationEngine isAdmin={false}>
-            {(() => {
-                // Step 1: Homepage
-                if (step === 'homepage') {
-                    return (
-                        <div className="min-h-screen bg-[#F8F9FB] flex flex-col font-sans selection:bg-black selection:text-white">
-                            {processing && (
-                                <div className="fixed inset-0 bg-slate-950 z-[9999] flex flex-col items-center justify-center">
-                                    {/* Animated background gradient */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black"></div>
-                                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-                                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="min-h-screen bg-[#F8F9FB] flex flex-col font-sans selection:bg-black selection:text-white">
+                {processing && (
+                    <div className="fixed inset-0 bg-slate-950 z-[9999] flex flex-col items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black"></div>
+                        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+                        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-                                    <div className="relative z-10 text-center px-6 max-w-lg">
-                                        {/* Logo */}
-                                        <div className="mb-8 flex justify-center">
-                                            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
-                                                <img src="/logo.svg" alt="HexaCV" className="w-10 h-10" />
-                                            </div>
-                                        </div>
-
-                                        {/* Main heading */}
-                                        <h2 className="text-white font-bold text-2xl mb-3">Reading your resume...</h2>
-                                        <p className="text-slate-400 text-sm mb-8">This usually takes 5-10 seconds</p>
-
-                                        {/* Progress steps */}
-                                        <div className="space-y-4 text-left mb-8">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                                                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                                </div>
-                                                <span className="text-slate-300 text-sm">Extracting text from PDF</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center animate-pulse">
-                                                    <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                                                </div>
-                                                <span className="text-white text-sm font-medium">Identifying skills, experience & education</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 opacity-50">
-                                                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
-                                                    <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
-                                                </div>
-                                                <span className="text-slate-500 text-sm">Preparing your editor</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Why this matters */}
-                                        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-left">
-                                            <p className="text-slate-500 text-xs uppercase tracking-wider mb-2">Why we do this</p>
-                                            <p className="text-slate-300 text-sm leading-relaxed">
-                                                We parse your resume locally to understand your background.
-                                                Your data never leaves your browser - we don't store anything on servers.
-                                            </p>
-                                        </div>
-                                    </div>
+                        <div className="relative z-10 text-center px-6 max-w-lg">
+                            <div className="mb-8 flex justify-center">
+                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
+                                    <img src="/logo.svg" alt="HexaCV" className="w-10 h-10" />
                                 </div>
-                            )}
+                            </div>
+                            <h2 className="text-white font-bold text-2xl mb-3">Reading your resume...</h2>
+                            <p className="text-slate-400 text-sm mb-8">This usually takes 5-10 seconds</p>
+                            <div className="space-y-4 text-left mb-8">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                    </div>
+                                    <span className="text-slate-300 text-sm">Extracting text from PDF</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center animate-pulse">
+                                        <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                                    </div>
+                                    <span className="text-white text-sm font-medium">Identifying skills, experience & education</span>
+                                </div>
+                                <div className="flex items-center gap-3 opacity-50">
+                                    <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                                        <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
+                                    </div>
+                                    <span className="text-slate-500 text-sm">Preparing your editor</span>
+                                </div>
+                            </div>
+                            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-left">
+                                <p className="text-slate-500 text-xs uppercase tracking-wider mb-2">Why we do this</p>
+                                <p className="text-slate-300 text-sm leading-relaxed">
+                                    We parse your resume locally to understand your background.
+                                    Your data never leaves your browser - we don't store anything on servers.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
+                <Routes>
+                    <Route path="/" element={
+                        <>
                             <nav className={`hidden lg:flex px-4 md:px-8 h-[48px] sticky top-0 bg-white border-b border-gray-200 z-[100] items-center justify-center transition-shadow duration-300 ${scrolled ? 'shadow-sm' : ''}`}>
                                 <div className="w-full max-w-7xl flex items-center justify-between">
-                                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => setStep('homepage')}>
+                                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
                                         <div className="w-7 h-7 bg-gray-900 rounded-md flex items-center justify-center p-1">
                                             <img src="/logo.svg" alt="HexaCV" className="w-full h-full brightness-0 invert" />
                                         </div>
                                         <span className="text-[15px] font-bold text-gray-900">HEXACV</span>
                                     </div>
 
-                                    {/* Tools Dropdown - Mega Menu */}
                                     <div className="hidden md:flex items-center gap-4">
                                         <div className="relative group">
                                             <button
-                                                onClick={() => { window.location.hash = '#/free-tools'; setStep('free-tools-page'); }}
+                                                onClick={() => navigate('/free-tools')}
                                                 className="flex items-center gap-1.5 text-[13px] text-gray-600 hover:text-black font-medium px-2 py-1 transition-colors uppercase tracking-wider"
                                             >
                                                 Free Tools
                                                 <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
                                             </button>
 
-                                            {/* Dropdown Container with specific user CSS overrides */}
                                             <div className="absolute top-[calc(100%-2px)] left-1/2 -translate-x-1/2 pt-4 min-w-[500px] max-w-[95vw] w-max opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 cursor-auto ease-out translate-y-2 group-hover:translate-y-0">
                                                 <div className="bg-white border border-gray-100 rounded-xl shadow-xl p-2 grid grid-cols-2 gap-2 overflow-hidden">
                                                     {[
-                                                        { name: 'ATS Keyword Extractor', icon: Search, href: '#/free-ats-keyword-extractor', desc: 'Extract keywords from JD' },
-                                                        { name: 'Resume Keyword Checker', icon: FileText, href: '#/resume-keyword-checker', desc: 'Match resume to job' },
-                                                        { name: 'Bullet Point Improver', icon: Sparkles, href: '#/resume-bullet-improver', desc: 'Enhance impact' },
-                                                        { name: 'JD Analyzer', icon: Briefcase, href: '#/job-description-analyzer', desc: 'Analyze requirements' },
-                                                        { name: 'Section Checker', icon: List, href: '#/resume-section-checker', desc: 'Verify resume sections' },
+                                                        { name: 'ATS Keyword Extractor', icon: Search, path: '/free-ats-keyword-extractor', desc: 'Extract keywords from JD' },
+                                                        { name: 'Resume Keyword Checker', icon: FileText, path: '/resume-keyword-checker', desc: 'Match resume to job' },
+                                                        { name: 'Bullet Point Improver', icon: Sparkles, path: '/resume-bullet-improver', desc: 'Enhance impact' },
+                                                        { name: 'JD Analyzer', icon: Briefcase, path: '/job-description-analyzer', desc: 'Analyze requirements' },
+                                                        { name: 'Section Checker', icon: List, path: '/resume-section-checker', desc: 'Verify resume sections' },
                                                     ].map((item, i) => (
-                                                        <a
+                                                        <div
                                                             key={i}
-                                                            href={item.href}
-                                                            className="flex items-start gap-3 p-3 rounded-lg hover:bg-zinc-50 transition-colors group/item"
+                                                            onClick={() => { navigate(item.path); track.toolClick(item.name); }}
+                                                            className="flex items-start gap-3 p-3 rounded-lg hover:bg-zinc-50 transition-colors group/item cursor-pointer"
                                                         >
                                                             <div className="w-8 h-8 rounded-lg bg-black/5 text-black flex items-center justify-center shrink-0 mt-0.5 group-hover/item:bg-black group-hover/item:text-white transition-all">
                                                                 <item.icon size={16} />
@@ -387,31 +352,31 @@ export default function AppNew() {
                                                                     {item.desc}
                                                                 </div>
                                                             </div>
-                                                        </a>
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <button
-                                        onClick={() => {
-                                            if (navigator.share) {
-                                                navigator.share({
-                                                    title: 'HexaCV - Free ATS Resume Builder',
-                                                    text: 'Build ATS-friendly resumes for free.',
-                                                    url: window.location.href
-                                                });
-                                            } else {
-                                                navigator.clipboard.writeText(window.location.href);
-                                                alert('Link copied!');
-                                            }
-                                        }}
-                                        className="flex items-center gap-1.5 px-3 h-[32px] border border-gray-200 rounded-full text-gray-700 hover:border-gray-900 text-[12px] font-medium"
-                                    >
-                                        <Share2 size={14} />
-                                        <span className="hidden sm:inline">Share</span>
-                                    </button>
+                                        <button
+                                            onClick={() => {
+                                                if (navigator.share) {
+                                                    navigator.share({
+                                                        title: 'HexaCV - Free ATS Resume Builder',
+                                                        text: 'Build ATS-friendly resumes for free.',
+                                                        url: window.location.href
+                                                    });
+                                                } else {
+                                                    navigator.clipboard.writeText(window.location.href);
+                                                    alert('Link copied!');
+                                                }
+                                            }}
+                                            className="flex items-center gap-1.5 px-3 h-[32px] border border-gray-200 rounded-full text-gray-700 hover:border-gray-900 text-[12px] font-medium"
+                                        >
+                                            <Share2 size={14} />
+                                            <span className="hidden sm:inline">Share</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </nav>
 
@@ -420,21 +385,17 @@ export default function AppNew() {
                                 onUpload={handleFileUpload}
                                 showFeedbackSuccess={feedbackSent}
                             />
-                        </div>
-                    );
-                }
+                        </>
+                    } />
 
-                // Step 2: Editor
-                if (step === 'editor') {
-                    const selectedTemplate = TEMPLATES[0];
-                    return (
+                    <Route path="/editor" element={
                         <Suspense fallback={<LoadingSpinner />}>
                             {isMobile ? (
                                 <MobileEditor
                                     data={resume}
                                     onChange={setResume}
                                     onNext={handleNavigateToPreview}
-                                    onBack={() => setStep('homepage')}
+                                    onBack={() => navigate('/')}
                                     validationErrors={validationErrors}
                                 />
                             ) : (
@@ -442,127 +403,100 @@ export default function AppNew() {
                                     data={resume}
                                     onChange={setResume}
                                     onNext={handleNavigateToPreview}
-                                    onBack={() => setStep('homepage')}
+                                    onBack={() => navigate('/')}
                                     validationErrors={validationErrors}
                                 />
                             )}
                         </Suspense>
-                    );
-                }
+                    } />
 
-                // Step 3: Preview + Download (Templates with Live Preview)
-                if (step === 'preview') {
-                    return (
+                    <Route path="/preview" element={
                         <Suspense fallback={<LoadingSpinner />}>
                             <Step2Templates
                                 data={resume}
                                 selectedTemplate={selectedTemplate}
                                 onSelect={setSelectedTemplate}
-                                onBack={() => setStep('editor')}
-                                onNext={() => setStep('homepage')}
-                                onGoToHomepage={() => setStep('homepage')}
+                                onBack={() => navigate('/editor')}
+                                onNext={() => navigate('/')}
+                                onGoToHomepage={() => navigate('/')}
                             />
                         </Suspense>
-                    );
-                }
+                    } />
 
-                // Analytics View (hidden, access via #/analytics)
-                if (step === 'analytics') {
-                    return (
+                    <Route path="/analytics" element={
                         <Suspense fallback={<LoadingSpinner />}>
-                            <AnalyticsView
-                                onClose={() => {
-                                    window.location.hash = '#/';
-                                    setStep('homepage');
-                                }}
-                            />
+                            <AnalyticsView onClose={() => navigate('/')} />
                         </Suspense>
-                    );
-                }
+                    } />
 
-                // SEO Landing Pages
-                if (step === 'seo-free-ats') {
-                    return <Suspense fallback={<LoadingSpinner />}><FreeATSResumeBuilder onStart={handleStartNew} /></Suspense>;
-                }
-                if (step === 'seo-keyword-extractor') {
-                    return <Suspense fallback={<LoadingSpinner />}><ResumeKeywordExtractor onStart={handleStartNew} /></Suspense>;
-                }
-                if (step === 'seo-freshers') {
-                    return <Suspense fallback={<LoadingSpinner />}><ATSResumeForFreshers onStart={handleStartNew} /></Suspense>;
-                }
-                if (step === 'seo-no-login') {
-                    return <Suspense fallback={<LoadingSpinner />}><NoLoginResumeBuilder onStart={handleStartNew} /></Suspense>;
-                }
-                if (step === 'seo-jd-tool') {
-                    return <Suspense fallback={<LoadingSpinner />}><JobDescriptionKeywordTool onStart={handleStartNew} /></Suspense>;
-                }
+                    <Route path="/admin" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <AdminDashboard onClose={() => navigate('/')} />
+                        </Suspense>
+                    } />
 
-                // Free SEO Tools
-                if (step === 'tool-ats-keyword-extractor') {
-                    return (
-                        <Suspense fallback={<LoadingSpinner />}>
-                            {isMobile ?
-                                <MobileATSKeywordExtractor onBack={() => { window.location.hash = '#/free-tools'; setStep('free-tools-page'); }} /> :
-                                <ATSKeywordExtractor onNavigateHome={() => { window.location.hash = '#/'; setStep('homepage'); }} />}
-                        </Suspense>
-                    );
-                }
-                if (step === 'tool-resume-keyword-checker') {
-                    return (
-                        <Suspense fallback={<LoadingSpinner />}>
-                            {isMobile ?
-                                <MobileResumeKeywordChecker onBack={() => { window.location.hash = '#/free-tools'; setStep('free-tools-page'); }} /> :
-                                <ResumeKeywordChecker onNavigateHome={() => { window.location.hash = '#/'; setStep('homepage'); }} />}
-                        </Suspense>
-                    );
-                }
-                if (step === 'tool-resume-bullet-improver') {
-                    return (
-                        <Suspense fallback={<LoadingSpinner />}>
-                            {isMobile ?
-                                <MobileResumeBulletImprover onBack={() => { window.location.hash = '#/free-tools'; setStep('free-tools-page'); }} /> :
-                                <ResumeBulletImprover onNavigateHome={() => { window.location.hash = '#/'; setStep('homepage'); }} />}
-                        </Suspense>
-                    );
-                }
-                if (step === 'tool-jd-analyzer') {
-                    return (
-                        <Suspense fallback={<LoadingSpinner />}>
-                            {isMobile ?
-                                <MobileJobDescriptionAnalyzer onBack={() => { window.location.hash = '#/free-tools'; setStep('free-tools-page'); }} /> :
-                                <JobDescriptionAnalyzer onNavigateHome={() => { window.location.hash = '#/'; setStep('homepage'); }} />}
-                        </Suspense>
-                    );
-                }
-                if (step === 'tool-resume-section-checker') {
-                    return (
-                        <Suspense fallback={<LoadingSpinner />}>
-                            {isMobile ?
-                                <MobileResumeSectionChecker onBack={() => { window.location.hash = '#/free-tools'; setStep('free-tools-page'); }} /> :
-                                <ResumeSectionChecker onNavigateHome={() => { window.location.hash = '#/'; setStep('homepage'); }} />}
-                        </Suspense>
-                    );
-                }
+                    {/* SEO Landing Pages */}
+                    <Route path="/free-ats-resume-builder" element={<Suspense fallback={<LoadingSpinner />}><FreeATSResumeBuilder onStart={handleStartNew} /></Suspense>} />
+                    <Route path="/resume-keyword-extractor" element={<Suspense fallback={<LoadingSpinner />}><ResumeKeywordExtractor onStart={handleStartNew} /></Suspense>} />
+                    <Route path="/ats-resume-for-freshers" element={<Suspense fallback={<LoadingSpinner />}><ATSResumeForFreshers onStart={handleStartNew} /></Suspense>} />
+                    <Route path="/no-login-resume-builder" element={<Suspense fallback={<LoadingSpinner />}><NoLoginResumeBuilder onStart={handleStartNew} /></Suspense>} />
+                    <Route path="/job-description-keyword-tool" element={<Suspense fallback={<LoadingSpinner />}><JobDescriptionKeywordTool onStart={handleStartNew} /></Suspense>} />
 
-                // Main Free Tools Page
-                if (step === 'free-tools-page') {
-                    return (
+                    {/* Free SEO Tools */}
+                    <Route path="/free-ats-keyword-extractor" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ?
+                                <MobileATSKeywordExtractor onBack={() => navigate('/free-tools')} /> :
+                                <ATSKeywordExtractor onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/resume-keyword-checker" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ?
+                                <MobileResumeKeywordChecker onBack={() => navigate('/free-tools')} /> :
+                                <ResumeKeywordChecker onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/resume-bullet-improver" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ?
+                                <MobileResumeBulletImprover onBack={() => navigate('/free-tools')} /> :
+                                <ResumeBulletImprover onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/job-description-analyzer" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ?
+                                <MobileJobDescriptionAnalyzer onBack={() => navigate('/free-tools')} /> :
+                                <JobDescriptionAnalyzer onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/resume-section-checker" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ?
+                                <MobileResumeSectionChecker onBack={() => navigate('/free-tools')} /> :
+                                <ResumeSectionChecker onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+
+                    <Route path="/free-tools" element={
                         <Suspense fallback={<LoadingSpinner />}>
                             {isMobile ?
                                 <MobileFreeToolsPage
-                                    onNavigate={(route) => window.location.hash = route}
-                                    onBack={() => { window.location.hash = '#/'; setStep('homepage'); }}
+                                    onNavigate={(route) => navigate(route)}
+                                    onBack={() => navigate('/')}
                                 /> :
                                 <FreeToolsPage
-                                    onNavigate={(route) => window.location.hash = route}
-                                    onBack={() => { window.location.hash = '#/'; setStep('homepage'); }}
+                                    onNavigate={(route) => navigate(route)}
+                                    onBack={() => navigate('/')}
                                 />}
                         </Suspense>
-                    );
-                }
+                    } />
 
-                return null;
-            })()}
+                    {/* Catch-all redirect to homepage */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </div>
         </MobileOptimizationEngine>
     );
 }

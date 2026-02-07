@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Check, X, Zap } from "lucide-react";
+import { Upload, Check, X, Zap, ShieldCheck } from "lucide-react";
+import { TestimonialsSlider } from "./TestimonialsSlider";
 
 interface HeroProps {
     onStart: () => void;
@@ -65,7 +66,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
     };
 
     return (
-        <section className="relative w-full h-screen bg-white overflow-hidden flex flex-col">
+        <section className="relative w-full min-h-screen bg-white overflow-x-hidden flex flex-col">
             {/* Success Toast */}
             {showFeedbackSuccess && (
                 <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-top-4 duration-500">
@@ -78,8 +79,8 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                 </div>
             )}
 
-            {/* Main Content Area - NO SCROLL */}
-            <div className="flex-1 flex flex-col lg:flex-row">
+            {/* Main Content Area */}
+            <div className="flex-none flex flex-col lg:flex-row min-h-screen lg:h-screen">
                 {/* LEFT PANEL - 50% */}
                 <div className="w-full lg:w-1/2 h-full flex items-center justify-center px-8 lg:px-16">
                     <div className="w-full max-w-xl space-y-8">
@@ -104,7 +105,8 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                                     No Login Required
                                 </span>
                                 <span className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-slate-600 border border-slate-200 rounded-md bg-white shadow-sm">
-                                    Works Offline
+                                    <ShieldCheck size={12} className="mr-1.5 text-blue-500" />
+                                    100% Privacy Focused
                                 </span>
                             </div>
                         </div>
@@ -208,7 +210,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                 </div>
 
                 {/* RIGHT PANEL - 50% */}
-                <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 overflow-hidden">
+                <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 pt-24 overflow-hidden">
                     {/* Resume Preview - Large & Crystal Clear */}
                     <div className="relative w-full max-w-2xl">
                         {/* Resume Shadow */}
@@ -260,7 +262,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
 
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => window.location.hash = '#/free-tools'}
+                            onClick={() => window.location.href = '/free-tools'}
                             className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-full active:scale-95 transition-all shadow-md"
                         >
                             <Zap size={12} className="text-blue-400 fill-blue-400" />
@@ -353,6 +355,11 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                             Build From Scratch
                         </button>
                     </div>
+                </div>
+
+                {/* Testimonials Section */}
+                <div id="testimonials" className="w-full">
+                    <TestimonialsSlider />
                 </div>
             </div>
         </section>

@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{FULL_NAME}} - Resume</title>
     <style>
+        /* ================================================
+           PRINT-FIRST ATS RESUME (MINIMAL STYLE)
+           Fixed 210mm Width, Block Layout (No Flex/Grid)
+           ================================================ */
+
         * {
             margin: 0;
             padding: 0;
@@ -13,135 +18,183 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             font-size: 11pt;
-            line-height: 1.5;
-            color: #000;
+            line-height: 1.4;
+            color: #1a1a1a;
             background: #fff;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            orphans: 3;
+            widows: 3;
         }
 
-        .resume-container {
-            width: 794px;
-            min-height: 1123px;
-            padding: 40px 60px;
-            background: #fff;
-            margin: 0;
-            box-sizing: border-box;
-        }
-
-        .header {
-            text-align: left;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .header-text {
-            flex: 1;
-        }
-
-        /* PROFILE PHOTO - TOP RIGHT */
-        .profile-photo {
-            width: 90px;
-            height: 110px;
-            object-fit: cover;
-            border: 2.5px solid #000;
-            margin-left: 20px;
-        }
-
-        .header h1 {
-            font-size: 28pt;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-
-        .contact {
-            font-size: 10pt;
-            color: #333;
-            margin-top: 6px;
-        }
-
-        .section {
-            margin-bottom: 24px;
-        }
-
-        .section-title {
-            font-size: 13pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            padding-bottom: 4px;
-            border-bottom: 2.5px solid #000;
-        }
-
-        .experience-entry,
-        .project-entry,
-        .education-entry {
-            margin-bottom: 16px;
-            page-break-inside: avoid;
-        }
-
-        .job-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 4px;
-        }
-
-        .job-title {
-            font-size: 11pt;
-            font-weight: 700;
-        }
-
-        .date-range {
-            font-size: 9pt;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .company-info {
-            font-size: 10pt;
-            font-style: italic;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        ul {
-            margin-left: 18px;
-            margin-top: 6px;
-        }
-
-        li {
-            font-size: 10pt;
-            line-height: 1.6;
-            margin-bottom: 4px;
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }
-
-        .skill-item {
-            font-size: 10pt;
-            line-height: 1.5;
-        }
-
-        .skill-item strong {
-            font-weight: 700;
+        /* STRICT PDF METADATA REMOVAL */
+        @page {
+            size: A4;
+            margin: 0.6in 0.7in;
         }
 
         @media print {
             body {
-                padding: 0;
+                margin: 0;
             }
+
+            header,
+            footer {
+                display: none !important;
+            }
+        }
+
+        .resume-container {
+            display: block;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 18mm;
+            margin: 0 auto;
+            background: #fff;
+            overflow: visible;
+        }
+
+        /* HEADER SECTION (STRICT LEFT ALIGN) */
+        .header {
+            margin-bottom: 6mm;
+            text-align: left;
+            page-break-inside: avoid;
+            display: block;
+            clear: both;
+        }
+
+        h1 {
+            font-size: 18pt;
+            font-weight: 700;
+            margin-bottom: 1mm;
+            letter-spacing: -0.5px;
+            display: block;
+        }
+
+        .header-role {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 2mm;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .contact-line {
+            font-size: 10pt;
+            color: #777;
+            margin-top: 2mm;
+            display: block;
+            line-height: 1.3;
+        }
+
+        .profile-photo {
+            width: 32mm;
+            height: 38mm;
+            object-fit: cover;
+            border: 2px solid #000;
+            float: right;
+            margin-left: 5mm;
+            margin-bottom: 5mm;
+        }
+
+        /* SECTION STYLES */
+        .section {
+            margin-bottom: 6mm;
+            page-break-inside: auto;
+            display: block;
+            clear: both;
+        }
+
+        .section-title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2pt solid #000;
+            margin-bottom: 4mm;
+            padding-bottom: 1mm;
+            page-break-after: avoid;
+            display: block;
+        }
+
+        /* ENTRY LAYOUT (FLOAT-BASED) */
+        .experience-entry,
+        .project-entry,
+        .education-entry,
+        .entry {
+            margin-bottom: 4mm;
+            page-break-inside: avoid;
+            display: block;
+            clear: both;
+        }
+
+        .entry-header {
+            display: block;
+            width: 100%;
+            margin-bottom: 1mm;
+            clear: both;
+            overflow: hidden;
+        }
+
+        .left-col {
+            float: left;
+            width: 75%;
+            text-align: left;
+        }
+
+        .right-col {
+            float: right;
+            width: 25%;
+            text-align: right;
+        }
+
+        .job-title,
+        .project-title,
+        .degree {
+            font-weight: bold;
+            font-size: 11pt;
+            display: block;
+        }
+
+        .company-info,
+        .institution {
+            display: block;
+            font-style: italic;
+            font-size: 10pt;
+            color: #333;
+            margin-top: 0.5mm;
+        }
+
+        .date-range,
+        .project-date,
+        .date {
+            font-weight: bold;
+            font-size: 9.5pt;
+            color: #000;
+        }
+
+        /* CONTENT STYLES */
+        .summary-text,
+        .skills-content,
+        .entry-content {
+            font-size: 10pt;
+            line-height: 1.5;
+            display: block;
+            clear: both;
+        }
+
+        ul {
+            margin-left: 5mm;
+            margin-top: 1.5mm;
+            display: block;
+            list-style-type: disc;
+        }
+
+        li {
+            margin-bottom: 1mm;
+            display: list-item;
+            padding-left: 1mm;
         }
     </style>
 </head>
@@ -150,45 +203,60 @@
     <div class="resume-container">
         <!-- HEADER -->
         <div class="header">
-            <div class="header-text">
-                <h1>{{FULL_NAME}}</h1>
-                <div class="contact">
-                    {{EMAIL}} | {{PHONE}}{{LINKEDIN_DISPLAY}}{{GITHUB_DISPLAY}}
-                </div>
-            </div>
             {{#if PHOTO_URL}}
             <img class="profile-photo" src="{{PHOTO_URL}}" alt="{{FULL_NAME}}" />
             {{/if}}
+
+            <h1>{{FULL_NAME}}</h1>
+
+            {{#if JOB_TITLE}}
+            <div class="header-role">{{JOB_TITLE}}</div>
+            {{/if}}
+
+            <div class="contact-line">{{CONTACT_LINE}}</div>
         </div>
 
-        <!-- PROFESSIONAL SUMMARY -->
+        <!-- SUMMARY -->
+        {{#if PROFILE}}
         <div class="section">
             <div class="section-title">Professional Summary</div>
-            <p style="font-size: 10pt; line-height: 1.6;">{{PROFILE}}</p>
+            <div class="summary-text">{{PROFILE}}</div>
         </div>
+        {{/if}}
 
         <!-- EXPERIENCE -->
+        {{#if EXPERIENCE_ENTRIES}}
         <div class="section">
             <div class="section-title">Experience</div>
             {{EXPERIENCE_ENTRIES}}
         </div>
+        {{/if}}
 
         <!-- SKILLS -->
+        {{#if SKILLS_LIST}}
         <div class="section">
             <div class="section-title">Skills</div>
-            <div class="skills-grid">
+            <div class="skills-content">
                 {{SKILLS_LIST}}
             </div>
         </div>
+        {{/if}}
 
         <!-- PROJECTS -->
-        {{PROJECTS_SECTION}}
+        {{#if PROJECTS_ENTRIES}}
+        <div class="section">
+            <div class="section-title">Projects</div>
+            {{PROJECTS_ENTRIES}}
+        </div>
+        {{/if}}
 
         <!-- EDUCATION -->
+        {{#if EDUCATION_ENTRIES}}
         <div class="section">
             <div class="section-title">Education</div>
             {{EDUCATION_ENTRIES}}
         </div>
+        {{/if}}
     </div>
 </body>
 

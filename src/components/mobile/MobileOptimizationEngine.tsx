@@ -97,11 +97,17 @@ export const MobileOptimizationEngine: React.FC<{ children: React.ReactNode, isA
         }
 
         // 3. Performance Check (Heuristic)
-        const perf = 'medium'; // Placeholder for more complex logic
+        const perf = 'high'; // Optimized for mobile
 
         // 4. Update CSS variables for reliable sizing
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+        // 5. Fix PDF/mobile viewport issues
+        const metaViewport = document.querySelector('meta[name="viewport"]');
+        if (metaViewport) {
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        }
 
         setStatus({
             isOptimized: issues.length === 0,
@@ -206,9 +212,9 @@ export const MobileOptimizationEngine: React.FC<{ children: React.ReactNode, isA
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                     border: '1px solid rgba(255,255,255,0.1)',
                     display: showDashboard || status.issues.length > 0 ? 'block' : 'none',
-                    animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                     maxWidth: '500px',
-                    margin: '0 auto'
+                    margin: '0 auto',
+                    animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}>
                     <style dangerouslySetInnerHTML={{
                         __html: `

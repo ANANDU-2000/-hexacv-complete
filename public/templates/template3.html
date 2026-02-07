@@ -3,401 +3,250 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=794, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{FULL_NAME}} - Resume</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ================================================
+           PRINT-FIRST ATS RESUME (KINETIC STYLE - TWO COL)
+           Fixed 210mm Width, Block Layout (No Flex/Grid)
+           ================================================ */
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* A4 PAGE FRAME - 794×1123px */
-        html,
-        body {
-            width: 794px;
-            margin: 0;
-            padding: 0;
-            background: #FFFFFF;
-        }
-
         body {
             font-family: 'Inter', Arial, Helvetica, sans-serif;
-            font-size: 11px;
-            line-height: 1.5;
+            font-size: 10.5pt;
+            line-height: 1.3;
             color: #2B2B2B;
+            background: #fff;
+            orphans: 3;
+            widows: 3;
+        }
+
+        /* STRICT PDF METADATA REMOVAL */
+        @page {
+            size: A4;
+            margin: 0.6in 0.7in;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+            }
+
+            header,
+            footer {
+                display: none !important;
+            }
         }
 
         .resume-container {
-            width: 794px;
-            min-height: 1123px;
-            padding: 32px;
-            background: #FFFFFF;
+            display: block;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 18mm;
+            margin: 0 auto;
+            background: #fff;
+            overflow: visible;
         }
 
-        /* HEADER SECTION - ~150px height */
+        /* HEADER SECTION (STRICT LEFT ALIGN) */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-            min-height: 100px;
+            margin-bottom: 6mm;
+            page-break-inside: avoid;
+            display: block;
+            clear: both;
+            overflow: hidden;
+            text-align: left;
         }
 
         .header-left {
-            flex: 0 0 70%;
+            float: left;
+            width: 70%;
         }
 
         .header-right {
-            flex: 0 0 30%;
-            display: flex;
-            justify-content: flex-end;
+            float: right;
+            width: 30%;
+            text-align: right;
         }
 
-        /* NAME - 28px, 700, #2B2B2B */
-        .header h1 {
-            font-size: 28px;
+        h1 {
+            font-size: 18pt;
             font-weight: 700;
             color: #2B2B2B;
-            margin: 0 0 4px 0;
-            line-height: 1.2;
+            margin-bottom: 1mm;
+            display: block;
         }
 
-        /* JOB TITLE - 16px, 500, #6B6B6B */
-        .job-title {
-            font-size: 16px;
-            font-weight: 500;
+        .header-role {
+            font-size: 13pt;
+            font-weight: bold;
             color: #6B6B6B;
-            margin-bottom: 12px;
+            margin-bottom: 2mm;
+            display: block;
         }
 
-        /* HEADER DIVIDER - 1px, #CFCFCF */
         .header-divider {
-            width: 100%;
-            height: 1px;
+            height: 1pt;
             background: #CFCFCF;
-            margin-top: 8px;
+            width: 100%;
+            margin-top: 2mm;
+            display: block;
         }
 
-        /* PROFILE IMAGE - 96×96px, border-radius 8px */
         .profile-photo {
-            width: 96px;
-            height: 96px;
+            width: 32mm;
+            height: 32mm;
             object-fit: cover;
-            border-radius: 8px;
-            flex-shrink: 0;
+            border-radius: 4pt;
+            display: block;
+            float: right;
         }
 
         /* CONTACT ROW */
-        .contact-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 20px;
-            font-size: 11px;
+        .contact-line {
+            font-size: 9.5pt;
             color: #4A4A4A;
+            margin-bottom: 5mm;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            clear: both;
+            padding-top: 2mm;
         }
 
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .contact-icon {
-            width: 12px;
-            height: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-        }
-
-        .contact-row a {
-            color: #4A4A4A;
-            text-decoration: none;
-        }
-
-        /* MAIN CONTENT - TWO COLUMN GRID */
+        /* MAIN CONTENT - TWO COLUMN (FLOAT) */
         .main-content {
-            display: flex;
-            gap: 24px;
+            display: block;
+            clear: both;
+            overflow: hidden;
+            width: 100%;
         }
 
-        /* LEFT COLUMN - 35% */
         .left-column {
-            flex: 0 0 35%;
-            max-width: 35%;
+            float: left;
+            width: 35%;
+            padding-right: 5mm;
         }
 
-        /* RIGHT COLUMN - 65% */
         .right-column {
-            flex: 0 0 calc(65% - 24px);
-            max-width: calc(65% - 24px);
+            float: right;
+            width: 65%;
         }
 
-        /* SECTION TITLE STYLE */
+        /* SECTION STYLES */
+        .section {
+            margin-bottom: 6mm;
+            page-break-inside: auto;
+            display: block;
+            clear: both;
+        }
+
         .section-title {
-            font-size: 13px;
+            font-size: 10pt;
             font-weight: 700;
             text-transform: uppercase;
             color: #2B2B2B;
             background: #F0F0F0;
-            padding: 4px 8px;
-            margin-bottom: 12px;
-            margin-top: 0;
+            padding: 2pt 5pt;
+            margin-bottom: 3mm;
             page-break-after: avoid;
+            display: block;
         }
 
-        .section {
-            margin-bottom: 20px;
+        /* ENTRY LAYOUT */
+        .experience-entry,
+        .project-entry,
+        .education-entry,
+        .entry {
+            margin-bottom: 4mm;
+            page-break-inside: avoid;
+            display: block;
         }
 
-        .section:first-child .section-title {
-            margin-top: 0;
-        }
-
-        /* ABOUT ME / SUMMARY */
-        .about-text {
-            font-size: 11px;
-            line-height: 1.5;
+        .edu-institution,
+        .exp-company,
+        .project-title {
+            font-weight: bold;
+            font-size: 10.5pt;
             color: #2B2B2B;
-            max-width: 100%;
+            display: block;
         }
 
-        /* EDUCATION */
+        .edu-degree,
+        .exp-role {
+            font-size: 10pt;
+            color: #4A4A4A;
+            display: block;
+            margin-top: 0.5mm;
+        }
+
+        .edu-year,
+        .exp-date {
+            font-size: 9pt;
+            color: #6B6B6B;
+            display: block;
+            margin-top: 0.5mm;
+        }
+
+        /* LISTS */
+        ul {
+            margin-top: 1.5mm;
+            margin-left: 5mm;
+            display: block;
+            list-style-type: disc;
+        }
+
+        li {
+            margin-bottom: 1mm;
+            font-size: 10pt;
+            color: #2B2B2B;
+            line-height: 1.4;
+        }
+
+        /* TIMELINE EFFECT FOR EDUCATION */
         .education-entry {
             position: relative;
-            padding-left: 16px;
-            margin-bottom: 12px;
-            page-break-inside: avoid;
+            padding-left: 5mm;
+            border-left: 1pt solid #CFCFCF;
+            margin-left: 2mm;
         }
 
         .education-entry::before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 6px;
-            width: 6px;
-            height: 6px;
+            left: -3.5pt;
+            top: 4pt;
+            width: 6pt;
+            height: 6pt;
             background: #2B2B2B;
             border-radius: 50%;
         }
 
-        .education-entry:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 2.5px;
-            top: 14px;
-            width: 1px;
-            height: calc(100% + 4px);
-            background: #CFCFCF;
-        }
-
-        .edu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-        }
-
-        .edu-institution {
-            font-size: 11px;
-            font-weight: 700;
-            color: #2B2B2B;
-        }
-
-        .edu-degree {
-            font-size: 11px;
-            font-weight: 400;
-            color: #4A4A4A;
-        }
-
-        .edu-year {
-            font-size: 10px;
-            color: #6B6B6B;
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        /* SKILLS */
-        .skills-list {
-            list-style: disc;
-            margin: 0 0 0 16px;
-            padding: 0;
-        }
-
-        .skills-list li {
-            font-size: 11px;
-            line-height: 1.5;
-            margin-bottom: 4px;
-            color: #2B2B2B;
-        }
-
-        /* LANGUAGES */
-        .languages-list {
-            list-style: disc;
-            margin: 0 0 0 16px;
-            padding: 0;
-        }
-
-        .languages-list li {
-            font-size: 11px;
-            line-height: 1.5;
-            margin-bottom: 4px;
-            color: #2B2B2B;
-        }
-
-        /* WORK EXPERIENCE */
-        .experience-entry {
-            margin-bottom: 16px;
-            page-break-inside: avoid;
-        }
-
-        .exp-header {
-            margin-bottom: 6px;
-        }
-
-        .exp-company {
-            font-size: 12px;
-            font-weight: 700;
-            color: #2B2B2B;
-        }
-
-        .exp-role-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-        }
-
-        .exp-role {
-            font-size: 11px;
-            font-weight: 500;
-            color: #4A4A4A;
-        }
-
-        .exp-date {
-            font-size: 10px;
-            color: #6B6B6B;
-            white-space: nowrap;
-        }
-
-        .exp-description {
-            font-size: 11px;
-            line-height: 1.5;
-            color: #2B2B2B;
-            margin-top: 6px;
-        }
-
-        .exp-bullets {
-            list-style: disc;
-            margin: 6px 0 0 16px;
-            padding: 0;
-        }
-
-        .exp-bullets li {
-            font-size: 11px;
-            line-height: 1.5;
-            margin-bottom: 4px;
-            color: #2B2B2B;
-        }
-
-        /* REFERENCES */
-        .references-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .reference-item {
-            font-size: 10.5px;
-            line-height: 1.4;
-        }
-
-        .ref-name {
-            font-weight: 700;
-            color: #2B2B2B;
-        }
-
-        .ref-org {
-            color: #4A4A4A;
-        }
-
-        .ref-contact {
-            color: #6B6B6B;
-            font-size: 10px;
-        }
-
-        /* PROJECTS SECTION */
-        .project-entry {
-            margin-bottom: 12px;
-            page-break-inside: avoid;
-        }
-
-        .project-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #2B2B2B;
-        }
-
-        .project-description {
-            font-size: 11px;
-            line-height: 1.5;
-            color: #4A4A4A;
-        }
-
-        /* KEYWORD HIGHLIGHTING - ATS-safe bold */
+        /* ATS-safe bolding */
         strong {
             font-weight: 700 !important;
-            color: #2B2B2B !important;
-        }
-
-        /* PAGE BREAK LOGIC */
-        @media print {
-            html,
-            body {
-                width: 794px;
-                height: 1123px;
-                orphans: 3;
-                widows: 3;
-            }
-
-            @page {
-                size: A4;
-                margin: 0;
-            }
-
-            body {
-                padding: 32px;
-            }
-
-            .resume-container {
-                padding: 0;
-            }
-
-            .section-title {
-                page-break-after: avoid !important;
-            }
-
-            .experience-entry,
-            .education-entry,
-            .project-entry {
-                page-break-inside: avoid !important;
-                orphans: 3;
-                widows: 3;
-            }
+            color: #000 !important;
         }
     </style>
 </head>
 
 <body>
     <div class="resume-container">
-
         <!-- HEADER SECTION -->
         <div class="header">
             <div class="header-left">
                 <h1>{{FULL_NAME}}</h1>
-                <div class="job-title">{{JOB_TITLE}}</div>
+                {{#if JOB_TITLE}}
+                <div class="header-role">{{JOB_TITLE}}</div>
+                {{/if}}
                 <div class="header-divider"></div>
             </div>
             {{#if PHOTO_URL}}
@@ -407,49 +256,20 @@
             {{/if}}
         </div>
 
-        <!-- CONTACT ROW -->
-        <div class="contact-row">
-            {{#if PHONE}}
-            <div class="contact-item">
-                <span class="contact-icon">P</span>
-                <span>{{PHONE}}</span>
-            </div>
-            {{/if}}
-            {{#if ADDRESS}}
-            <div class="contact-item">
-                <span class="contact-icon">A</span>
-                <span>{{ADDRESS}}</span>
-            </div>
-            {{/if}}
-            {{#if LINKEDIN}}
-            <div class="contact-item">
-                <span class="contact-icon">W</span>
-                <a href="{{LINKEDIN}}">{{LINKEDIN}}</a>
-            </div>
-            {{/if}}
-            {{#if EMAIL}}
-            <div class="contact-item">
-                <span class="contact-icon">E</span>
-                <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
-            </div>
-            {{/if}}
-        </div>
+        <!-- CONTACT LINE -->
+        <div class="contact-line">{{CONTACT_LINE}}</div>
 
         <!-- MAIN CONTENT - TWO COLUMN -->
         <div class="main-content">
-
             <!-- LEFT COLUMN -->
             <div class="left-column">
-
-                <!-- ABOUT ME -->
                 {{#if PROFILE}}
                 <div class="section">
                     <div class="section-title">About Me</div>
-                    <p class="about-text">{{PROFILE}}</p>
+                    <div class="about-text" style="font-size: 10pt; line-height: 1.5;">{{PROFILE}}</div>
                 </div>
                 {{/if}}
 
-                <!-- EDUCATION -->
                 {{#if EDUCATION_ENTRIES}}
                 <div class="section">
                     <div class="section-title">Education</div>
@@ -457,7 +277,6 @@
                 </div>
                 {{/if}}
 
-                <!-- SKILLS -->
                 {{#if SKILLS_LIST}}
                 <div class="section">
                     <div class="section-title">Skills</div>
@@ -466,23 +285,10 @@
                     </ul>
                 </div>
                 {{/if}}
-
-                <!-- LANGUAGES -->
-                {{#if LANGUAGES}}
-                <div class="section">
-                    <div class="section-title">Languages</div>
-                    <ul class="languages-list">
-                        {{LANGUAGES}}
-                    </ul>
-                </div>
-                {{/if}}
-
             </div>
 
             <!-- RIGHT COLUMN -->
             <div class="right-column">
-
-                <!-- WORK EXPERIENCE -->
                 {{#if EXPERIENCE_ENTRIES}}
                 <div class="section">
                     <div class="section-title">Work Experience</div>
@@ -490,7 +296,6 @@
                 </div>
                 {{/if}}
 
-                <!-- PROJECTS -->
                 {{#if PROJECTS_ENTRIES}}
                 <div class="section">
                     <div class="section-title">Projects</div>
@@ -498,20 +303,16 @@
                 </div>
                 {{/if}}
 
-                <!-- REFERENCES -->
                 {{#if REFERENCES}}
                 <div class="section">
-                    <div class="section-title">Reference</div>
-                    <div class="references-grid">
+                    <div class="section-title">References</div>
+                    <div style="font-size: 9.5pt; line-height: 1.4;">
                         {{REFERENCES}}
                     </div>
                 </div>
                 {{/if}}
-
             </div>
-
         </div>
-
     </div>
 </body>
 

@@ -830,10 +830,25 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                         </div>
                     )}
                     <button
-                        onClick={onNext}
+                        onClick={() => {
+                            if (window.innerWidth < 768) {
+                                const currentIndex = tabs.findIndex(t => t.id === activeTab);
+                                if (currentIndex < tabs.length - 1) {
+                                    setActiveTab(tabs[currentIndex + 1].id);
+                                    // Scroll to top of content area
+                                    document.querySelector('.flex-1.overflow-y-auto')?.scrollTo({ top: 0, behavior: 'smooth' });
+                                    return;
+                                }
+                            }
+                            onNext();
+                        }}
                         className="relative overflow-hidden group bg-white text-black px-6 md:px-6 py-3 md:py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-200 hover:shadow-lg transition-all duration-200 ease-out active:scale-95 min-w-[120px] min-h-[44px]"
                     >
-                        <span className="relative z-10">Continue</span>
+                        <span className="relative z-10">
+                            {window.innerWidth < 768 && tabs.findIndex(t => t.id === activeTab) < tabs.length - 1
+                                ? 'Next Section'
+                                : 'Final View'}
+                        </span>
                         <span className="absolute inset-0 bg-black opacity-0 group-active:opacity-10 transition-opacity duration-150"></span>
                     </button>
                 </div>
@@ -843,7 +858,7 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
             <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
 
                 {/* LEFT PANEL - Premium Glass Design with Tabs */}
-                <div className="w-full md:w-[320px] lg:w-[400px] xl:w-[440px] bg-gradient-to-br from-black via-slate-900 to-black border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto custom-scrollbar backdrop-blur-xl">
+                <div className="w-full md:w-[400px] lg:w-[440px] bg-gradient-to-br from-black via-slate-900 to-black border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto custom-scrollbar backdrop-blur-xl">
                     <div className="p-6 space-y-5">
 
                         {/* Premium Header */}
@@ -1173,7 +1188,7 @@ const Step2Editor: React.FC<Step2EditorProps> = ({ data, onChange, onNext, onBac
                     </div>
 
                     {/* Form Content Area - Premium Glass Cards */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 md:p-6 lg:p-12 xl:p-16 bg-black/20">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 md:p-12 lg:p-16 bg-black/20">
                         {activeTab === 'profile' && (
                             <div className="max-w-4xl mx-auto space-y-8 animate-bw-fade-up pb-32">
                                 {/* User Guidance Banner - Glass Card */}

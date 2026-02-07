@@ -85,5 +85,8 @@ export const feedbackService = {
             item.id === id ? { ...item, isFeatured: !item.isFeatured } : item
         );
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    },
+    resetToProduction() {
+        localStorage.removeItem(STORAGE_KEY);
     }
 };

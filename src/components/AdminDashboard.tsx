@@ -274,8 +274,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
                             <h3 className="text-2xl font-black text-slate-900 tracking-tight">User Feedback Moderation</h3>
-                            <div className="px-4 py-2 bg-slate-200 rounded-xl text-xs font-bold text-slate-600 uppercase tracking-widest">
-                                {feedback.length} Submissions
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => {
+                                        if (confirm('CAUTION: This will delete ALL feedback and reset to factory defaults. Proceed?')) {
+                                            feedbackService.resetToProduction();
+                                            setFeedback(feedbackService.getFeedback());
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold uppercase tracking-widest border border-rose-100 hover:bg-rose-100 transition-all"
+                                >
+                                    Reset to Production
+                                </button>
+                                <div className="px-4 py-2 bg-slate-200 rounded-xl text-xs font-bold text-slate-600 uppercase tracking-widest">
+                                    {feedback.length} Submissions
+                                </div>
                             </div>
                         </div>
 

@@ -12,6 +12,7 @@ interface EditorLayoutProps {
 }
 
 const TABS: { id: TabId; label: string }[] = [
+  { id: 'target-jd', label: 'Target & JD' },
   { id: 'profile', label: 'Profile' },
   { id: 'experience', label: 'Experience' },
   { id: 'projects', label: 'Projects' },

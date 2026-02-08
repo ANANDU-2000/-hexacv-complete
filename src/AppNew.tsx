@@ -50,6 +50,13 @@ const MobileResumeBulletImprover = lazy(() => import('./components/mobile/tools/
 const MobileJobDescriptionAnalyzer = lazy(() => import('./components/mobile/tools/MobileJobDescriptionAnalyzer'));
 const MobileResumeSectionChecker = lazy(() => import('./components/mobile/tools/MobileResumeSectionChecker'));
 
+// Legal / PayU-required pages
+const PricingPage = lazy(() => import('./pages/legal/PricingPage').then(m => ({ default: m.PricingPage })));
+const TermsPage = lazy(() => import('./pages/legal/TermsPage').then(m => ({ default: m.TermsPage })));
+const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const RefundPage = lazy(() => import('./pages/legal/RefundPage').then(m => ({ default: m.RefundPage })));
+const ContactPage = lazy(() => import('./pages/legal/ContactPage').then(m => ({ default: m.ContactPage })));
+
 // ============== LOADING SPINNER COMPONENT ==============
 const LoadingSpinner = () => (
     <div className="fixed inset-0 bg-slate-950 z-[9999] flex flex-col items-center justify-center">
@@ -391,6 +398,12 @@ export default function AppNew() {
                                 />}
                         </Suspense>
                     } />
+
+                    <Route path="/pricing" element={<Suspense fallback={<LoadingSpinner />}><PricingPage /></Suspense>} />
+                    <Route path="/terms" element={<Suspense fallback={<LoadingSpinner />}><TermsPage /></Suspense>} />
+                    <Route path="/privacy" element={<Suspense fallback={<LoadingSpinner />}><PrivacyPage /></Suspense>} />
+                    <Route path="/refund" element={<Suspense fallback={<LoadingSpinner />}><RefundPage /></Suspense>} />
+                    <Route path="/contact" element={<Suspense fallback={<LoadingSpinner />}><ContactPage /></Suspense>} />
 
                     {/* Catch-all redirect to homepage */}
                     <Route path="*" element={<Navigate to="/" replace />} />

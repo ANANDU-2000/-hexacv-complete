@@ -25,20 +25,22 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
           ? `Current: ${atsScoreBefore} / 100`
           : 'Add a job description in the editor to see your score.'}
       </p>
-      <p className="text-sm text-gray-600 mb-4">
-        Premium rewrite improves bullets and keyword alignment for better ATS results.
-      </p>
       {!isPaidUnlocked && (
-        <button
-          type="button"
-          onClick={onUnlockClick}
-          className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
-        >
-          Unlock Premium ATS Rewrite — ₹49 one time
-        </button>
+        <>
+          <p className="text-sm text-gray-600 mb-4">
+            Advanced ATS Rewrite: tailored to your JD, stronger verbs and metrics. One-time ₹49.
+          </p>
+          <button
+            type="button"
+            onClick={onUnlockClick}
+            className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
+          >
+            Unlock Advanced ATS Rewrite — ₹49
+          </button>
+        </>
       )}
       {isPaidUnlocked && (
-        <p className="text-sm text-green-700 font-medium">Premium unlocked. You can download.</p>
+        <p className="text-sm text-green-700 font-medium">Advanced Rewrite unlocked. You can download.</p>
       )}
     </div>
   );

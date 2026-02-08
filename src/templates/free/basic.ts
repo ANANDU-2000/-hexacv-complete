@@ -2,8 +2,8 @@ import { TemplateConfig } from '../../core/types';
 
 export const BASIC_TEMPLATE: TemplateConfig = {
     id: 'template1free',
-    name: 'ATS Classic',
-    description: 'ATS-optimized single-column layout with Times New Roman for maximum compatibility',
+    name: 'Free ATS Resume',
+    description: 'Clean resume + ATS keywords + basic rewrite. Free.',
     category: 'professional',
     page: {
         width: 794,

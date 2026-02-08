@@ -56,15 +56,6 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ data, onChange }
                     />
                 </div>
                 <div className="col-span-1 md:col-span-2">
-                    <label className="block text-sm font-medium">Target Role</label>
-                    <input
-                        type="text"
-                        value={basics.targetRole || ''}
-                        onChange={(e) => handleChange('targetRole', e.target.value)}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-                <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium">Summary</label>
                     <textarea
                         value={data.summary || ''}

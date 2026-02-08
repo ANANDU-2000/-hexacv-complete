@@ -27,6 +27,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   const [unlockChecked, setUnlockChecked] = useState(false);
   const [softLockOpen, setSoftLockOpen] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+  const [previewScale, setPreviewScale] = useState(1);
 
   const isFreeTemplate = selectedTemplateId === FREE_TEMPLATE_ID;
   const isLocked = !isFreeTemplate && !unlocked;
@@ -146,7 +147,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                 onClick={handleUnlockClick}
                 className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
               >
-                Unlock for ₹49
+                Unlock Advanced ATS Rewrite — ₹49
               </button>
             </div>
           )}
@@ -155,9 +156,22 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
 
       {/* Center: preview (with soft-lock overlay when paid and not unlocked) */}
       <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 overflow-y-auto">
-        <div className="flex-1 flex justify-center pt-6 pb-8 px-6 relative">
+        <div className="shrink-0 flex items-center gap-2 px-6 pt-4 pb-2">
+          <label className="text-xs font-medium text-gray-600">Zoom</label>
+          <input
+            type="range"
+            min={0.7}
+            max={1.3}
+            step={0.05}
+            value={previewScale}
+            onChange={(e) => setPreviewScale(Number(e.target.value))}
+            className="w-24"
+          />
+          <span className="text-xs text-gray-500 w-10">{Math.round(previewScale * 100)}%</span>
+        </div>
+        <div className="flex-1 flex justify-center pt-2 pb-8 px-6 relative min-h-0">
           <div className="shadow-lg bg-white origin-top relative" style={{ maxWidth: '210mm' }}>
-            <ResumePreview data={data} templateId={selectedTemplateId} scale={1} />
+            <ResumePreview data={data} templateId={selectedTemplateId} scale={previewScale} />
             {isLocked && unlockChecked && (
               <div
                 className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10"
@@ -169,7 +183,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                   onClick={handleUnlockClick}
                   className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700"
                 >
-                  Unlock Premium ATS Rewrite — ₹49
+                  Unlock Advanced ATS Rewrite — ₹49
                 </button>
               </div>
             )}

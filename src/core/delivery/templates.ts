@@ -1,10 +1,11 @@
 import { TemplateConfig } from '../types';
 import { BASIC_TEMPLATE } from '../../templates/free/basic';
-import { PREMIUM_TEMPLATES } from '../../templates/paid/premium';
+import { ADVANCED_TEMPLATE } from '../../templates/paid/premium';
 
+/** Only two modes: Free ATS Resume + Advanced ATS Rewrite (₹49). */
 export const AVAILABLE_TEMPLATES: TemplateConfig[] = [
     BASIC_TEMPLATE,
-    ...Object.values(PREMIUM_TEMPLATES)
+    ADVANCED_TEMPLATE,
 ];
 
 

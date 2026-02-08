@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+
+const A4_PX_WIDTH = 794;
+const A4_PX_HEIGHT = 1123;
 import { ResumeEditor } from '../ui/editor/ResumeEditor';
 import { ResumePreview } from '../ui/preview/ResumePreview';
 import { StepIndicator } from '../ui/editor/StepIndicator';
@@ -39,8 +42,46 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
   const [sectionWarnings, setSectionWarnings] = useState<{ section: string; present: boolean; warning?: string }[]>([]);
   const [atsLoading, setAtsLoading] = useState(false);
   const [previewScale, setPreviewScale] = useState(1);
-  const [atsPanelExpanded, setAtsPanelExpanded] = useState(false); // collapsed by default per UX spec
+  const [atsPanelExpanded, setAtsPanelExpanded] = useState(false);
   const [zoomMode, setZoomMode] = useState<'slider' | 'fit-width' | 'fit-height'>('slider');
+  const [previewContentHeight, setPreviewContentHeight] = useState(A4_PX_HEIGHT);
+  const [viewportSize, setViewportSize] = useState<{ w: number; h: number } | null>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  const fitScale = useMemo(() => {
+    if (!viewportSize || previewContentHeight <= 0) return 1;
+    const scaleW = viewportSize.w / A4_PX_WIDTH;
+    const scaleH = viewportSize.h / previewContentHeight;
+    return Math.max(0.35, Math.min(scaleW, scaleH, 1.2) * 0.98);
+  }, [viewportSize, previewContentHeight]);
+
+  useEffect(() => {
+    const el = previewContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      if (el) setViewportSize({ w: el.clientWidth, h: el.clientHeight });
+    });
+    ro.observe(el);
+    setViewportSize({ w: el.clientWidth, h: el.clientHeight });
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (fitScale > 0 && fitScale < 2) setPreviewScale((s) => (s === 1 ? fitScale : s));
+  }, [fitScale]);
+
+  const handlePreviewWheel = useCallback((e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      setPreviewScale((s) => Math.min(1.5, Math.max(0.3, s + (e.deltaY > 0 ? -0.05 : 0.05))));
+      setZoomMode('slider');
+    }
+  }, []);
+
+  const setFitInView = useCallback(() => {
+    setPreviewScale(fitScale);
+    setZoomMode('slider');
+  }, [fitScale]);
 
   const resumeText = useMemo(() => resumeToText(data), [data]);
   const jdText = data.jobDescription?.trim() ?? '';
@@ -131,53 +172,36 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
               )}
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 p-4 overflow-hidden">
             <div className="shrink-0 flex flex-wrap items-center gap-3 mb-2">
               <label className="text-sm font-medium text-gray-600">Zoom</label>
+              <button type="button" onClick={setFitInView} className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 border border-blue-200">Fit in view</button>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setZoomMode('fit-width'); setPreviewScale(1); }}
-                  className={`px-2 py-1 text-xs font-medium rounded ${zoomMode === 'fit-width' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  Fit width
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setZoomMode('fit-height'); setPreviewScale(1); }}
-                  className={`px-2 py-1 text-xs font-medium rounded ${zoomMode === 'fit-height' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  Fit height
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setZoomMode('slider'); }}
-                  className={`px-2 py-1 text-xs font-medium rounded ${zoomMode === 'slider' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  100%
-                </button>
+                <button type="button" onClick={() => { setPreviewScale((s) => Math.max(0.3, s - 0.1)); setZoomMode('slider'); }} className="p-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700" aria-label="Zoom out">−</button>
+                <button type="button" onClick={() => { setPreviewScale((s) => Math.min(1.5, s + 0.1)); setZoomMode('slider'); }} className="p-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700" aria-label="Zoom in">+</button>
               </div>
-              <input
-                type="range"
-                min={0.7}
-                max={1.3}
-                step={0.05}
-                value={previewScale}
-                onChange={(e) => { setPreviewScale(Number(e.target.value)); setZoomMode('slider'); }}
-                className="w-24"
-                aria-label="Zoom level"
-              />
-              <span className="text-sm text-gray-500 w-10">{Math.round(previewScale * 100)}%</span>
+              <input type="range" min={0.3} max={1.5} step={0.05} value={previewScale} onChange={(e) => { setPreviewScale(Number(e.target.value)); setZoomMode('slider'); }} className="w-24" aria-label="Zoom level" />
+              <span className="text-sm text-gray-500 w-12">{Math.round(previewScale * 100)}%</span>
+              <span className="text-xs text-gray-400">Ctrl+scroll to zoom</span>
             </div>
-            <div className="flex-1 flex justify-center min-h-0 overflow-auto">
-              <div
-                className="shadow-lg bg-white"
-                style={{
-                  maxWidth: zoomMode === 'fit-width' ? '100%' : '210mm',
-                  width: zoomMode === 'fit-width' ? '100%' : undefined,
-                }}
-              >
-                <ResumePreview data={data} templateId={DEFAULT_PREVIEW_TEMPLATE} scale={previewScale} />
+            {/* Full resume in viewport (no scroll by default); zoom in/out with buttons or Ctrl+scroll */}
+            <div
+              ref={previewContainerRef}
+              className="flex-1 min-h-0 overflow-auto flex justify-center items-start border border-gray-200 rounded-lg bg-gray-200/50"
+              onWheel={handlePreviewWheel}
+              role="region"
+              aria-label="Resume preview — full resume in view; zoom with +/− or Ctrl+scroll"
+            >
+              <div className="flex items-start justify-center p-2" style={{ minHeight: '100%', minWidth: '100%' }}>
+                <div className="shadow-lg bg-white inline-block">
+                  <ResumePreview
+                    data={data}
+                    templateId={DEFAULT_PREVIEW_TEMPLATE}
+                    scale={previewScale}
+                    onContentHeight={setPreviewContentHeight}
+                    contentHeight={previewContentHeight}
+                  />
+                </div>
               </div>
             </div>
           </div>

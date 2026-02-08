@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { Share2, Search, FileText, Sparkles, Briefcase, List, ChevronDown } from 'lucide-react';
+import { Share2, Search, FileText, Sparkles, Briefcase, List } from 'lucide-react';
 import { track } from './admin-analytics';
 import './index.css';
 import './design_overrides.css';
@@ -292,26 +292,21 @@ export default function AppNew() {
                 <Routes>
                     <Route path="/" element={
                         <>
-                            {/* Navigation Bar - retained from original */}
-                            <nav className={`hidden lg:flex px-4 md:px-8 h-[48px] sticky top-0 bg-white border-b border-gray-200 z-[100] items-center justify-center transition-shadow duration-300 ${scrolled ? 'shadow-sm' : ''}`}>
-                                <div className="w-full max-w-7xl flex items-center justify-between">
-                                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                                        <div className="w-7 h-7 bg-gray-900 rounded-md flex items-center justify-center p-1">
-                                            <img src="/logo.svg" alt="HexaCV" className="w-full h-full brightness-0 invert" />
-                                        </div>
-                                        <span className="text-[15px] font-bold text-gray-900">HEXACV</span>
+                            {/* Compact nav: left HEXACV, right FREE TOOLS only — no extra space */}
+                            <nav className={`hidden lg:flex px-3 py-2 min-h-[40px] sticky top-0 bg-white border-b border-gray-200 z-[100] items-center justify-between transition-shadow duration-300 ${scrolled ? 'shadow-sm' : ''}`}>
+                                <button type="button" onClick={() => navigate('/')} className="flex items-center gap-1.5 shrink-0">
+                                    <div className="w-6 h-6 bg-gray-900 rounded flex items-center justify-center p-0.5">
+                                        <img src="/logo.svg" alt="" className="w-full h-full brightness-0 invert" />
                                     </div>
-                                    {/* ... rest of nav items ... */}
-                                    <div className="hidden md:flex items-center gap-4">
-                                        <button
-                                            onClick={() => navigate('/free-tools')}
-                                            className="flex items-center gap-1.5 text-[13px] text-gray-600 hover:text-black font-medium px-2 py-1 transition-colors uppercase tracking-wider"
-                                        >
-                                            Free Tools
-                                            <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
-                                        </button>
-                                    </div>
-                                </div>
+                                    <span className="text-sm font-bold text-gray-900">HEXACV</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/free-tools')}
+                                    className="text-xs font-semibold text-gray-700 hover:text-gray-900 uppercase tracking-wide shrink-0"
+                                >
+                                    Free Tools
+                                </button>
                             </nav>
 
                             <Hero

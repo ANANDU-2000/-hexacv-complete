@@ -27,9 +27,15 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
       </p>
       {!isPaidUnlocked && (
         <>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-gray-600 mb-2">
             Advanced ATS Rewrite: tailored to your JD, stronger verbs and metrics. One-time ₹49.
           </p>
+          <ul className="text-xs text-gray-600 mb-4 space-y-1 list-disc list-inside">
+            <li>Better keyword match for ATS so your resume gets shortlisted.</li>
+            <li>Stronger action verbs and metrics tailored to your job description.</li>
+            <li>One-time unlock — no subscription.</li>
+          </ul>
+          <p className="text-xs text-gray-500 mb-3">Helps us keep the free builder and tools running.</p>
           <button
             type="button"
             onClick={onUnlockClick}

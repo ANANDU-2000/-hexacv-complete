@@ -1,6 +1,12 @@
 import { ResumeData } from '../types';
 import { populateTemplate } from './templateEngine';
 
+/**
+ * Generates PDF via browser print. Uses A4 size (210mm × 297mm).
+ * Templates must define @page { size: A4; margin: ... } and use page-break rules
+ * (e.g. page-break-after: avoid on section titles, page-break-inside: avoid on entries)
+ * for predictable multi-page A4 output.
+ */
 export async function generatePDF(templateName: string, data: ResumeData): Promise<void> {
     const html = await populateTemplate(templateName, data);
 

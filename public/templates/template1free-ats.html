@@ -18,7 +18,7 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
             font-size: 11pt;
             line-height: 1.25;
             color: #000;
@@ -27,7 +27,7 @@
             widows: 3;
         }
 
-        /* STRICT PDF METADATA REMOVAL */
+        /* A4 print: PDF is generated via browser print with this size. Templates use @page and page-break rules for multi-page output. */
         @page {
             size: A4;
             margin: 0.6in 0.7in;
@@ -44,6 +44,7 @@
             }
         }
 
+        /* A4 print: PDF via browser print. Use @page and page-break rules for multi-page output. */
         .resume-container {
             display: block;
             width: 210mm;
@@ -52,6 +53,7 @@
             margin: 0 auto;
             background: #fff;
             overflow: visible;
+            page-break-inside: auto;
         }
 
         /* HEADER SECTION (STRICT LEFT ALIGN) */

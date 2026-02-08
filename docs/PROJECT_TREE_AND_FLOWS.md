@@ -199,7 +199,7 @@ Resume text only → `checkResumeStructure` → section presence + score + sugge
 - **Resume not saved:** Refresh or close tab loses all resume data. No auto-save or “Save draft” to server or localStorage.
 - **Two session IDs:** `hexacv_session_id` and `user_session_id`; can confuse which is used where (analytics vs payment).
 - **Orders/unlocks in memory:** `api/lib/store` is in-memory; lost on Vercel cold start. Need InsForge (or DB) for production.
-- **PDF is client-side only:** Free PDF = iframe print; no server-side PDF or signed URLs for paid yet.
+- **PDF is client-side only:** Free PDF = iframe print (A4 210×297mm); templates use `@page` and page-break CSS for multi-page output. No server-side PDF or signed URLs for paid yet.
 - **Pre-existing TS/lint:** Missing `services/feedback`, `role-guidance-engine` type, some editor section types still error.
 - **Free AI keys in frontend:** Groq/Gemini still in browser for free rewrite/parse; ideal long-term is to proxy via backend.
 

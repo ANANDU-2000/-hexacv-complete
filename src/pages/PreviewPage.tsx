@@ -14,9 +14,11 @@ import { resumeToText } from '../core/ats/resumeToText';
 import { extractKeywordsFromJD } from '../core/ats/extractKeywords';
 import { scoreATS } from '../core/ats/scoreATS';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { ChevronDown, ChevronUp, FileDown, ArrowLeft, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, FileDown, ArrowLeft, Sparkles } from 'lucide-react';
 
 const FREE_TEMPLATE_ID = AVAILABLE_TEMPLATES[0]?.id ?? 'template1free';
+const A4_PX_HEIGHT = 1123;
+const A4_PX_WIDTH = 794;
 
 interface PreviewPageProps {
   data: ResumeData;
@@ -39,9 +41,49 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentBanner, setPaymentBanner] = useState<PaymentBanner>(null);
   const [previewScale, setPreviewScale] = useState(1);
+  const [previewContentHeight, setPreviewContentHeight] = useState(A4_PX_HEIGHT);
+  const [viewportSize, setViewportSize] = useState<{ w: number; h: number } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   const pollAttempts = useRef(0);
 
   const isMobile = useIsMobile();
+
+  const fitScale = useMemo(() => {
+    if (!viewportSize || previewContentHeight <= 0) return 1;
+    const scaleW = viewportSize.w / A4_PX_WIDTH;
+    const scaleH = viewportSize.h / previewContentHeight;
+    return Math.max(0.35, Math.min(scaleW, scaleH, 1.2) * 0.98);
+  }, [viewportSize, previewContentHeight]);
+
+  const totalPages = Math.max(1, Math.ceil(previewContentHeight / A4_PX_HEIGHT));
+
+  useEffect(() => {
+    const el = previewContainerRef.current;
+    if (!el || isMobile) return;
+    const ro = new ResizeObserver(() => {
+      if (el) setViewportSize({ w: el.clientWidth, h: el.clientHeight });
+    });
+    ro.observe(el);
+    setViewportSize({ w: el.clientWidth, h: el.clientHeight });
+    return () => ro.disconnect();
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!isMobile && fitScale > 0 && fitScale < 2) setPreviewScale((s) => (s === 1 ? fitScale : s));
+  }, [fitScale, isMobile]);
+
+  const setFitInView = useCallback(() => {
+    setPreviewScale(fitScale);
+  }, [fitScale]);
+
+  const goToPage = useCallback((page: number) => {
+    const el = previewContainerRef.current;
+    if (!el) return;
+    const pageHeight = A4_PX_HEIGHT * previewScale;
+    el.scrollTop = (page - 1) * pageHeight;
+    setCurrentPage(page);
+  }, [previewScale]);
   const [mobileScale, setMobileScale] = useState(1);
   const [atsExpanded, setAtsExpanded] = useState(false);
   const [showTemplateSheet, setShowTemplateSheet] = useState(false);
@@ -371,7 +413,9 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         </div>
         <div className="p-4 overflow-y-auto flex-1">
           <h2 className="text-lg font-bold mb-4 text-gray-800">Choose Template</h2>
+          <p className="text-xs text-gray-600 mb-3">Free: ATS-friendly layout. Paid: JD-tailored wording, stronger verbs, and better keyword fit.</p>
           <TemplateList templates={AVAILABLE_TEMPLATES} selectedTemplateId={selectedTemplateId} onSelect={setSelectedTemplateId} freeTemplateId={FREE_TEMPLATE_ID} />
+          <p className="text-xs text-gray-500 mt-3">One-time fee for advanced rewrite; free template stays free for life.</p>
           {isLocked && unlockChecked && (
             <div className="mt-4 lg:hidden">
               <button type="button" onClick={handleUnlockClick} className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700">Unlock Advanced ATS Rewrite — ₹49</button>
@@ -379,21 +423,49 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
           )}
         </div>
       </aside>
-      <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 overflow-y-auto">
-        <div className="shrink-0 flex items-center gap-2 px-6 pt-4 pb-2">
-          <label className="text-xs font-medium text-gray-600">Zoom</label>
-          <input type="range" min={0.7} max={1.3} step={0.05} value={previewScale} onChange={(e) => setPreviewScale(Number(e.target.value))} className="w-24" />
-          <span className="text-xs text-gray-500 w-10">{Math.round(previewScale * 100)}%</span>
+      <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 min-h-0">
+        <div className="shrink-0 flex flex-wrap items-center gap-3 px-6 pt-4 pb-2">
+          <label className="text-sm font-medium text-gray-600">Zoom</label>
+          <button type="button" onClick={setFitInView} className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 border border-blue-200">Fit in view</button>
+          <input type="range" min={0.35} max={1.3} step={0.05} value={previewScale} onChange={(e) => setPreviewScale(Number(e.target.value))} className="w-24" aria-label="Zoom" />
+          <span className="text-sm text-gray-500 w-12">{Math.round(previewScale * 100)}%</span>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">Page</span>
+              <button type="button" onClick={() => goToPage(Math.max(1, currentPage - 1))} disabled={currentPage <= 1} className="p-1.5 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Previous page"><ChevronLeft size={18} /></button>
+              <span className="text-xs font-medium text-gray-700 min-w-[4rem] text-center">{currentPage} / {totalPages}</span>
+              <button type="button" onClick={() => goToPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage >= totalPages} className="p-1.5 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Next page"><ChevronRight size={18} /></button>
+            </div>
+          )}
         </div>
-        <div className="flex-1 flex justify-center pt-2 pb-8 px-6 relative min-h-0">
-          <div className="shadow-lg bg-white origin-top relative" style={{ maxWidth: '210mm' }}>
-            <ResumePreview data={data} templateId={selectedTemplateId} scale={previewScale} />
-            {isLocked && unlockChecked && (
-              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
-                <p className="text-gray-700 font-medium mb-2">Unlock this template to download.</p>
-                <button type="button" onClick={handleUnlockClick} className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700">Unlock Advanced ATS Rewrite — ₹49</button>
-              </div>
-            )}
+        <div
+          ref={previewContainerRef}
+          className="flex-1 min-h-0 overflow-auto flex justify-center items-start px-6 pb-8"
+          style={{ height: `${A4_PX_HEIGHT * previewScale}px`, maxHeight: '100%' }}
+          onScroll={() => {
+            const el = previewContainerRef.current;
+            if (!el || totalPages <= 1) return;
+            const pageHeight = A4_PX_HEIGHT * previewScale;
+            const page = Math.min(totalPages, Math.floor(el.scrollTop / pageHeight) + 1);
+            setCurrentPage(page);
+          }}
+        >
+          <div style={{ height: `${previewContentHeight * previewScale}px`, minHeight: `${A4_PX_HEIGHT * previewScale}px` }} className="flex items-start justify-center">
+            <div className="shadow-lg bg-white origin-top relative" style={{ maxWidth: '210mm' }}>
+              <ResumePreview
+                data={data}
+                templateId={selectedTemplateId}
+                scale={previewScale}
+                onContentHeight={setPreviewContentHeight}
+                contentHeight={previewContentHeight}
+              />
+              {isLocked && unlockChecked && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
+                  <p className="text-gray-700 font-medium mb-2">Unlock this template to download.</p>
+                  <button type="button" onClick={handleUnlockClick} className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700">Unlock Advanced ATS Rewrite — ₹49</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

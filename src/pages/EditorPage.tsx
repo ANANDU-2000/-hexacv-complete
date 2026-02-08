@@ -200,6 +200,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
                     scale={previewScale}
                     onContentHeight={setPreviewContentHeight}
                     contentHeight={previewContentHeight}
+                    showLoadingOverlay={false}
                   />
                 </div>
               </div>

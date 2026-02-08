@@ -6,6 +6,8 @@
 export interface FeedbackItem {
   id: string;
   author: string;
+  /** @deprecated Use author. Kept for backward compatibility. */
+  userName?: string;
   role?: string;
   content: string;
   rating?: number;
@@ -58,6 +60,31 @@ export const feedbackService = {
     });
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch {
+      // ignore
+    }
+  },
+  toggleFeatured(id: string): void {
+    const list = getStored().map((item) =>
+      item.id === id ? { ...item, isFeatured: !item.isFeatured } : item
+    );
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch {
+      // ignore
+    }
+  },
+  deleteFeedback(id: string): void {
+    const list = getStored().filter((item) => item.id !== id);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch {
+      // ignore
+    }
+  },
+  resetToProduction(): void {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
     } catch {
       // ignore
     }

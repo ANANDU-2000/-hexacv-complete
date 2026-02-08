@@ -297,7 +297,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 <div key={item.id} className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-md transition-all">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <h4 className="font-bold text-slate-900 text-lg">{item.userName}</h4>
+                                            <h4 className="font-bold text-slate-900 text-lg">{item.userName ?? item.author ?? 'User'}</h4>
                                             <span className="px-2 py-0.5 bg-slate-100 text-[10px] font-black text-slate-500 rounded uppercase tracking-wider">{item.role}</span>
                                             <div className="flex gap-0.5 ml-auto">
                                                 {[...Array(5)].map((_, i) => (
@@ -308,7 +308,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                         <p className="text-slate-600 text-sm leading-relaxed italic mb-4">"{item.content}"</p>
                                         <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                             <Clock size={12} />
-                                            {new Date(item.date).toLocaleDateString()}
+                                            {new Date((item as any).date ?? item.createdAt ?? 0).toLocaleDateString()}
                                         </div>
                                     </div>
 

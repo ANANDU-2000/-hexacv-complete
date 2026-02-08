@@ -135,6 +135,22 @@
     transform: scale(0.98);
 }
 
+/* Editor form UX: min 14px labels, 16px inputs, 8px grid spacing */
+.editor-form-spacing label,
+.editor-form-spacing [class*="label"] {
+    font-size: max(14px, 0.875rem);
+    min-height: 22px;
+}
+.editor-form-spacing input:not([type="checkbox"]):not([type="radio"]),
+.editor-form-spacing textarea,
+.editor-form-spacing select {
+    font-size: max(16px, 1rem);
+    min-height: 44px;
+    padding: 8px 12px;
+}
+.editor-form-spacing .space-y-4 > * + * { margin-top: 8px; }
+.editor-form-spacing .space-y-6 > * + * { margin-top: 12px; }
+
 .duration-500 {
     animation-duration: 0.5s;
 }

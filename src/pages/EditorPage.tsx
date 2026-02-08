@@ -40,6 +40,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
   const [atsLoading, setAtsLoading] = useState(false);
   const [previewScale, setPreviewScale] = useState(1);
   const [atsPanelExpanded, setAtsPanelExpanded] = useState(false); // collapsed by default per UX spec
+  const [zoomMode, setZoomMode] = useState<'slider' | 'fit-width' | 'fit-height'>('slider');
 
   const resumeText = useMemo(() => resumeToText(data), [data]);
   const jdText = data.jobDescription?.trim() ?? '';
@@ -89,16 +90,16 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
         </button>
       </header>
       <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Left column ~60%: Step indicator + Section switcher + Editor */}
-        <aside className="w-full lg:w-[60%] lg:max-w-[60%] flex flex-col overflow-hidden border-r border-gray-200 bg-white">
-          <div className="shrink-0 px-6 pt-4 pb-2 border-b border-gray-100">
+        {/* Left column 40%: Step indicator + horizontal section tabs + Editor */}
+        <aside className="w-full lg:w-[40%] lg:max-w-[40%] flex flex-col overflow-hidden border-r border-gray-200 bg-white">
+          <div className="shrink-0 px-4 pt-3 pb-1 border-b border-gray-100">
             <StepIndicator steps={EDITOR_STEPS} currentStep="ats" />
           </div>
-          <div className="flex-1 overflow-hidden min-h-0">
+          <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
             <ResumeEditor data={data} onChange={onChange} />
           </div>
         </aside>
-        {/* Right column ~40%: ATS card (collapsed by default) + Live preview */}
+        {/* Right column 60%: ATS (collapsible) + Live preview - full resume with zoom */}
         <main className="hidden lg:flex flex-1 flex-col overflow-hidden bg-gray-100 min-w-0">
           <div className="shrink-0 p-4">
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm sticky top-0 z-10 overflow-hidden">
@@ -131,21 +132,51 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 flex flex-col min-h-0">
-            <div className="shrink-0 flex items-center gap-2 mb-2">
-              <label className="text-xs font-medium text-gray-600">Zoom</label>
+            <div className="shrink-0 flex flex-wrap items-center gap-3 mb-2">
+              <label className="text-sm font-medium text-gray-600">Zoom</label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setZoomMode('fit-width'); setPreviewScale(1); }}
+                  className={`px-2 py-1 text-xs font-medium rounded ${zoomMode === 'fit-width' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Fit width
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setZoomMode('fit-height'); setPreviewScale(1); }}
+                  className={`px-2 py-1 text-xs font-medium rounded ${zoomMode === 'fit-height' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  Fit height
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setZoomMode('slider'); }}
+                  className={`px-2 py-1 text-xs font-medium rounded ${zoomMode === 'slider' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  100%
+                </button>
+              </div>
               <input
                 type="range"
                 min={0.7}
                 max={1.3}
                 step={0.05}
                 value={previewScale}
-                onChange={(e) => setPreviewScale(Number(e.target.value))}
+                onChange={(e) => { setPreviewScale(Number(e.target.value)); setZoomMode('slider'); }}
                 className="w-24"
+                aria-label="Zoom level"
               />
-              <span className="text-xs text-gray-500 w-10">{Math.round(previewScale * 100)}%</span>
+              <span className="text-sm text-gray-500 w-10">{Math.round(previewScale * 100)}%</span>
             </div>
             <div className="flex-1 flex justify-center min-h-0 overflow-auto">
-              <div className="shadow-lg bg-white" style={{ maxWidth: '210mm' }}>
+              <div
+                className="shadow-lg bg-white"
+                style={{
+                  maxWidth: zoomMode === 'fit-width' ? '100%' : '210mm',
+                  width: zoomMode === 'fit-width' ? '100%' : undefined,
+                }}
+              >
                 <ResumePreview data={data} templateId={DEFAULT_PREVIEW_TEMPLATE} scale={previewScale} />
               </div>
             </div>

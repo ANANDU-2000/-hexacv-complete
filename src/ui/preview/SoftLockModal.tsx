@@ -5,6 +5,7 @@ interface SoftLockModalProps {
   onClose: () => void;
   onContinue: () => void;
   loading?: boolean;
+  error?: string | null;
 }
 
 const VALUE_BULLETS = [
@@ -19,6 +20,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
   onClose,
   onContinue,
   loading = false,
+  error = null,
 }) => {
   if (!open) return null;
 
@@ -41,6 +43,14 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
             </li>
           ))}
         </ul>
+        <p className="text-xs text-gray-500 mb-4">
+          You will be redirected to PayU to complete payment securely. Unlock is confirmed only after payment success.
+        </p>
+        {error && (
+          <p className="text-sm text-red-600 mb-4" role="alert">
+            {error}
+          </p>
+        )}
         <div className="flex flex-col gap-2">
           <button
             type="button"

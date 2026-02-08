@@ -40,7 +40,7 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
         </>
       )}
       {isPaidUnlocked && (
-        <p className="text-sm text-green-700 font-medium">Advanced Rewrite unlocked. You can download.</p>
+        <p className="text-sm text-green-700 font-medium">Payment verified. You can download now.</p>
       )}
     </div>
   );

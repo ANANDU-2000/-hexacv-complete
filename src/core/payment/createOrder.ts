@@ -76,8 +76,8 @@ export async function createOrderAndPay(
       e instanceof TypeError &&
       (e.message === 'Failed to fetch' || e.message.includes('NetworkError'));
     const message = isNetworkError
-      ? 'Connection failed. For local testing run: npm run dev:full'
-      : e instanceof Error ? e.message : 'Payment failed';
+      ? 'Payment unavailable. Check your connection or try again.'
+      : e instanceof Error ? e.message : 'Payment failed. Try again.';
     return { success: false, message };
   }
 }

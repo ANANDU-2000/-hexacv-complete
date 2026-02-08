@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ResumeData } from '../core/types';
 import { ResumePreview } from '../ui/preview/ResumePreview';
 import { TemplateList } from '../ui/templates/TemplateList';
@@ -20,14 +21,23 @@ interface PreviewPageProps {
   onBack: () => void;
 }
 
+type PaymentBanner = 'verifying' | 'verified' | 'delayed' | 'failed' | null;
+
+const POLL_INTERVAL_MS = 2000;
+const POLL_MAX_ATTEMPTS = 10;
+
 export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(FREE_TEMPLATE_ID);
   const [downloading, setDownloading] = useState(false);
   const [unlocked, setUnlocked] = useState<boolean>(false);
   const [unlockChecked, setUnlockChecked] = useState(false);
   const [softLockOpen, setSoftLockOpen] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentBanner, setPaymentBanner] = useState<PaymentBanner>(null);
   const [previewScale, setPreviewScale] = useState(1);
+  const pollAttempts = useRef(0);
 
   const isFreeTemplate = selectedTemplateId === FREE_TEMPLATE_ID;
   const isLocked = !isFreeTemplate && !unlocked;
@@ -43,6 +53,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
     return result.score;
   }, [data]);
 
+  // Unlock status (single source of truth from backend)
   useEffect(() => {
     if (isFreeTemplate) {
       setUnlocked(true);
@@ -67,6 +78,58 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
     return () => { cancelled = true; };
   }, [sessionId, selectedTemplateId, isFreeTemplate]);
 
+  // Payment return: read ?payment=success|failure and show banner + poll unlock
+  const paymentParamHandled = useRef(false);
+  useEffect(() => {
+    const payment = searchParams.get('payment');
+    if (!payment || paymentParamHandled.current) return;
+    paymentParamHandled.current = true;
+
+    const clearParam = () => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('payment');
+        return next;
+      }, { replace: true });
+    };
+
+    if (payment === 'failure') {
+      setPaymentBanner('failed');
+      clearParam();
+      return;
+    }
+
+    if (payment === 'success') {
+      setPaymentBanner('verifying');
+      clearParam();
+      pollAttempts.current = 0;
+
+      const poll = () => {
+        pollAttempts.current += 1;
+        checkUnlockStatus(sessionId, selectedTemplateId, { cache: false })
+          .then((ok) => {
+            if (ok) {
+              setUnlocked(true);
+              setUnlockChecked(true);
+              setPaymentBanner('verified');
+            } else if (pollAttempts.current < POLL_MAX_ATTEMPTS) {
+              setTimeout(poll, POLL_INTERVAL_MS);
+            } else {
+              setPaymentBanner('delayed');
+            }
+          })
+          .catch(() => {
+            if (pollAttempts.current < POLL_MAX_ATTEMPTS) {
+              setTimeout(poll, POLL_INTERVAL_MS);
+            } else {
+              setPaymentBanner('delayed');
+            }
+          });
+      };
+      poll();
+    }
+  }, [searchParams, setSearchParams, sessionId, selectedTemplateId]);
+
   const handleDownload = useCallback(async () => {
     if (isLocked) return;
     setDownloading(true);
@@ -85,10 +148,11 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   }, []);
 
   const handleSoftLockContinue = useCallback(async () => {
+    setPaymentError(null);
     const email = data.basics?.email?.trim() || '';
     const phone = data.basics?.phone?.trim() || '';
     if (!email) {
-      alert('Please add your email in the editor so we can send your receipt.');
+      setPaymentError('Please add your email in the editor so we can send your receipt.');
       return;
     }
     setPayLoading(true);
@@ -101,16 +165,50 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         phone
       );
       if (!result.success) {
-        alert(result.message || 'Payment not available.');
+        setPaymentError(result.message || 'Payment not available. Check your connection or try again.');
       }
+      // On success, createOrderAndPay redirects to PayU so modal will unmount
     } finally {
       setPayLoading(false);
-      setSoftLockOpen(false);
     }
   }, [sessionId, selectedTemplateId, data.basics?.email, data.basics?.phone]);
 
+  const dismissPaymentBanner = useCallback(() => setPaymentBanner(null), []);
+
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
+    <div className="flex h-screen bg-gray-100 font-sans flex-col">
+      {/* Payment return banner: who paid must see verified; who failed must see message */}
+      {paymentBanner && (
+        <div
+          role="alert"
+          className={`shrink-0 px-4 py-2 text-sm flex items-center justify-between ${
+            paymentBanner === 'verified'
+              ? 'bg-green-100 text-green-800'
+              : paymentBanner === 'failed'
+                ? 'bg-amber-100 text-amber-800'
+                : paymentBanner === 'delayed'
+                  ? 'bg-amber-50 text-amber-800'
+                  : 'bg-blue-50 text-blue-800'
+          }`}
+        >
+          <span>
+            {paymentBanner === 'verifying' && 'Payment received. Verifying…'}
+            {paymentBanner === 'verified' && 'Payment verified. You can download now.'}
+            {paymentBanner === 'delayed' && 'Payment confirmed but delivery delayed. Please wait a moment and refresh.'}
+            {paymentBanner === 'failed' && 'Payment was not completed. You can try again or use the free template.'}
+          </span>
+          <button
+            type="button"
+            onClick={dismissPaymentBanner}
+            className="ml-2 text-current opacity-70 hover:opacity-100"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-1 min-h-0">
       {/* Left: template list (+ mobile CTA when paid locked) */}
       <aside className="w-full sm:w-72 lg:w-[25%] lg:min-w-[200px] lg:max-w-[280px] bg-white border-r flex flex-col flex-shrink-0">
         <div className="p-4 border-b flex items-center justify-between">
@@ -199,12 +297,14 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
           onUnlockClick={handleUnlockClick}
         />
       </aside>
+      </div>
 
       <SoftLockModal
         open={softLockOpen}
-        onClose={() => setSoftLockOpen(false)}
+        onClose={() => { setSoftLockOpen(false); setPaymentError(null); }}
         onContinue={handleSoftLockContinue}
         loading={payLoading}
+        error={paymentError}
       />
     </div>
   );

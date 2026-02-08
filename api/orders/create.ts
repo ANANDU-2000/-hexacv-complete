@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { insertOrder } from '../lib/store';
-import { generateRequestHash, isPayuConfigured } from '../lib/payu';
+import { insertOrder } from '../lib/store.js';
+import { generateRequestHash, isPayuConfigured } from '../lib/payu.js';
 
 const PAYU_KEY = process.env.PAYU_KEY || '';
 const PAYU_SALT = process.env.PAYU_SALT || '';

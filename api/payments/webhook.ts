@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getOrderByTxnid, setOrderVerified, addUnlock } from '../lib/store';
-import { verifyResponseHash, isPayuConfigured } from '../lib/payu';
+import { getOrderByTxnid, setOrderVerified, addUnlock } from '../lib/store.js';
+import { verifyResponseHash, isPayuConfigured } from '../lib/payu.js';
 
 const PAYU_KEY = process.env.PAYU_KEY || '';
 

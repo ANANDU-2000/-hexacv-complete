@@ -65,10 +65,10 @@ export const TestimonialsSlider: React.FC = () => {
 
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-lg">
-                                        {(item.userName ?? item.author ?? '?').charAt(0)}
+                                        {String(item?.userName ?? item?.author ?? '?').charAt(0)}
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900">{item.userName ?? item.author ?? 'User'}</h4>
+                                        <h4 className="font-bold text-slate-900">{item?.userName ?? item?.author ?? 'User'}</h4>
                                         <p className="text-xs text-slate-500 uppercase tracking-wider">{item.role ?? ''}</p>
                                     </div>
                                 </div>

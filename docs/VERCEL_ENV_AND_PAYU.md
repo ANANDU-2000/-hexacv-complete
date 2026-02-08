@@ -58,15 +58,18 @@ If the payment flow returns **500** in production or test:
 1. **Check env on Vercel**  
    In **Vercel → Project → Settings → Environment Variables**, confirm **PAYU_KEY** and **PAYU_SALT** are set for the same environment (Production/Preview) you’re testing. If either is missing, the API returns **503** (“Payment not configured”), not 500.
 
-2. **Redeploy**  
-   After changing env vars, trigger a new deployment so the serverless function gets the new values.
+2. **Redeploy after every change**  
+   **Latest push must be deployed.** After changing env vars or any code (including `api/` and `api/lib/`), trigger a new deployment so the serverless functions get the new values. If you don’t redeploy, production will keep running the old build (old UX, old API, old mobile).
 
-3. **Check function logs**  
+3. **`ERR_MODULE_NOT_FOUND: api/lib/store`**  
+   If the logs show “Cannot find module …/api/lib/store”, the deployment is missing the `api/lib` files or is using an old build. Ensure `api/lib/store.ts` and `api/lib/payu.ts` exist in the repo and that your API routes import them with the **`.js`** extension (e.g. `from '../lib/store.js'`). Then push and **redeploy** so Vercel includes them in the function bundle.
+
+4. **Check function logs**  
    In **Vercel → Project → Deployments → [latest] → Functions**, open the log for the deployment and trigger a payment again. The handler logs `Create order error: <message>` on failure; that message tells you what threw (e.g. body parsing, hash, or store).
 
-4. **503 vs 500**  
+5. **503 vs 500**  
    - **503** = PayU not configured (add PAYU_KEY + PAYU_SALT in Vercel, then redeploy).  
-   - **500** = Exception inside the handler; use the logs from step 3 to fix.
+   - **500** = Exception inside the handler; use the logs from step 4 to fix.
 
 ---
 

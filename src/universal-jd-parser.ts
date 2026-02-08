@@ -268,8 +268,8 @@ function extractJobTitle(text: string): string | null {
     
     // Check for .NET specific patterns first
     const dotNetMatch = text.match(/(?:\.NET|dotnet|asp\.net|c#)\s+(?:developer|engineer|programmer)/i);
-    if (dotNetMatch) {
-        const role = dotNetMatch[0].replace(/\s+/g, ' ');
+    if (dotNetMatch && dotNetMatch[0]) {
+        const role = String(dotNetMatch[0]).replace(/\s+/g, ' ');
         return role.charAt(0).toUpperCase() + role.slice(1);
     }
     

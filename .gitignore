@@ -6,3 +6,10 @@ dist
 *.log
 .DS_Store
 nul
+
+.vercel
+build_log.txt
+tsc_errors.txt
+tsc_output.txt
+tsc_output_2.txt
+vite_build_log.txt

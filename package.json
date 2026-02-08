@@ -8,6 +8,7 @@
   "author": "HexaCV",
   "scripts": {
     "dev": "vite",
+    "dev:full": "vercel dev",
     "build": "node build.mjs",
     "build:vite": "vite build",
     "build:check": "tsc --noEmit && vite build",

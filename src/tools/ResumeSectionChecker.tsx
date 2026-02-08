@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { FileText, ArrowRight, CheckCircle2, XCircle, AlertTriangle, Info, ChevronLeft } from 'lucide-react';
-import { checkResumeStructure, StructureAnalysis } from '../services/keywordEngine';
+import { checkResumeStructure, SectionCheckResult } from '../core/ats/scoreATS';
 
 interface Props {
   onNavigateHome: () => void;
@@ -16,7 +16,7 @@ interface Props {
 
 export default function ResumeSectionChecker({ onNavigateHome }: Props) {
   const [resumeText, setResumeText] = useState('');
-  const [analysis, setAnalysis] = useState<StructureAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<SectionCheckResult | null>(null);
 
   const handleCheck = () => {
     if (!resumeText.trim()) return;
@@ -76,8 +76,8 @@ export default function ResumeSectionChecker({ onNavigateHome }: Props) {
             onClick={handleCheck}
             disabled={!resumeText.trim()}
             className={`w-full h-11 rounded-lg font-medium text-sm transition-colors ${resumeText.trim()
-                ? 'bg-gray-900 text-white hover:bg-gray-800'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-gray-900 text-white hover:bg-gray-800'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
               }`}
           >
             Check Structure

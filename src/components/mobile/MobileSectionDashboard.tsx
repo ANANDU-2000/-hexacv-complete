@@ -17,9 +17,13 @@ interface Props {
     onReorderSection: (fromIndex: number, toIndex: number) => void;
     onContinue: () => void;
     onBack: () => void;
+    /** ATS score (0–100); when provided, shows sticky ATS bar and "Improve" opens feedback */
+    atsScore?: number | null;
+    missingKeywords?: string[];
+    onImproveClick?: () => void;
 }
 
-export default function MobileSectionDashboard({ data, onNavigateToSection, onContinue, onBack }: Props) {
+export default function MobileSectionDashboard({ data, onNavigateToSection, onContinue, onBack, atsScore, missingKeywords = [], onImproveClick }: Props) {
     const resumeSections = [
         { id: 'profile', label: 'Profile', complete: !!(data.basics.fullName?.trim() && data.basics.email?.trim()) },
         { id: 'experience', label: 'Experience', complete: data.experience.length > 0 },
@@ -153,14 +157,30 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </div>
             </div>
 
+            {/* Sticky ATS bar (when ATS data provided) - above CTA, min touch target 44px */}
+            {onImproveClick != null && (
+                <div className="fixed left-0 right-0 bottom-[5.5rem] sm:bottom-[6rem] px-5 sm:px-6 z-40 safe-area-bottom">
+                    <button
+                        type="button"
+                        onClick={onImproveClick}
+                        className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-xl text-white flex items-center justify-between gap-3 text-sm font-semibold active:scale-[0.98]"
+                        aria-label="View ATS score and missing keywords"
+                    >
+                        <span>ATS: {atsScore ?? 0}/100</span>
+                        <span className="flex items-center gap-1">Improve <ChevronRight size={18} strokeWidth={2.5} /></span>
+                    </button>
+                </div>
+            )}
+
             {/* Sticky Footer CTA - Master Safety */}
             <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-black/80 backdrop-blur-2xl border-t border-white/10 safe-area-bottom z-50">
                 <button
                     onClick={onContinue}
-                    className="w-full h-15 sm:h-18 rounded-[2rem] bg-white text-black font-black text-[15px] sm:text-[16px] uppercase tracking-[0.2em] transition-all active:scale-[0.95] flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
+                    className="w-full min-h-[48px] h-15 sm:h-18 rounded-[2rem] bg-white text-black font-black text-[15px] sm:text-[16px] uppercase tracking-[0.2em] transition-all active:scale-[0.95] flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
+                    aria-label="Review resume"
                 >
                     <Eye size={22} strokeWidth={3} className="sm:scale-110" />
-                    <span>Live Preview</span>
+                    <span>Review resume</span>
                 </button>
             </div>
 

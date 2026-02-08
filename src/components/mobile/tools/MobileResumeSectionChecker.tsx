@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, CheckCircle2, AlertCircle, List, Zap } from 'lucide-react';
-import { checkResumeStructure } from '../../../services/keywordEngine';
+import { checkResumeStructure } from '../../../core/ats/scoreATS';
 
 interface Props {
     onBack: () => void;

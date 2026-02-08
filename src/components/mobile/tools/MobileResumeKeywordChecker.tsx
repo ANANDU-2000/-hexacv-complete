@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { ChevronLeft, Check, X, AlertCircle, Zap, FileText } from 'lucide-react';
-import { extractKeywordsFromJD, compareResumeToJD, ComparisonResult } from '../../../services/keywordEngine';
+import { extractKeywordsFromJD } from '../../../core/ats/extractKeywords';
+import { scoreATS, ATSScoreResult } from '../../../core/ats/scoreATS';
 
 interface Props {
     onBack: () => void;
@@ -10,7 +11,7 @@ interface Props {
 export default function MobileResumeKeywordChecker({ onBack }: Props) {
     const [resumeText, setResumeText] = useState('');
     const [jdText, setJdText] = useState('');
-    const [result, setResult] = useState<ComparisonResult | null>(null);
+    const [result, setResult] = useState<ATSScoreResult | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleCheck = () => {
@@ -18,7 +19,7 @@ export default function MobileResumeKeywordChecker({ onBack }: Props) {
         setLoading(true);
         setTimeout(() => {
             const jdKeywords = extractKeywordsFromJD(jdText);
-            const comparison = compareResumeToJD(resumeText, jdKeywords);
+            const comparison = scoreATS(resumeText, jdKeywords);
             setResult(comparison);
             setLoading(false);
         }, 800);
@@ -80,7 +81,7 @@ export default function MobileResumeKeywordChecker({ onBack }: Props) {
                         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm text-center">
                             <div className="text-[13px] font-bold text-gray-400 uppercase tracking-widest mb-1">Match Overview</div>
                             <div className="text-3xl font-black text-gray-900">
-                                {result.matchedCount}<span className="text-gray-300 text-xl font-medium mx-1">/</span>{result.totalKeywords}
+                                {result.matched.length}<span className="text-gray-300 text-xl font-medium mx-1">/</span>{result.totalKeywords}
                             </div>
                             <p className="text-xs text-gray-500 mt-2">Keywords found in your resume</p>
                             <button

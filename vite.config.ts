@@ -9,12 +9,16 @@ export default defineConfig({
         logOverride: { 'this-is-undefined-in-esm': 'silent' }
     },
     server: {
-        proxy: {
-            '/api': {
-                target: process.env.VITE_API_URL || 'http://localhost:3001',
-                changeOrigin: true
+        // Only proxy /api when VITE_API_URL is set (e.g. you have a backend on 3001).
+        // Otherwise /api requests 404 on Vite — use "npm run dev:full" (vercel dev) to run API locally.
+        ...(process.env.VITE_API_URL && {
+            proxy: {
+                '/api': {
+                    target: process.env.VITE_API_URL,
+                    changeOrigin: true
+                }
             }
-        }
+        })
     },
     build: {
         // Production build optimizations

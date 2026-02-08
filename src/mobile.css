@@ -1449,10 +1449,6 @@
         align-items: center !important;
         justify-content: center !important;
     }
-
-    /* Touch-friendly spacing between interactive elements */
-    margin-left: 8px !important;
-}
 }
 
 /* ===== IMPROVED MOBILE PREVIEW ZOOM ===== */

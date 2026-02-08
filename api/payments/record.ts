@@ -1,7 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// In-memory store for demo (use database in production)
-// For production, use: MongoDB, PostgreSQL, Firebase, etc.
+/**
+ * Legacy: Razorpay payment record (optional).
+ * Primary payment flow is PayU: POST /api/orders/create then PayU webhook -> api/payments/webhook.
+ */
 const payments: Map<string, any> = new Map();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

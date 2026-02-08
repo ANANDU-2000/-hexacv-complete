@@ -1,13 +1,19 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ResumeData, TabId } from '../../types';
 import { ChevronRight, ChevronLeft, Plus, X, Eye, Sparkles, Target, User, Briefcase, Code, GraduationCap, Trophy, Camera, CheckCircle2, Globe, FileText, Laptop } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
-import { TemplateRenderer } from '../../template-renderer';
-import { refineResumeSummary, refineExperienceHighlights } from '../../services/geminiService';
+
+import { refineResumeSummary, refineExperienceHighlights } from '../../core/ats/refinement';
+import { resumeToText } from '../../core/ats/resumeToText';
+import { extractKeywordsFromJD } from '../../core/ats/extractKeywords';
+import { scoreATS } from '../../core/ats/scoreATS';
 import MobileSectionDashboard from './MobileSectionDashboard';
 import MobileSectionEditor from './MobileSectionEditor';
+import { MobileATSModal } from './MobileATSModal';
 
 import { getRoleSuggestions } from '../../constants/roles';
+
+const ATS_DEBOUNCE_MS = 500;
 
 type MobileView = 'dashboard' | 'section-editor';
 
@@ -30,6 +36,27 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
     const [photoPreview, setPhotoPreview] = useState<string | null>(data.photoUrl || null);
     const [roleSuggestions, setRoleSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [atsModalOpen, setAtsModalOpen] = useState(false);
+    const [atsScore, setAtsScore] = useState<number | null>(null);
+    const [atsMissing, setAtsMissing] = useState<string[]>([]);
+
+    const resumeText = useMemo(() => resumeToText(data), [data]);
+    const jdText = data.jobDescription?.trim() ?? '';
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            if (jdText) {
+                const keywords = extractKeywordsFromJD(jdText);
+                const result = scoreATS(resumeText, keywords);
+                setAtsScore(result.score);
+                setAtsMissing(result.missing.map((m) => m.keyword));
+            } else {
+                setAtsScore(null);
+                setAtsMissing([]);
+            }
+        }, ATS_DEBOUNCE_MS);
+        return () => clearTimeout(t);
+    }, [resumeText, jdText]);
 
     const tabs: { id: TabId, label: string, icon: any }[] = [
         { id: 'target-jd', label: 'Job Role', icon: Target },
@@ -101,6 +128,9 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                         onReorderSection={handleReorderSection}
                         onContinue={onNext}
                         onBack={onBack}
+                        atsScore={atsScore}
+                        missingKeywords={atsMissing}
+                        onImproveClick={() => setAtsModalOpen(true)}
                     />
 
                     {/* Validation Error Toast - Premium Style */}
@@ -203,7 +233,8 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                                         return (
                                             <button
                                                 key={lvl.id}
-                                                onClick={() => updateData({ basics: { ...data.basics, experienceLevel: lvl.id } })}
+                                                // @ts-ignore - We know these IDs match the type
+                                                onClick={() => updateData({ basics: { ...data.basics, experienceLevel: lvl.id as any } })}
                                                 className={`p-5 min-[400px]:p-6 rounded-[2rem] border-2 text-left transition-all active:scale-[0.95] flex flex-col justify-between h-32 ${isSelected
                                                     ? 'bg-white border-white shadow-2xl shadow-white/10'
                                                     : 'bg-white/5 border-white/5 hover:border-white/20'
@@ -243,7 +274,8 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                                         return (
                                             <button
                                                 key={m.id}
-                                                onClick={() => updateData({ basics: { ...data.basics, targetMarket: m.id } })}
+                                                // @ts-ignore
+                                                onClick={() => updateData({ basics: { ...data.basics, targetMarket: m.id as any } })}
                                                 className={`p-5 min-[400px]:p-6 rounded-[2.5rem] border-2 text-left transition-all active:scale-[0.98] flex items-center justify-between ${isSelected
                                                     ? 'bg-white border-white shadow-2xl shadow-white/10'
                                                     : 'bg-white/5 border-white/5 hover:border-white/10'
@@ -314,6 +346,12 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                 </div>
             )}
 
+            <MobileATSModal
+                open={atsModalOpen}
+                onClose={() => setAtsModalOpen(false)}
+                score={atsScore}
+                missingKeywords={atsMissing}
+            />
         </div>
     );
 };

@@ -8,7 +8,8 @@
 
 import { useState } from 'react';
 import { FileText, ArrowRight, Check, X, AlertCircle, ChevronLeft, Home } from 'lucide-react';
-import { extractKeywordsFromJD, compareResumeToJD, ComparisonResult } from '../services/keywordEngine';
+import { extractKeywordsFromJD } from '../core/ats/extractKeywords';
+import { scoreATS, ATSScoreResult } from '../core/ats/scoreATS';
 
 interface Props {
   onNavigateHome: () => void;
@@ -17,12 +18,12 @@ interface Props {
 export default function ResumeKeywordChecker({ onNavigateHome }: Props) {
   const [resumeText, setResumeText] = useState('');
   const [jdText, setJdText] = useState('');
-  const [result, setResult] = useState<ComparisonResult | null>(null);
+  const [result, setResult] = useState<ATSScoreResult | null>(null);
 
   const handleCheck = () => {
     if (!resumeText.trim() || !jdText.trim()) return;
     const jdKeywords = extractKeywordsFromJD(jdText);
-    const comparison = compareResumeToJD(resumeText, jdKeywords);
+    const comparison = scoreATS(resumeText, jdKeywords);
     setResult(comparison);
   };
 
@@ -105,7 +106,7 @@ export default function ResumeKeywordChecker({ onNavigateHome }: Props) {
             {/* Summary - NO percentage */}
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
-                Found <span className="font-semibold text-gray-900">{result.matchedCount}</span> matching keywords out of <span className="font-semibold text-gray-900">{result.totalKeywords}</span> identified in the job description.
+                Found <span className="font-semibold text-gray-900">{result.matched.length}</span> matching keywords out of <span className="font-semibold text-gray-900">{result.totalKeywords}</span> identified in the job description.
               </p>
             </div>
 

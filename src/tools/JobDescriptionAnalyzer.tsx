@@ -8,7 +8,8 @@
 
 import { useState } from 'react';
 import { FileText, ArrowRight, Briefcase, TrendingUp, Code, Star, ChevronLeft } from 'lucide-react';
-import { analyzeJobDescription, JDAnalysis, extractKeywordsFromJD } from '../services/keywordEngine';
+import { extractKeywordsFromJD } from '../core/ats/extractKeywords';
+import { analyzeJobDescription, JDAnalysis } from '../core/ats/scoreATS';
 
 interface Props {
   onNavigateHome: () => void;
@@ -86,8 +87,8 @@ export default function JobDescriptionAnalyzer({ onNavigateHome }: Props) {
             onClick={handleAnalyze}
             disabled={!jdText.trim()}
             className={`w-full h-11 rounded-lg font-medium text-sm transition-colors ${jdText.trim()
-                ? 'bg-gray-900 text-white hover:bg-gray-800'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-gray-900 text-white hover:bg-gray-800'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
               }`}
           >
             Analyze Job Description

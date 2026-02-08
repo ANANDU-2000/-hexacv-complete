@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ResumeData, TemplateConfig } from '../../types';
 import MobileSectionDashboard from './MobileSectionDashboard';
 import MobileSectionEditor from './MobileSectionEditor';
-import MobileTemplateExport from './MobileTemplateExport';
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type SliderStep = 'edit-details' | 'choose-templates';
@@ -83,14 +83,15 @@ const MobileSliderContainer: React.FC<MobileSliderContainerProps> = ({
                             onNavigateToSection={navigateToSection}
                             onReorderSection={() => { }}
                             onContinue={handleEditDetailsComplete}
-                            hideHeader={true}
+                            onBack={() => { }} // Dashboard inside slider might not need onBack or it should go to previous context?
+                        // But MobileSectionDashboard requires onBack.
                         />
                     </div>
                 );
             case 'choose-templates':
                 return (
                     <div className="h-full flex flex-col overflow-hidden">
-                        <MobileTemplateExport
+                        {/* <MobileTemplateExport
                             data={data}
                             selectedTemplate={selectedTemplate}
                             templates={templates}
@@ -98,7 +99,11 @@ const MobileSliderContainer: React.FC<MobileSliderContainerProps> = ({
                             onBack={() => goToStep('edit-details')}
                             onNext={handleTemplatesComplete}
                             hideHeader={true}
-                        />
+                        /> */}
+                        <div className="flex items-center justify-center h-full">
+                            <p className="text-gray-500">Template selection coming soon to mobile.</p>
+                            <button onClick={handleTemplatesComplete} className="mt-4 px-4 py-2 bg-black text-white rounded">Skip to Preview</button>
+                        </div>
                     </div>
                 );
             default:

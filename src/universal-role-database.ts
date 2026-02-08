@@ -8,7 +8,7 @@
 // INDUSTRY CATEGORIES (20+ Major Industries)
 // ═══════════════════════════════════════════════════════════════
 
-export type IndustryCategory = 
+export type IndustryCategory =
     | 'technology'
     | 'healthcare'
     | 'finance'
@@ -41,7 +41,7 @@ export type IndustryCategory =
     | 'beauty'
     | 'other';
 
-export type ExperienceLevel = 'intern' | 'fresher' | 'junior' | 'mid' | 'senior' | 'lead' | 'manager' | 'director' | 'executive';
+export type ExperienceLevel = 'intern' | 'fresher' | 'junior' | 'mid' | 'senior' | 'lead' | 'manager' | 'director' | 'executive' | 'partner';
 
 export type RegionCode = 'US' | 'UK' | 'EU' | 'IN' | 'ME' | 'APAC' | 'LATAM' | 'AFRICA' | 'GLOBAL';
 
@@ -56,34 +56,34 @@ export interface RoleDefinition {
     industry: IndustryCategory;
     subIndustry?: string;
     levels: ExperienceLevel[];
-    
+
     // Skills & Requirements
     coreSkills: string[];
     optionalSkills: string[];
     tools: string[];
     certifications: string[];
     educationRequirements: string[];
-    
+
     // Resume Content Guidance
     typicalResponsibilities: string[];
     atsKeywords: string[];
     actionVerbs: string[];
     metricExamples: string[];
-    
+
     // Writing Guidance
     summaryTemplate: string;
     bulletTemplates: string[];
     toneStyle: 'formal' | 'professional' | 'creative' | 'technical' | 'conversational';
-    
+
     // Photo & Format
     photoRecommendation: 'required' | 'recommended' | 'optional' | 'not_recommended';
     photoRegions: RegionCode[];
-    
+
     // Market Intelligence
     demandLevel: 'high' | 'medium' | 'low';
     growthTrend: 'growing' | 'stable' | 'declining';
     salaryRange?: { min: number; max: number; currency: string };
-    
+
     // Fresher Specific
     fresherFriendly: boolean;
     fresherAlternatives: string[]; // What freshers can highlight instead of experience
@@ -460,7 +460,7 @@ export const ROLE_DATABASE: RoleDefinition[] = [
         fresherFriendly: true,
         fresherAlternatives: ['Academic projects', 'Personal projects', 'Open source contributions', 'Hackathons', 'Internships']
     },
-    
+
     // ───────────────────────────────────────────────────────────
     // HEALTHCARE ROLES
     // ───────────────────────────────────────────────────────────
@@ -901,25 +901,25 @@ export const ROLE_DATABASE: RoleDefinition[] = [
  */
 export function findRole(searchTerm: string): RoleDefinition | null {
     const normalized = searchTerm.toLowerCase().trim();
-    
+
     // Exact match first
-    let found = ROLE_DATABASE.find(role => 
+    let found = ROLE_DATABASE.find(role =>
         role.name.toLowerCase() === normalized ||
         role.aliases.some(alias => alias.toLowerCase() === normalized)
     );
-    
+
     if (found) return found;
-    
+
     // Partial match
     found = ROLE_DATABASE.find(role =>
         role.name.toLowerCase().includes(normalized) ||
         normalized.includes(role.name.toLowerCase()) ||
-        role.aliases.some(alias => 
+        role.aliases.some(alias =>
             alias.toLowerCase().includes(normalized) ||
             normalized.includes(alias.toLowerCase())
         )
     );
-    
+
     return found || null;
 }
 
@@ -956,7 +956,7 @@ export function getIndustryInfo(industry: IndustryCategory): IndustryInfo {
  */
 export function detectIndustry(jobTitle: string): IndustryCategory {
     const title = jobTitle.toLowerCase();
-    
+
     // Industry detection rules
     const industryPatterns: [RegExp, IndustryCategory][] = [
         [/software|developer|engineer|programmer|devops|data scientist|tech lead|architect|qa|frontend|backend|fullstack/i, 'technology'],
@@ -989,13 +989,13 @@ export function detectIndustry(jobTitle: string): IndustryCategory {
         [/trainer|coach|fitness|personal train|sports|gym/i, 'sports'],
         [/stylist|beautician|esthetician|makeup|spa|salon/i, 'beauty']
     ];
-    
+
     for (const [pattern, industry] of industryPatterns) {
         if (pattern.test(title)) {
             return industry;
         }
     }
-    
+
     return 'other';
 }
 

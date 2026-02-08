@@ -54,7 +54,17 @@ export const STEP_GUIDANCE = {
 // FIELD-SPECIFIC GUIDANCE (Honest, practical)
 // ═══════════════════════════════════════════════════════════════
 
-export const FIELD_GUIDANCE = {
+
+interface FieldGuidanceItem {
+    label: string;
+    placeholder?: string;
+    help: string;
+    whyItMatters: string;
+    doThis: string;
+    avoidThis: string;
+}
+
+export const FIELD_GUIDANCE: Record<string, FieldGuidanceItem> = {
     targetRole: {
         label: 'Target Role',
         placeholder: 'e.g., Software Engineer, Product Manager',
@@ -281,15 +291,15 @@ export const PRICING_MESSAGES = {
 // HELPER FUNCTION TO GET GUIDANCE
 // ═══════════════════════════════════════════════════════════════
 
-export function getFieldGuidance(fieldName: string): typeof FIELD_GUIDANCE.targetRole | null {
-    return FIELD_GUIDANCE[fieldName as keyof typeof FIELD_GUIDANCE] || null;
+export function getFieldGuidance(fieldName: string): FieldGuidanceItem | null {
+    return FIELD_GUIDANCE[fieldName] || null;
 }
 
 export function getErrorMessage(category: keyof typeof ERROR_MESSAGES, key: string): string {
     const categoryMessages = ERROR_MESSAGES[category];
     if (typeof categoryMessages === 'object' && key in categoryMessages) {
         const message = categoryMessages[key as keyof typeof categoryMessages];
-        return typeof message === 'function' ? message('field') : message;
+        return typeof message === 'function' ? (message as Function)('field') : message;
     }
     return 'An error occurred';
 }

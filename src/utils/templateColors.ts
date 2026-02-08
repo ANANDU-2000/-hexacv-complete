@@ -1,4 +1,4 @@
-import { TEMPLATES } from '../templates';
+import { AVAILABLE_TEMPLATES } from '../core/delivery/templates';
 
 export interface ColorScheme {
   primary: string;
@@ -7,7 +7,7 @@ export interface ColorScheme {
 }
 
 export function getTemplateColors(templateId: string): ColorScheme {
-  const template = TEMPLATES.find(t => t.id === templateId);
+  const template = AVAILABLE_TEMPLATES.find(t => t.id === templateId);
   if (!template || !template.colorScheme) {
     return { primary: '#000000', secondary: '#666666', accent: '#0066cc' };
   }

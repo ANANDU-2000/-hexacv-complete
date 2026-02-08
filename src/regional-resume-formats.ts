@@ -8,7 +8,7 @@
 // TYPES
 // ═══════════════════════════════════════════════════════════════
 
-export type RegionCode = 
+export type RegionCode =
     // North America
     | 'US' | 'CA'
     // Europe
@@ -24,7 +24,7 @@ export type RegionCode =
     // Global fallback
     | 'GLOBAL';
 
-export type DateFormat = 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY/MM/DD' | 'DD.MM.YYYY' | 'YYYY-MM-DD';
+export type DateFormat = 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY/MM/DD' | 'DD.MM.YYYY' | 'YYYY-MM-DD' | 'DD-MM-YYYY';
 export type DocumentType = 'resume' | 'cv' | 'biodata';
 export type PhotoRequirement = 'required' | 'expected' | 'optional' | 'discouraged' | 'illegal';
 
@@ -32,12 +32,12 @@ export interface RegionalFormat {
     code: RegionCode;
     name: string;
     language: string;
-    
+
     // Document conventions
     documentType: DocumentType;
     typicalLength: { pages: number; description: string };
     dateFormat: DateFormat;
-    
+
     // Photo policy
     photo: {
         requirement: PhotoRequirement;
@@ -45,7 +45,7 @@ export interface RegionalFormat {
         placement?: 'top-right' | 'top-left' | 'header-center';
         size?: string;
     };
-    
+
     // Personal information requirements
     personalInfo: {
         fullName: { required: boolean; format?: string };
@@ -56,10 +56,10 @@ export interface RegionalFormat {
         address: { required: boolean; fullOrCity: 'full' | 'city_only' | 'optional' };
         religion: { required: boolean; reason?: string };
     };
-    
+
     // Section ordering (priority order)
     sectionOrder: string[];
-    
+
     // Formatting preferences
     formatting: {
         fontSize: string;
@@ -68,7 +68,7 @@ export interface RegionalFormat {
         preferredFonts: string[];
         colorAcceptance: 'discouraged' | 'minimal' | 'acceptable' | 'encouraged';
     };
-    
+
     // Cultural considerations
     culture: {
         formalityLevel: 'very_formal' | 'formal' | 'semi_formal' | 'casual';
@@ -76,13 +76,13 @@ export interface RegionalFormat {
         achievementStyle: 'quantified' | 'descriptive' | 'modest';
         honorificsImportant: boolean;
     };
-    
+
     // ATS considerations
     ats: {
         prevalence: 'very_high' | 'high' | 'medium' | 'low';
         tips: string[];
     };
-    
+
     // Legal/compliance notes
     legalNotes: string[];
 }
@@ -150,7 +150,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Equal Employment Opportunity laws apply'
         ]
     },
-    
+
     CA: {
         code: 'CA',
         name: 'Canada',
@@ -250,7 +250,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Right to work in UK may need to be proven during hiring'
         ]
     },
-    
+
     IE: {
         code: 'IE',
         name: 'Ireland',
@@ -349,7 +349,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Photo legally optional since 2006 but culturally expected'
         ]
     },
-    
+
     FR: {
         code: 'FR',
         name: 'France',
@@ -400,7 +400,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Loi du 27 mai 2008 addresses discrimination'
         ]
     },
-    
+
     NL: {
         code: 'NL',
         name: 'Netherlands',
@@ -445,7 +445,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Equal Treatment Act applies']
     },
-    
+
     BE: {
         code: 'BE',
         name: 'Belgium',
@@ -490,7 +490,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Anti-discrimination laws apply']
     },
-    
+
     CH: {
         code: 'CH',
         name: 'Switzerland',
@@ -536,7 +536,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Work permit requirements vary by nationality']
     },
-    
+
     AT: {
         code: 'AT',
         name: 'Austria',
@@ -582,7 +582,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Gleichbehandlungsgesetz applies']
     },
-    
+
     ES: {
         code: 'ES',
         name: 'Spain',
@@ -627,7 +627,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Data protection and equal opportunity laws apply']
     },
-    
+
     IT: {
         code: 'IT',
         name: 'Italy',
@@ -675,7 +675,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Include "Autorizzo il trattamento dei dati personali" privacy statement'
         ]
     },
-    
+
     PT: {
         code: 'PT',
         name: 'Portugal',
@@ -767,7 +767,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Discrimination Act (Diskrimineringslag) applies']
     },
-    
+
     NO: {
         code: 'NO',
         name: 'Norway',
@@ -812,7 +812,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Equality and Anti-Discrimination Act applies']
     },
-    
+
     DK: {
         code: 'DK',
         name: 'Denmark',
@@ -857,7 +857,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Danish Act on Prohibition of Discrimination applies']
     },
-    
+
     FI: {
         code: 'FI',
         name: 'Finland',
@@ -902,7 +902,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Non-Discrimination Act applies']
     },
-    
+
     PL: {
         code: 'PL',
         name: 'Poland',
@@ -1005,7 +1005,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Labour law requirements vary by emirate'
         ]
     },
-    
+
     SA: {
         code: 'SA',
         name: 'Saudi Arabia',
@@ -1054,7 +1054,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Work visa (iqama) requirements strict'
         ]
     },
-    
+
     QA: {
         code: 'QA',
         name: 'Qatar',
@@ -1100,7 +1100,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Kafala (sponsorship) system applies']
     },
-    
+
     KW: {
         code: 'KW',
         name: 'Kuwait',
@@ -1141,7 +1141,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Work permit requirements apply']
     },
-    
+
     BH: {
         code: 'BH',
         name: 'Bahrain',
@@ -1182,7 +1182,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour law requirements apply']
     },
-    
+
     OM: {
         code: 'OM',
         name: 'Oman',
@@ -1223,7 +1223,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Omanization quotas in certain sectors']
     },
-    
+
     EG: {
         code: 'EG',
         name: 'Egypt',
@@ -1264,7 +1264,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour law requirements apply']
     },
-    
+
     JO: {
         code: 'JO',
         name: 'Jordan',
@@ -1305,7 +1305,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Standard labour laws apply']
     },
-    
+
     LB: {
         code: 'LB',
         name: 'Lebanon',
@@ -1399,7 +1399,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Right to Information Act affects some sectors'
         ]
     },
-    
+
     SG: {
         code: 'SG',
         name: 'Singapore',
@@ -1447,7 +1447,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Fair Consideration Framework for hiring'
         ]
     },
-    
+
     AU: {
         code: 'AU',
         name: 'Australia',
@@ -1497,7 +1497,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Right to work verification required'
         ]
     },
-    
+
     NZ: {
         code: 'NZ',
         name: 'New Zealand',
@@ -1542,7 +1542,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Human Rights Act 1993 applies']
     },
-    
+
     MY: {
         code: 'MY',
         name: 'Malaysia',
@@ -1588,7 +1588,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Employment Act requirements apply']
     },
-    
+
     PH: {
         code: 'PH',
         name: 'Philippines',
@@ -1634,7 +1634,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour Code of the Philippines applies']
     },
-    
+
     ID: {
         code: 'ID',
         name: 'Indonesia',
@@ -1680,7 +1680,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Manpower Law requirements apply']
     },
-    
+
     TH: {
         code: 'TH',
         name: 'Thailand',
@@ -1726,7 +1726,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour Protection Act applies']
     },
-    
+
     VN: {
         code: 'VN',
         name: 'Vietnam',
@@ -1772,7 +1772,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour Code applies']
     },
-    
+
     JP: {
         code: 'JP',
         name: 'Japan',
@@ -1823,7 +1823,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Specific resume formats expected (Rirekisho)'
         ]
     },
-    
+
     KR: {
         code: 'KR',
         name: 'South Korea',
@@ -1874,7 +1874,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Military service disclosure expected for males'
         ]
     },
-    
+
     CN: {
         code: 'CN',
         name: 'China',
@@ -1924,7 +1924,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'Hukou system affects employment in some cities'
         ]
     },
-    
+
     HK: {
         code: 'HK',
         name: 'Hong Kong',
@@ -1969,7 +1969,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Disability Discrimination Ordinance applies']
     },
-    
+
     TW: {
         code: 'TW',
         name: 'Taiwan',
@@ -2063,7 +2063,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Federal Labour Law (LFT) applies']
     },
-    
+
     BR: {
         code: 'BR',
         name: 'Brazil',
@@ -2108,7 +2108,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['CLT (Consolidação das Leis do Trabalho) applies']
     },
-    
+
     AR: {
         code: 'AR',
         name: 'Argentina',
@@ -2153,7 +2153,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour Contract Law applies']
     },
-    
+
     CL: {
         code: 'CL',
         name: 'Chile',
@@ -2198,7 +2198,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Labour Code applies']
     },
-    
+
     CO: {
         code: 'CO',
         name: 'Colombia',
@@ -2243,7 +2243,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Substantive Labour Code applies']
     },
-    
+
     PE: {
         code: 'PE',
         name: 'Peru',
@@ -2335,7 +2335,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
             'BEE requirements in certain sectors'
         ]
     },
-    
+
     NG: {
         code: 'NG',
         name: 'Nigeria',
@@ -2381,7 +2381,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Federal Character principle may apply']
     },
-    
+
     KE: {
         code: 'KE',
         name: 'Kenya',
@@ -2426,7 +2426,7 @@ export const REGIONAL_FORMATS: Record<RegionCode, RegionalFormat> = {
         },
         legalNotes: ['Employment Act applies']
     },
-    
+
     GH: {
         code: 'GH',
         name: 'Ghana',
@@ -2540,17 +2540,17 @@ export function formatDateForRegion(
     region: RegionCode
 ): FormattedDate {
     const format = REGIONAL_FORMATS[region]?.dateFormat || 'DD/MM/YYYY';
-    
+
     const d = typeof date === 'string' ? new Date(date) : date;
-    
+
     if (isNaN(d.getTime())) {
         return { display: String(date), format };
     }
-    
+
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
-    
+
     let display: string;
     switch (format) {
         case 'MM/DD/YYYY':
@@ -2571,7 +2571,7 @@ export function formatDateForRegion(
         default:
             display = `${day}/${month}/${year}`;
     }
-    
+
     return { display, format };
 }
 
@@ -2580,8 +2580,8 @@ export function formatDateForRegion(
  */
 export function getPhotoRequiredRegions(): RegionCode[] {
     return Object.entries(REGIONAL_FORMATS)
-        .filter(([_, format]) => 
-            format.photo.requirement === 'required' || 
+        .filter(([_, format]) =>
+            format.photo.requirement === 'required' ||
             format.photo.requirement === 'expected'
         )
         .map(([code]) => code as RegionCode);
@@ -2592,8 +2592,8 @@ export function getPhotoRequiredRegions(): RegionCode[] {
  */
 export function getPhotoDiscouragedRegions(): RegionCode[] {
     return Object.entries(REGIONAL_FORMATS)
-        .filter(([_, format]) => 
-            format.photo.requirement === 'discouraged' || 
+        .filter(([_, format]) =>
+            format.photo.requirement === 'discouraged' ||
             format.photo.requirement === 'illegal'
         )
         .map(([code]) => code as RegionCode);
@@ -2665,12 +2665,12 @@ export function getRegionsByContinent(): Record<string, RegionCode[]> {
  */
 export function detectRegion(input: string): RegionCode {
     const normalized = input.toUpperCase().trim();
-    
+
     // Direct code match
     if (normalized in REGIONAL_FORMATS) {
         return normalized as RegionCode;
     }
-    
+
     // Country name mapping
     const countryNameMap: Record<string, RegionCode> = {
         'UNITED STATES': 'US',
@@ -2738,7 +2738,7 @@ export function detectRegion(input: string): RegionCode {
         'KENYA': 'KE',
         'GHANA': 'GH'
     };
-    
+
     return countryNameMap[normalized] || 'GLOBAL';
 }
 
@@ -2751,7 +2751,7 @@ export function getPrivacyStatement(region: RegionCode): string | null {
         PL: 'Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rekrutacji zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679.',
         DE: 'Ich willige in die Verarbeitung meiner personenbezogenen Daten gemäß DSGVO ein.',
     };
-    
+
     return statements[region] || null;
 }
 
@@ -2761,7 +2761,7 @@ export function getPrivacyStatement(region: RegionCode): string | null {
 export function getFormattingRecommendations(region: RegionCode): string[] {
     const format = getRegionalFormat(region);
     const recommendations: string[] = [];
-    
+
     // Photo recommendation
     if (format.photo.requirement === 'required' || format.photo.requirement === 'expected') {
         recommendations.push(`Include a professional photo (${format.photo.reason})`);
@@ -2771,42 +2771,42 @@ export function getFormattingRecommendations(region: RegionCode): string[] {
     } else if (format.photo.requirement === 'discouraged') {
         recommendations.push(`Do not include a photo (${format.photo.reason})`);
     }
-    
+
     // Length recommendation
     recommendations.push(`Keep to ${format.typicalLength.description}`);
-    
+
     // Date format
     recommendations.push(`Use ${format.dateFormat} date format`);
-    
+
     // Document type
     if (format.documentType === 'cv') {
         recommendations.push('Use "CV" or "Curriculum Vitae" as document title');
     } else if (format.documentType === 'resume') {
         recommendations.push('Use "Resume" as document title');
     }
-    
+
     // Personal info
     if (format.personalInfo.dateOfBirth.required) {
         recommendations.push('Include date of birth');
     } else if (format.personalInfo.dateOfBirth.reason) {
         recommendations.push(`Date of birth: ${format.personalInfo.dateOfBirth.reason}`);
     }
-    
+
     // Formality
     if (format.culture.formalityLevel === 'very_formal') {
         recommendations.push('Use formal language and professional tone throughout');
     }
-    
+
     // Achievement style
     if (format.culture.achievementStyle === 'quantified') {
         recommendations.push('Quantify achievements with specific numbers and metrics');
     } else if (format.culture.achievementStyle === 'modest') {
         recommendations.push('Present achievements modestly, focus on team contributions');
     }
-    
+
     // Font recommendations
     recommendations.push(`Recommended fonts: ${format.formatting.preferredFonts.join(', ')}`);
-    
+
     return recommendations;
 }
 
@@ -2840,7 +2840,7 @@ export function checkRegionalCompliance(
         suggestions: [],
         missingRequired: []
     };
-    
+
     // Photo check
     if (format.photo.requirement === 'required' && !resumeData.hasPhoto) {
         result.missingRequired.push('Photo is required for this region');
@@ -2850,33 +2850,33 @@ export function checkRegionalCompliance(
     } else if (format.photo.requirement === 'discouraged' && resumeData.hasPhoto) {
         result.suggestions.push('Consider removing photo - discouraged in this region');
     }
-    
+
     // DOB check
     if (format.personalInfo.dateOfBirth.required && !resumeData.hasDateOfBirth) {
         result.warnings.push('Date of birth is commonly expected in this region');
     } else if (!format.personalInfo.dateOfBirth.required && resumeData.hasDateOfBirth && format.personalInfo.dateOfBirth.reason) {
         result.suggestions.push(`Consider removing date of birth: ${format.personalInfo.dateOfBirth.reason}`);
     }
-    
+
     // Nationality check
     if (format.personalInfo.nationality.required && !resumeData.hasNationality) {
         result.warnings.push('Nationality should be included for this region');
     }
-    
+
     // Marital status check
     if (format.personalInfo.maritalStatus.required && !resumeData.hasMaritalStatus) {
         result.warnings.push('Marital status is expected in this region');
     } else if (!format.personalInfo.maritalStatus.required && resumeData.hasMaritalStatus) {
         result.suggestions.push('Marital status not required - consider removing');
     }
-    
+
     // Page count check
     if (resumeData.pageCount) {
         if (resumeData.pageCount > format.typicalLength.pages + 1) {
             result.warnings.push(`Resume length (${resumeData.pageCount} pages) exceeds regional norm (${format.typicalLength.description})`);
         }
     }
-    
+
     return result;
 }
 

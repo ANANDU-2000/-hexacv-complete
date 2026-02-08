@@ -1,92 +1,65 @@
 /**
- * feedback.ts
- * Service to handle local user feedback storage and retrieval.
- * In a production env, this would connect to a backend API.
+ * Feedback service stub (local/static only until backend exists).
+ * Used by AdminDashboard and TestimonialsSlider.
  */
 
 export interface FeedbackItem {
-    id: string;
-    userName: string;
-    role: string;
-    content: string;
-    rating: number;
-    date: string;
-    isFeatured: boolean;
+  id: string;
+  author: string;
+  role?: string;
+  content: string;
+  rating?: number;
+  isFeatured?: boolean;
+  createdAt?: string;
 }
 
-const STORAGE_KEY = 'hexacv_user_feedback';
+const STORAGE_KEY = 'hexacv_feedback';
 
-const INITIAL_FEEDBACK: FeedbackItem[] = [
-    {
-        id: '1',
-        userName: 'Sarah Jenkins',
-        role: 'Software Engineer at Google',
-        content: 'HexaCV helped me bypass the ATS at three major tech companies. The keyword extraction is a game-changer.',
-        rating: 5,
-        date: '2026-01-15',
-        isFeatured: true
-    },
-    {
-        id: '2',
-        userName: 'Michael Chen',
-        role: 'Graduate Student',
-        content: 'I love that I don\'t have to create an account. It\'s fast, private, and the templates look professional.',
-        rating: 5,
-        date: '2026-01-20',
-        isFeatured: true
-    },
-    {
-        id: '3',
-        userName: 'Jessica Williams',
-        role: 'Marketing Manager',
-        content: 'The bullet point improver transformed my mundane descriptions into high-impact achievements.',
-        rating: 5,
-        date: '2026-02-01',
-        isFeatured: true
-    }
-];
+function getStored(): FeedbackItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
 
 export const feedbackService = {
-    getFeedback(): FeedbackItem[] {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored) {
-            // Seed initial data if empty
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_FEEDBACK));
-            return INITIAL_FEEDBACK;
-        }
-        return JSON.parse(stored);
-    },
-
-    submitFeedback(name: string, role: string, content: string, rating: number): FeedbackItem {
-        const items = this.getFeedback();
-        const newItem: FeedbackItem = {
-            id: Date.now().toString(),
-            userName: name || 'Anonymous',
-            role: role || 'User',
-            content,
-            rating,
-            date: new Date().toISOString().split('T')[0],
-            isFeatured: false
-        };
-        const updated = [newItem, ...items];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        return newItem;
-    },
-
-    deleteFeedback(id: string) {
-        const items = this.getFeedback();
-        const updated = items.filter(item => item.id !== id);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    },
-
-    toggleFeatured(id: string) {
-        const items = this.getFeedback();
-        const updated = items.map(item =>
-            item.id === id ? { ...item, isFeatured: !item.isFeatured } : item
-        );
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    },
-    resetToProduction() {
-        localStorage.removeItem(STORAGE_KEY);
+  getFeedback(): FeedbackItem[] {
+    const stored = getStored();
+    if (stored.length > 0) return stored;
+    return [
+      {
+        id: '1',
+        author: 'Priya S.',
+        role: 'Software Engineer',
+        content: 'Clean templates and straightforward flow. Got my resume ready in minutes.',
+        rating: 5,
+        isFeatured: true,
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        author: 'Rahul K.',
+        role: 'Product Manager',
+        content: 'No signup was a plus. Format worked well with our ATS.',
+        rating: 5,
+        isFeatured: true,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  },
+  addFeedback(_item: Omit<FeedbackItem, 'id' | 'createdAt'>): void {
+    const list = getStored();
+    list.push({
+      ..._item,
+      id: `fb_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch {
+      // ignore
     }
+  },
 };

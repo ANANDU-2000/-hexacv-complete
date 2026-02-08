@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { FileText, ArrowRight, RefreshCw, Sparkles, ChevronLeft } from 'lucide-react';
-import { improveBullet } from '../services/keywordEngine';
+import { improveBullet } from '../core/rewrite/freeRewrite';
 
 interface Props {
   onNavigateHome: () => void;
@@ -26,16 +26,17 @@ export default function ResumeBulletImprover({ onNavigateHome }: Props) {
   const [result, setResult] = useState<BulletResult | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleImprove = () => {
+  const handleImprove = async () => {
     if (!bulletText.trim()) return;
     setLoading(true);
-
-    // Simulate brief processing
-    setTimeout(() => {
-      const improved = improveBullet(bulletText, targetRole || undefined);
+    try {
+      const improved = await improveBullet(bulletText, targetRole || undefined);
       setResult(improved);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setLoading(false);
-    }, 300);
+    }
   };
 
   const handleClear = () => {
@@ -109,8 +110,8 @@ export default function ResumeBulletImprover({ onNavigateHome }: Props) {
               onClick={handleImprove}
               disabled={!bulletText.trim() || loading}
               className={`flex-1 h-11 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2 ${bulletText.trim() && !loading
-                  ? 'bg-gray-900 text-white hover:bg-gray-800'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
             >
               {loading ? (

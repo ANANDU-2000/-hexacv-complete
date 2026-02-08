@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { FileText, ArrowRight, Copy, Check, ChevronLeft } from 'lucide-react';
-import { extractKeywordsFromJD, ExtractedKeywords } from '../services/keywordEngine';
+import { extractKeywordsFromJD, ExtractedKeywords } from '../core/ats/extractKeywords';
 
 interface Props {
   onNavigateHome: () => void;

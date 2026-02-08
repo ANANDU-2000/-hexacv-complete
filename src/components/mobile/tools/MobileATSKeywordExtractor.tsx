@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Search, ChevronLeft, Copy, Check, Zap } from 'lucide-react';
-import { extractKeywordsFromJD, ExtractedKeywords } from '../../../services/keywordEngine';
+import { extractKeywordsFromJD, ExtractedKeywords } from '../../../core/ats/extractKeywords';
 
 interface Props {
     onBack: () => void;

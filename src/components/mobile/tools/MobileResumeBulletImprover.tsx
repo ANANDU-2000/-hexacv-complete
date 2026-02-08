@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, RefreshCw, Sparkles, Check, Zap } from 'lucide-react';
-import { improveBullet } from '../../../services/keywordEngine';
+import { improveBullet } from '../../../core/rewrite/freeRewrite';
 
 interface Props {
     onBack: () => void;
@@ -19,14 +19,17 @@ export default function MobileResumeBulletImprover({ onBack }: Props) {
     const [result, setResult] = useState<BulletResult | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const handleImprove = () => {
+    const handleImprove = async () => {
         if (!bulletText.trim()) return;
         setLoading(true);
-        setTimeout(() => {
-            const improved = improveBullet(bulletText, targetRole || undefined);
+        try {
+            const improved = await improveBullet(bulletText, targetRole || undefined);
             setResult(improved);
+        } catch (error) {
+            console.error(error);
+        } finally {
             setLoading(false);
-        }, 600);
+        }
     };
 
     return (

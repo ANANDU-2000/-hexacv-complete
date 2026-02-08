@@ -1,13 +1,26 @@
 
-import { TemplateConfig as BaseTemplateConfig } from './template-config';
 
 export type TabId = 'profile' | 'experience' | 'projects' | 'skills' | 'education' | 'achievements' | 'target-jd';
+
+// Re-export from core/types
+export type {
+    ResumeData,
+    Experience,
+    Education,
+    Project,
+    Achievement,
+    TemplateConfig,
+    ExperienceLevel,
+    TargetMarket
+} from './core/types';
 
 // ============================================
 // DOCUMENT LAYER - Pure printable data only
 // These interfaces define what appears on the resume PDF
 // NO UI state, NO editor preferences
 // ============================================
+
+import { ResumeData, Experience, Education, Project, Achievement } from './core/types';
 
 export interface DocumentBasics {
     fullName: string;
@@ -30,7 +43,6 @@ export interface ResumeDocument {
 
 // ============================================
 // EDITOR LAYER - UI state only (never exported)
-// These are preferences and states used during editing
 // ============================================
 
 export interface EditorState {
@@ -58,17 +70,13 @@ export interface ApplicationState {
 // ADAPTER FUNCTIONS - Backward compatibility
 // ============================================
 
-/**
- * Convert legacy ResumeData to new ResumeDocument
- * Strips out UI-only fields for clean document export
- */
 export function toResumeDocument(data: ResumeData): ResumeDocument {
     return {
         basics: {
             fullName: data.basics.fullName,
             email: data.basics.email,
             phone: data.basics.phone,
-            location: data.basics.location,
+            location: data.basics.location || '',
             linkedin: data.basics.linkedin,
             github: data.basics.github,
         },
@@ -81,28 +89,26 @@ export function toResumeDocument(data: ResumeData): ResumeDocument {
     };
 }
 
-/**
- * Extract EditorState from legacy ResumeData
- */
 export function toEditorState(data: ResumeData): EditorState {
     return {
         jobDescription: data.jobDescription,
         targetRole: data.basics.targetRole,
-        photoUrl: data.photoUrl,
-        includePhoto: data.includePhoto,
+        photoUrl: data.basics.photoUrl || data.photoUrl,
+        includePhoto: data.basics.includePhoto || data.includePhoto,
         atsMetrics: data.atsMetrics,
     };
 }
 
-/**
- * Convert new types back to legacy ResumeData
- * For backward compatibility with existing components
- */
 export function toLegacyResumeData(doc: ResumeDocument, editor: EditorState): ResumeData {
     return {
+        id: '1', // Default ID
         basics: {
             ...doc.basics,
             targetRole: editor.targetRole || '',
+            location: doc.basics.location || '',
+            targetRoleCategory: '', // Default
+            includePhoto: editor.includePhoto,
+            photoUrl: editor.photoUrl,
         },
         summary: doc.summary,
         experience: doc.experience,
@@ -115,71 +121,6 @@ export function toLegacyResumeData(doc: ResumeDocument, editor: EditorState): Re
         photoUrl: editor.photoUrl,
         includePhoto: editor.includePhoto,
     };
-}
-
-// ============================================
-// LEGACY TYPES - Keep for backward compatibility
-// ============================================
-
-export interface Experience {
-    id: string;
-    company: string;
-    position: string;
-    startDate: string;
-    endDate: string;
-    highlights: string[];
-}
-
-export interface Education {
-    id: string;
-    institution: string;
-    degree: string;
-    field: string;
-    graduationDate: string;
-}
-
-export interface Project {
-    id: string;
-    name: string;
-    description: string;
-    highlights?: string[];
-    startDate?: string;
-    endDate?: string;
-    tech?: string[];
-    githubLink?: string;
-}
-
-export interface Achievement {
-    id: string;
-    description: string;
-}
-
-export interface ResumeData {
-    basics: {
-        fullName: string;
-        targetRole: string;
-        targetRoleCategory?: string;
-        targetMarket?: string;
-        experienceLevel?: string;
-        email: string;
-        phone: string;
-        location: string;
-        linkedin?: string;
-        github?: string;
-    };
-    summary: string;
-    experience: Experience[];
-    education: Education[];
-    projects: Project[];
-    skills: string[];
-    achievements: Achievement[];
-    jobDescription?: string;
-    atsMetrics?: {
-        score: number;
-        missingKeywords: string[];
-    };
-    photoUrl?: string; // For compatibility
-    includePhoto?: boolean; // User preference to include photo in resume
 }
 
 export interface UserSessionInsight {
@@ -197,10 +138,3 @@ export interface UserSessionInsight {
     timestamp: Date;
 }
 
-export interface TemplateConfig extends BaseTemplateConfig {
-    price?: number;
-    priceLabel?: string;
-    enabled?: boolean;
-    badge?: string; // Added for Step2AlignDesign
-    features?: string[];
-}

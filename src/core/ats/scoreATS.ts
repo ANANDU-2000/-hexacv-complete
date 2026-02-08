@@ -93,10 +93,19 @@ export interface SectionCheckResult {
     suggestions: string[];
 }
 
+/** Contact info is present if we see section labels OR actual data (email @, phone digits). */
+function hasContactInfo(lower: string): boolean {
+    const hasLabel = ['email', 'phone', 'address', 'linkedin', 'github'].some(k => lower.includes(k));
+    if (hasLabel) return true;
+    if (/@/.test(lower)) return true; // has email
+    if (/[\d+\s\-()]{7,}/.test(lower) || /\+\d{1,4}[\s\d\-]+/.test(lower)) return true; // phone-like
+    return false;
+}
+
 export function checkResumeStructure(text: string): SectionCheckResult {
     const lower = text.toLowerCase();
-    const sections = [
-        { name: 'Contact Information', keywords: ['email', 'phone', 'address', 'linkedin', 'github'] },
+    const sections: { name: string; keywords: string[]; present?: (t: string) => boolean }[] = [
+        { name: 'Contact Information', keywords: ['email', 'phone', 'address', 'linkedin', 'github'], present: hasContactInfo },
         { name: 'Professional Summary', keywords: ['summary', 'profile', 'objective', 'about'] },
         { name: 'Experience', keywords: ['experience', 'work history', 'employment', 'roles'] },
         { name: 'Education', keywords: ['education', 'university', 'college', 'degree', 'certification'] },
@@ -105,7 +114,7 @@ export function checkResumeStructure(text: string): SectionCheckResult {
     ];
 
     const results = sections.map(s => {
-        const present = s.keywords.some(k => lower.includes(k));
+        const present = s.present ? s.present(lower) : s.keywords.some(k => lower.includes(k));
         return {
             section: s.name,
             present,

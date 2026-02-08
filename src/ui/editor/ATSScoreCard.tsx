@@ -14,6 +14,8 @@ interface ATSScoreCardProps {
   sectionWarnings?: SectionWarning[];
   loading?: boolean;
   onKeywordClick?: (keyword: string) => void;
+  /** When false, only structure + missing keywords (no title/score line). Used when card is inside a collapsible header. */
+  showHeader?: boolean;
 }
 
 const MAX_MISSING = 12;
@@ -26,6 +28,7 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
   sectionWarnings = [],
   loading = false,
   onKeywordClick,
+  showHeader = true,
 }) => {
   const displayScore = score ?? 0;
   const missing = missingKeywords.slice(0, MAX_MISSING);
@@ -33,25 +36,29 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
 
   return (
     <div
-      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm sticky top-0 z-10"
+      className={showHeader ? 'bg-white border border-gray-200 rounded-lg p-4 shadow-sm sticky top-0 z-10' : ''}
       role="region"
       aria-label="ATS feedback"
     >
-      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ATS feedback</h3>
+      {showHeader && <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ATS feedback</h3>}
       {loading ? (
         <p className="text-sm text-gray-500">Updating…</p>
       ) : (
         <>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-2xl font-bold text-gray-900">ATS SCORE: {displayScore}</span>
-            <span className="text-sm text-gray-500">/ 100</span>
-          </div>
-          {!hasJD && (
-            <p className="text-xs text-amber-600 mb-2">Add Job Description (Target & JD) to see keyword score.</p>
+          {showHeader && (
+            <>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-2xl font-bold text-gray-900">ATS SCORE: {displayScore}</span>
+                <span className="text-sm text-gray-500">/ 100</span>
+              </div>
+              {!hasJD && (
+                <p className="text-xs text-amber-600 mb-2">Add Job Description (Target & JD) to see keyword score.</p>
+              )}
+              <p className="text-sm text-gray-600 mb-3">
+                {structureOk ? 'Structure OK' : `Sections: ${structureScore}% — add contact and summary.`}
+              </p>
+            </>
           )}
-          <p className="text-sm text-gray-600 mb-3">
-            {structureOk ? 'Structure OK' : `Sections: ${structureScore}% — add contact and summary.`}
-          </p>
 
           {sectionWarnings.length > 0 && (
             <div className="mb-3">

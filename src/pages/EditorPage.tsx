@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { ResumeEditor } from '../ui/editor/ResumeEditor';
 import { ResumePreview } from '../ui/preview/ResumePreview';
 import { StepIndicator } from '../ui/editor/StepIndicator';
@@ -38,6 +39,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
   const [sectionWarnings, setSectionWarnings] = useState<{ section: string; present: boolean; warning?: string }[]>([]);
   const [atsLoading, setAtsLoading] = useState(false);
   const [previewScale, setPreviewScale] = useState(1);
+  const [atsPanelExpanded, setAtsPanelExpanded] = useState(false); // collapsed by default per UX spec
 
   const resumeText = useMemo(() => resumeToText(data), [data]);
   const jdText = data.jobDescription?.trim() ?? '';
@@ -96,17 +98,37 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
             <ResumeEditor data={data} onChange={onChange} />
           </div>
         </aside>
-        {/* Right column ~40%: ATS card + Live preview */}
+        {/* Right column ~40%: ATS card (collapsed by default) + Live preview */}
         <main className="hidden lg:flex flex-1 flex-col overflow-hidden bg-gray-100 min-w-0">
           <div className="shrink-0 p-4">
-            <ATSScoreCard
-              score={atsScore}
-              structureOk={structureOk}
-              structureScore={structureScore}
-              missingKeywords={missingKeywords}
-              sectionWarnings={sectionWarnings}
-              loading={atsLoading}
-            />
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm sticky top-0 z-10 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setAtsPanelExpanded((e) => !e)}
+                className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                aria-expanded={atsPanelExpanded}
+                aria-label={atsPanelExpanded ? 'Collapse ATS feedback' : 'Expand ATS feedback'}
+              >
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">ATS feedback</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-gray-900">ATS SCORE: {atsScore ?? 0}/100</span>
+                  {atsPanelExpanded ? <ChevronUp size={18} className="text-gray-500" /> : <ChevronDown size={18} className="text-gray-500" />}
+                </span>
+              </button>
+              {atsPanelExpanded && (
+                <div className="border-t border-gray-100 px-4 pb-4 pt-2">
+                  <ATSScoreCard
+                    score={atsScore}
+                    structureOk={structureOk}
+                    structureScore={structureScore}
+                    missingKeywords={missingKeywords}
+                    sectionWarnings={sectionWarnings}
+                    loading={atsLoading}
+                    showHeader={false}
+                  />
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 flex flex-col min-h-0">
             <div className="shrink-0 flex items-center gap-2 mb-2">

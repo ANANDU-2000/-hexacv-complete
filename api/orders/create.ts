@@ -22,15 +22,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!isPayuConfigured()) {
-    return res.status(503).json({ error: 'Payment not configured' });
+    return res.status(503).json({ error: 'Payment not configured. Add PAYU_KEY and PAYU_SALT in Vercel Environment Variables.' });
   }
 
   try {
-    const body = req.body as { sessionId?: string; templateId?: string; email?: string; phone?: string; amount?: number };
-    const sessionId = body.sessionId?.trim();
-    const templateId = body.templateId?.trim();
-    const email = body.email?.trim();
-    const phone = body.phone?.trim() || '';
+    // Vercel may leave body undefined or parse it; ensure we have an object
+    const rawBody = req.body;
+    const body =
+      rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)
+        ? rawBody as Record<string, unknown>
+        : typeof rawBody === 'string'
+          ? (() => { try { return JSON.parse(rawBody) as Record<string, unknown>; } catch { return {}; } })()
+          : {};
+
+    const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
+    const templateId = typeof body.templateId === 'string' ? body.templateId.trim() : '';
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
     const amountPaise = Number(body.amount) || DEFAULT_AMOUNT_PAISE;
 
     if (!sessionId || !templateId || !email || !email.includes('@')) {
@@ -63,13 +71,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       createdAt: new Date().toISOString(),
     });
 
-    // Build redirect URL for frontend: frontend will POST form to PayU or we return URL + params for client to submit
-    const successUrl = typeof process.env.PAYU_SUCCESS_URL === 'string'
+    const origin = (req.headers.origin || req.headers.referer || '').toString().replace(/\/$/, '');
+    const successUrl = typeof process.env.PAYU_SUCCESS_URL === 'string' && process.env.PAYU_SUCCESS_URL
       ? process.env.PAYU_SUCCESS_URL
-      : `${req.headers.origin || ''}/preview?payment=success`;
-    const failureUrl = typeof process.env.PAYU_FAILURE_URL === 'string'
+      : `${origin || 'https://www.hexacv.online'}/preview?payment=success`;
+    const failureUrl = typeof process.env.PAYU_FAILURE_URL === 'string' && process.env.PAYU_FAILURE_URL
       ? process.env.PAYU_FAILURE_URL
-      : `${req.headers.origin || ''}/preview?payment=failure`;
+      : `${origin || 'https://www.hexacv.online'}/preview?payment=failure`;
 
     return res.status(200).json({
       success: true,
@@ -92,7 +100,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
   } catch (e: unknown) {
-    console.error('Create order error:', e);
-    return res.status(500).json({ error: 'Failed to create order' });
+    const err = e instanceof Error ? e : new Error(String(e));
+    console.error('Create order error:', err.message, err.stack);
+    return res.status(500).json({
+      error: 'Failed to create order',
+      code: 'ORDER_CREATE_FAILED',
+    });
   }
 }

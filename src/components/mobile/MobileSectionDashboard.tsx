@@ -1,14 +1,13 @@
 /**
- * MOBILE SECTION DASHBOARD - PREMIUM REBUILD
- * Professional, high-end SaaS aesthetic with maximum visibility
+ * MOBILE SECTION DASHBOARD — One action per screen, thumb-friendly.
+ * Progress, Target Role summary, section cards with completion + ATS warning.
  */
 
 import React from 'react';
 import { ResumeData } from '../../types';
 import {
     User, Briefcase, Code, GraduationCap, Trophy,
-    ChevronRight, Target, CheckCircle2, Eye, Sparkles,
-    Mail, Phone, MapPin, Plus
+    ChevronRight, Target, CheckCircle2, Eye, Sparkles, AlertCircle
 } from 'lucide-react';
 
 interface Props {
@@ -17,10 +16,16 @@ interface Props {
     onReorderSection: (fromIndex: number, toIndex: number) => void;
     onContinue: () => void;
     onBack: () => void;
-    /** ATS score (0–100); when provided, shows sticky ATS bar and "Improve" opens feedback */
     atsScore?: number | null;
     missingKeywords?: string[];
     onImproveClick?: () => void;
+}
+
+/** True if this section has an ATS-related issue (missing JD keywords, weak content). */
+function sectionHasAtsIssue(sectionId: string, missingKeywords: string[], atsScore: number | null | undefined): boolean {
+    if (sectionId === 'skills' && missingKeywords.length > 0) return true;
+    if (sectionId === 'experience' && atsScore != null && atsScore < 60) return true;
+    return false;
 }
 
 export default function MobileSectionDashboard({ data, onNavigateToSection, onContinue, onBack, atsScore, missingKeywords = [], onImproveClick }: Props) {
@@ -31,7 +36,10 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
         { id: 'skills', label: 'Skills', complete: data.skills.length > 0 },
         { id: 'education', label: 'Education', complete: data.education.length > 0 },
         { id: 'achievements', label: 'Achievements', complete: data.achievements.length > 0 },
-    ];
+    ].map(s => ({
+        ...s,
+        atsIssue: sectionHasAtsIssue(s.id, missingKeywords, atsScore),
+    }));
 
     const isContextReady = !!data.basics.targetRole?.trim();
     const completedCount = resumeSections.filter(s => s.complete).length;
@@ -94,48 +102,47 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                     {resumeSections.map((section, index) => {
                         const isNextStep = index === resumeSections.findIndex(s => !s.complete);
                         const isDone = section.complete;
+                        const hasWarning = section.atsIssue;
 
                         return (
                             <button
                                 key={section.id}
                                 onClick={() => onNavigateToSection(section.id)}
-                                className={`w-full h-18 sm:h-20 px-5 sm:px-6 rounded-[1.5rem] flex items-center justify-between transition-all active:scale-[0.98] border-2 relative z-10 ${isDone
+                                className={`w-full min-h-[56px] py-4 px-5 sm:px-6 rounded-[1.5rem] flex items-center justify-between gap-3 transition-all active:scale-[0.98] border-2 relative z-10 touch-manipulation ${isDone
                                     ? 'bg-white/10 border-white/20 backdrop-blur-xl'
                                     : isNextStep
                                         ? 'bg-white border-white shadow-2xl'
                                         : 'bg-white/5 border-transparent opacity-60'
                                     }`}
+                                aria-label={`${section.label}${hasWarning ? ', ATS issue' : ''}. ${isDone ? 'Complete' : 'Edit'}`}
                             >
-                                {/* Left: Step Number Indicator */}
-                                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-[14px] sm:text-[15px] transition-all flex-shrink-0 ${isDone
+                                {/* Left: Step / completion */}
+                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-black text-[14px] sm:text-[15px] transition-all flex-shrink-0 ${isDone
                                     ? 'bg-green-500 text-white'
                                     : isNextStep
                                         ? 'bg-black text-white'
                                         : 'bg-white/10 text-slate-500'
                                     }`}>
-                                    {isDone ? <CheckCircle2 size={18} strokeWidth={3} className="sm:scale-110" /> : index + 1}
+                                    {isDone ? <CheckCircle2 size={20} strokeWidth={3} className="sm:scale-110" /> : index + 1}
                                 </div>
 
-                                {/* Center: Section Title */}
-                                <div className="flex-1 text-center px-4 min-w-0">
-                                    <h3 className={`text-[14px] sm:text-[16px] font-black uppercase tracking-[0.15em] transition-all truncate ${isNextStep ? 'text-black' : 'text-white'
-                                        }`}>
+                                {/* Center: Section title — large, readable */}
+                                <div className="flex-1 text-left px-3 min-w-0">
+                                    <h3 className={`text-[15px] sm:text-[17px] font-black uppercase tracking-[0.12em] transition-all truncate ${isNextStep ? 'text-black' : 'text-white'}`}>
                                         {section.label}
                                     </h3>
                                 </div>
 
-                                {/* Right: Progress/Status Indicator Icon */}
-                                <div className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all flex-shrink-0 ${isNextStep ? 'text-black' : 'text-slate-500'
-                                    }`}>
-                                    {isDone ? (
-                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center">
-                                            <ChevronRight size={18} strokeWidth={3} className="scale-90 sm:scale-100" />
-                                        </div>
-                                    ) : isNextStep ? (
-                                        <Plus size={24} strokeWidth={3} className="scale-90 sm:scale-100" />
-                                    ) : (
-                                        <ChevronRight size={20} strokeWidth={2} className="opacity-30 scale-90 sm:scale-100" />
+                                {/* Right: ATS warning or status */}
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    {hasWarning && (
+                                        <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center" aria-hidden>
+                                            <AlertCircle size={20} strokeWidth={2.5} />
+                                        </span>
                                     )}
+                                    <span className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all ${isNextStep ? 'text-black' : 'text-slate-500'}`}>
+                                        <ChevronRight size={22} strokeWidth={2.5} className="sm:scale-100" />
+                                    </span>
                                 </div>
                             </button>
                         );
@@ -172,15 +179,15 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </div>
             )}
 
-            {/* Sticky Footer CTA - Master Safety */}
+            {/* Sticky Footer — one primary CTA: Preview */}
             <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-black/80 backdrop-blur-2xl border-t border-white/10 safe-area-bottom z-50">
                 <button
                     onClick={onContinue}
-                    className="w-full min-h-[48px] h-15 sm:h-18 rounded-[2rem] bg-white text-black font-black text-[15px] sm:text-[16px] uppercase tracking-[0.2em] transition-all active:scale-[0.95] flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
-                    aria-label="Review resume"
+                    className="w-full min-h-[52px] sm:min-h-[56px] rounded-[2rem] bg-white text-black font-black text-[16px] sm:text-[17px] uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(255,255,255,0.1)] touch-manipulation"
+                    aria-label="Preview resume"
                 >
-                    <Eye size={22} strokeWidth={3} className="sm:scale-110" />
-                    <span>Review resume</span>
+                    <Eye size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />
+                    <span>Preview resume</span>
                 </button>
             </div>
 

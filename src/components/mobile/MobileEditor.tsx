@@ -165,6 +165,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                     data={data}
                     onChange={(newData: Partial<ResumeData>) => onChange({ ...data, ...newData })}
                     onBack={navigateToDashboard}
+                    onSaveAndPreview={onNext}
                 />
             )}
 

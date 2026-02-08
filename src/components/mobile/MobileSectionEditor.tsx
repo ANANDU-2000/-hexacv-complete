@@ -7,14 +7,13 @@
  * 3. Clear section separation
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ResumeData } from '../../types';
 import {
-    ChevronLeft, Plus, Trash2, GripVertical, Camera,
-    X, CheckCircle2, AlertCircle, Briefcase, Globe,
+    Plus, Trash2, Camera, X, CheckCircle2, Briefcase, Globe,
     FileText, Sparkles, User, Mail, Phone, MapPin,
-    Linkedin, Github, Calendar, GraduationCap, Award,
-    Target
+    Linkedin, Github, Calendar, GraduationCap, Award, Target,
+    ChevronDown, ChevronUp, MoreVertical, Pencil, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { matchKeywords, extractJDSkills } from '../../utils/keywordMatcher';
 import { MobileHeader } from './MobileHeader';
@@ -24,9 +23,11 @@ interface Props {
     data: ResumeData;
     onChange: (data: Partial<ResumeData>) => void;
     onBack: () => void;
+    /** When set, sticky CTA becomes "Save & Preview" and calls this instead of onBack */
+    onSaveAndPreview?: () => void;
 }
 
-export default function MobileSectionEditor({ sectionId, data, onChange, onBack }: Props) {
+export default function MobileSectionEditor({ sectionId, data, onChange, onBack, onSaveAndPreview }: Props) {
     const generateId = () => Math.random().toString(36).substr(2, 9);
 
     const getSectionTitle = (): string => {
@@ -83,12 +84,18 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack 
         </div>
     );
 
-    // Layout Wrapper - Master Scroll Fix
+    const handleStickyCta = () => {
+        if (onSaveAndPreview) onSaveAndPreview();
+        else onBack();
+    };
+
+    const stickyLabel = onSaveAndPreview ? 'Save & Preview' : `Save ${getSectionTitle()}`;
+
+    // Layout Wrapper - one primary CTA per screen
     const SectionWrapper = ({ children, isDoneEnabled = true }: any) => (
         <div className="h-full bg-[#0F172A] flex flex-col relative overflow-hidden">
             <MobileHeader title={getSectionTitle()} onBack={onBack} showNext={false} variant="dark" />
 
-            {/* Background decorative elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
@@ -96,15 +103,16 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack 
                 {children}
             </div>
 
-            {/* Sticky Bottom Action - Enhanced Height & Safety */}
+            {/* Sticky bottom: one primary CTA — Save & Preview or Save */}
             <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-black/60 backdrop-blur-3xl border-t border-white/10 safe-area-bottom z-[200]">
                 <button
-                    onClick={onBack}
+                    onClick={handleStickyCta}
                     disabled={!isDoneEnabled}
-                    className="w-full h-15 sm:h-18 rounded-[2rem] bg-white text-black font-black text-[15px] sm:text-[16px] uppercase tracking-[0.2em] transition-all active:scale-[0.95] flex items-center justify-center gap-3 disabled:bg-white/10 disabled:text-white/20 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
+                    className="w-full min-h-[52px] sm:min-h-[56px] rounded-[2rem] bg-white text-black font-black text-[15px] sm:text-[16px] uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:bg-white/10 disabled:text-white/20 shadow-[0_20px_40px_rgba(255,255,255,0.1)] touch-manipulation"
+                    aria-label={stickyLabel}
                 >
-                    <CheckCircle2 size={24} strokeWidth={3} className="sm:scale-110" />
-                    <span>Save {getSectionTitle()}</span>
+                    <CheckCircle2 size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />
+                    <span>{stickyLabel}</span>
                 </button>
             </div>
 
@@ -112,7 +120,6 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack 
                 .safe-area-bottom { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
                 .scrollbar-hide::-webkit-scrollbar { display: none; }
                 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-                .h-15 { height: 3.75rem; }
                 .pl-13 { padding-left: 3.25rem; }
             `}</style>
         </div>
@@ -231,59 +238,158 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack 
         );
     }
 
-    // ===== EXPERIENCE =====
+    // ===== EXPERIENCE ===== — Collapsible role cards, bullets vertical, Move Up/Down, no drag
     if (sectionId === 'experience') {
+        const [expandedRoleIndex, setExpandedRoleIndex] = useState<number | null>(0);
+        const [bulletMenu, setBulletMenu] = useState<{ roleIdx: number; bulletIdx: number } | null>(null);
+        const [editingBullet, setEditingBullet] = useState<{ roleIdx: number; bulletIdx: number } | null>(null);
         const items = data.experience;
-        const addItem = () => onChange({ experience: [{ id: generateId(), company: '', position: '', startDate: '', endDate: '', highlights: [''] }, ...items] });
+        const addItem = () => {
+            const next = [{ id: generateId(), company: '', position: '', startDate: '', endDate: '', highlights: [''] }, ...items];
+            onChange({ experience: next });
+            setExpandedRoleIndex(0);
+        };
         const updateItem = (idx: number, f: string, v: any) => { const u = [...items]; (u[idx] as any)[f] = v; onChange({ experience: u }); };
-        const deleteItem = (idx: number) => onChange({ experience: items.filter((_, i) => i !== idx) });
+        const deleteItem = (idx: number) => {
+            onChange({ experience: items.filter((_, i) => i !== idx) });
+            setExpandedRoleIndex(expandedRoleIndex === idx ? null : expandedRoleIndex != null && expandedRoleIndex > idx ? expandedRoleIndex - 1 : expandedRoleIndex);
+        };
+        const moveRole = (fromIdx: number, dir: 'up' | 'down') => {
+            const toIdx = dir === 'up' ? fromIdx - 1 : fromIdx + 1;
+            if (toIdx < 0 || toIdx >= items.length) return;
+            const u = [...items];
+            [u[fromIdx], u[toIdx]] = [u[toIdx], u[fromIdx]];
+            onChange({ experience: u });
+            setExpandedRoleIndex(toIdx);
+        };
+        const highlights = (item: typeof items[0]) => item.highlights ?? [];
+        const setHighlights = (idx: number, lines: string[]) => {
+            const u = [...items];
+            u[idx] = { ...u[idx], highlights: lines };
+            onChange({ experience: u });
+        };
+        const moveBullet = (roleIdx: number, bulletIdx: number, dir: 'up' | 'down') => {
+            const lines = [...highlights(items[roleIdx])];
+            const toIdx = dir === 'up' ? bulletIdx - 1 : bulletIdx + 1;
+            if (toIdx < 0 || toIdx >= lines.length) return;
+            [lines[bulletIdx], lines[toIdx]] = [lines[toIdx], lines[bulletIdx]];
+            setHighlights(roleIdx, lines);
+            setBulletMenu(null);
+            setEditingBullet(null);
+        };
+        const editBullet = (roleIdx: number, bulletIdx: number, text: string) => {
+            const lines = [...highlights(items[roleIdx])];
+            lines[bulletIdx] = text;
+            setHighlights(roleIdx, lines);
+            setBulletMenu(null);
+            setEditingBullet(null);
+        };
+        const deleteBullet = (roleIdx: number, bulletIdx: number) => {
+            const lines = highlights(items[roleIdx]).filter((_, i) => i !== bulletIdx);
+            setHighlights(roleIdx, lines.length ? lines : ['']);
+            setBulletMenu(null);
+            setEditingBullet(null);
+        };
+        const addBullet = (roleIdx: number) => {
+            const lines = [...highlights(items[roleIdx]), ''];
+            setHighlights(roleIdx, lines);
+        };
 
         return (
             <SectionWrapper>
-                <button onClick={addItem} className="w-full h-18 sm:h-20 mb-10 rounded-[2rem] bg-white text-black flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] font-black uppercase tracking-[0.2em] text-[13px] sm:text-[14px]">
-                    <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center">
-                        <Plus size={20} strokeWidth={4} />
-                    </div>
-                    <span>Add New Position</span>
+                <button onClick={addItem} className="w-full min-h-[52px] py-4 mb-8 rounded-[2rem] bg-white text-black flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] font-black uppercase tracking-[0.2em] text-[14px] touch-manipulation">
+                    <Plus size={22} strokeWidth={4} aria-hidden />
+                    <span>Add position</span>
                 </button>
 
-                <div className="space-y-12 pb-10">
-                    {items.map((item, idx) => (
-                        <div key={item.id} className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-[2.5rem] sm:rounded-[3rem] p-6 sm:p-8 shadow-2xl relative group overflow-hidden">
-                            <div className="absolute top-0 left-0 right-0 h-14 sm:h-16 bg-white/5 border-b border-white/10 flex items-center justify-between px-6 sm:px-8">
-                                <span className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">Position 0{items.length - idx}</span>
+                <div className="space-y-4 pb-10">
+                    {items.map((item, idx) => {
+                        const isExpanded = expandedRoleIndex === idx;
+                        const bullets = highlights(item);
+                        return (
+                            <div key={item.id} className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden shadow-xl">
+                                {/* Role card header — collapsible */}
                                 <button
-                                    onClick={() => deleteItem(idx)}
-                                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-slate-500 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all shadow-lg"
+                                    type="button"
+                                    onClick={() => setExpandedRoleIndex(isExpanded ? null : idx)}
+                                    className="w-full flex items-center gap-3 p-4 sm:p-5 text-left touch-manipulation"
                                 >
-                                    <Trash2 size={18} strokeWidth={2.5} />
+                                    <span className="flex-shrink-0 w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
+                                        {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-white" />}
+                                    </span>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[15px] sm:text-[16px] font-black text-white truncate">{item.position || 'Position'}</p>
+                                        <p className="text-[12px] text-slate-400 truncate">{item.company || 'Company'} · {item.startDate || '—'} – {item.endDate || '—'}</p>
+                                    </div>
+                                    <div className="flex items-center gap-1 flex-shrink-0">
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'up'); }} disabled={idx === 0} className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 disabled:opacity-30 touch-manipulation" aria-label="Move up"><ArrowUp size={18} /></button>
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'down'); }} disabled={idx === items.length - 1} className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 disabled:opacity-30 touch-manipulation" aria-label="Move down"><ArrowDown size={18} /></button>
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); deleteItem(idx); }} className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 active:bg-red-500 active:text-white touch-manipulation" aria-label="Delete role"><Trash2 size={18} /></button>
+                                    </div>
                                 </button>
-                            </div>
 
-                            <div className="pt-12 sm:pt-14 space-y-4">
-                                <InputField label="Position Title" icon={Briefcase} value={item.position} onChange={(v: string) => updateItem(idx, 'position', v)} placeholder="Senior Software Engineer" />
-                                <InputField label="Company Name" icon={Globe} value={item.company} onChange={(v: string) => updateItem(idx, 'company', v)} placeholder="Google Inc." />
-                                <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
-                                    <InputField label="Start Date" icon={Calendar} value={item.startDate} onChange={(v: string) => updateItem(idx, 'startDate', v)} placeholder="Jan 2020" />
-                                    <InputField label="End Date" icon={Calendar} value={item.endDate} onChange={(v: string) => updateItem(idx, 'endDate', v)} placeholder="Present" />
-                                </div>
-                                <TextAreaField
-                                    label="Impact & Achievements"
-                                    icon={FileText}
-                                    value={item.highlights?.join('\n')}
-                                    onChange={(v: string) => updateItem(idx, 'highlights', v.split('\n').filter(Boolean))}
-                                    placeholder="• Led a team of 10 developers&#10;• Increased revenue by 25%&#10;• Built a global design system"
-                                    rows={8}
-                                />
+                                {isExpanded && (
+                                    <div className="px-4 pb-5 pt-1 border-t border-white/10">
+                                        <InputField label="Position" icon={Briefcase} value={item.position} onChange={(v: string) => updateItem(idx, 'position', v)} placeholder="e.g. Senior Engineer" />
+                                        <InputField label="Company" icon={Globe} value={item.company} onChange={(v: string) => updateItem(idx, 'company', v)} placeholder="Company name" />
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <InputField label="Start" icon={Calendar} value={item.startDate} onChange={(v: string) => updateItem(idx, 'startDate', v)} placeholder="Jan 2020" />
+                                            <InputField label="End" icon={Calendar} value={item.endDate} onChange={(v: string) => updateItem(idx, 'endDate', v)} placeholder="Present" />
+                                        </div>
+                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2 px-1">Bullets</p>
+                                        <div className="space-y-2">
+                                            {bullets.map((bullet, bIdx) => (
+                                                <div key={bIdx} className="flex items-start gap-2 group/bullet">
+                                                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/10 mt-1.5" aria-hidden />
+                                                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                        {editingBullet?.roleIdx === idx && editingBullet?.bulletIdx === bIdx ? (
+                                                            <input
+                                                                type="text"
+                                                                defaultValue={bullet}
+                                                                onBlur={(e) => editBullet(idx, bIdx, e.target.value.trim() || bullet)}
+                                                                onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                                                                className="flex-1 min-w-0 bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-[14px] text-white placeholder:text-slate-500"
+                                                                placeholder="Bullet point"
+                                                                autoFocus
+                                                            />
+                                                        ) : (
+                                                            <button type="button" onClick={() => { setEditingBullet({ roleIdx: idx, bulletIdx: bIdx }); setBulletMenu(null); }} className="flex-1 text-left px-3 py-2.5 rounded-xl bg-white/5 text-[14px] text-white min-h-[44px] touch-manipulation">
+                                                                {bullet || 'Tap to edit'}
+                                                            </button>
+                                                        )}
+                                                        <div className="flex items-center gap-0.5 flex-shrink-0">
+                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'up')} disabled={bIdx === 0} className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 disabled:opacity-30 touch-manipulation" aria-label="Move bullet up"><ArrowUp size={16} /></button>
+                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'down')} disabled={bIdx === bullets.length - 1} className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 disabled:opacity-30 touch-manipulation" aria-label="Move bullet down"><ArrowDown size={16} /></button>
+                                                            <div className="relative">
+                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setBulletMenu(bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx ? null : { roleIdx: idx, bulletIdx: bIdx }); setEditingBullet(null); }} className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 touch-manipulation" aria-label="Actions"><MoreVertical size={18} /></button>
+                                                                {bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx && (
+                                                                    <div className="absolute right-0 top-full mt-1 py-1 bg-slate-800 border border-white/10 rounded-xl shadow-xl z-50 min-w-[140px]">
+                                                                        <button type="button" onClick={() => { setEditingBullet({ roleIdx: idx, bulletIdx: bIdx }); setBulletMenu(null); }} className="w-full px-4 py-2.5 text-left text-[13px] text-white flex items-center gap-2 hover:bg-white/10"><Pencil size={14} /> Edit</button>
+                                                                        <button type="button" onClick={() => setBulletMenu(null)} className="w-full px-4 py-2.5 text-left text-[13px] text-white flex items-center gap-2 hover:bg-white/10"><Sparkles size={14} /> Improve</button>
+                                                                        <button type="button" onClick={() => deleteBullet(idx, bIdx)} className="w-full px-4 py-2.5 text-left text-[13px] text-red-400 flex items-center gap-2 hover:bg-white/10"><Trash2 size={14} /> Delete</button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button type="button" onClick={() => addBullet(idx)} className="mt-3 w-full min-h-[44px] rounded-xl border-2 border-dashed border-white/20 text-slate-400 text-[13px] font-bold flex items-center justify-center gap-2 touch-manipulation">
+                                            <Plus size={18} /> Add bullet
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {items.length === 0 && (
-                        <div className="py-24 text-center">
-                            <div className="w-24 h-24 rounded-[2.5rem] bg-white/5 border border-white/5 flex items-center justify-center mx-auto mb-8 text-slate-700">
-                                <Briefcase size={48} strokeWidth={1.5} />
+                        <div className="py-20 text-center">
+                            <div className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6 text-slate-500">
+                                <Briefcase size={40} strokeWidth={1.5} />
                             </div>
-                            <p className="font-black text-[13px] uppercase tracking-[0.3em] text-slate-500">No work history added</p>
+                            <p className="font-black text-[13px] uppercase tracking-wider text-slate-500">No positions yet</p>
+                            <p className="text-[12px] text-slate-500 mt-1">Tap “Add position” above</p>
                         </div>
                     )}
                 </div>

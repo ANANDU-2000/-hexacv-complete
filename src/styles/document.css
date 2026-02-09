@@ -52,18 +52,27 @@
   page-break-inside: avoid;
 }
 
-/* Header block */
+.doc-summary-text {
+  font-size: 10pt;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
+}
+
+/* Header block — centered name + contact like reference resume */
 .doc-header {
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .doc-header-name {
   font-size: 18pt;
   font-weight: 700;
   margin-bottom: 2px;
+  letter-spacing: 0.01em;
 }
 
- .doc-header-title {
+.doc-header-title {
   font-size: 10.5pt;
   font-weight: 500;
   margin-bottom: 6px;
@@ -116,16 +125,16 @@
   white-space: nowrap;
 }
 
- .doc-entry-bullets {
+.doc-entry-bullets {
   margin: 2px 0 0;
-  /* Bullet indent ≈ 12px from text column */
   padding-left: 12px;
   font-size: 9.8pt;
   line-height: 1.35;
+  list-style-type: disc;
 }
 
 .doc-entry-bullets li {
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 /* Skills: category: item1, item2 */

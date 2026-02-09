@@ -17,7 +17,7 @@ export function SummaryBlock({ text }: SummaryBlockProps) {
   return (
     <div className="doc-section">
       <div className="doc-section-title">PROFESSIONAL SUMMARY</div>
-      <div className="summary-text" style={{ fontSize: '10.5pt', lineHeight: 1.35 }}>{escape(text)}</div>
+      <div className="doc-summary-text">{escape(text)}</div>
     </div>
   );
 }

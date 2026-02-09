@@ -28,7 +28,7 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
       {!isPaidUnlocked && (
         <>
           <p className="text-sm text-gray-600 mb-2">
-            Advanced ATS Rewrite: tailored to your JD, stronger verbs and metrics. One-time ₹49.
+            Improve wording for ATS: tailored to your JD, stronger verbs and metrics. One-time ₹49.
           </p>
           <ul className="text-xs text-gray-600 mb-4 space-y-1 list-disc list-inside">
             <li>Better keyword match for ATS so your resume gets shortlisted.</li>
@@ -41,7 +41,7 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
             onClick={onUnlockClick}
             className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
           >
-            Unlock Advanced ATS Rewrite — ₹49
+              Improve wording for ATS — ₹49 (one-time)
           </button>
         </>
       )}

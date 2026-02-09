@@ -6,7 +6,6 @@ const A4_PX_HEIGHT = 1123;
 import { ResumeEditor } from '../ui/editor/ResumeEditor';
 import { DocumentPreview } from '../ui/document';
 import { resumeDataToNormalized } from '../core/normalizedResume';
-import { StepIndicator } from '../ui/editor/StepIndicator';
 import { ATSScoreCard } from '../ui/editor/ATSScoreCard';
 import { ResumeData } from '../core/types';
 import { resumeToText } from '../core/ats/resumeToText';
@@ -15,16 +14,6 @@ import { scoreATS } from '../core/ats/scoreATS';
 import { checkResumeStructure } from '../core/ats/scoreATS';
 
 const ATS_DEBOUNCE_MS = 500;
-
-type StepId = 'content' | 'ats' | 'template' | 'download';
-type StepItem = { id: StepId; label: string; done: boolean };
-
-const EDITOR_STEPS: StepItem[] = [
-  { id: 'content', label: 'Content', done: true },
-  { id: 'ats', label: 'ATS optimization', done: false },
-  { id: 'template', label: 'Template', done: false },
-  { id: 'download', label: 'Download', done: false },
-];
 
 interface EditorPageProps {
   data: ResumeData;
@@ -120,7 +109,10 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
         >
           Back
         </button>
-        <span className="font-bold text-gray-800">Resume Editor</span>
+        <div className="flex flex-col items-center">
+          <span className="font-semibold text-gray-900 text-sm">Build a clean, ATS-safe resume</span>
+          <span className="text-xs text-gray-500">This format works with most ATS systems used by companies.</span>
+        </div>
         <button
           type="button"
           onClick={onNext}
@@ -130,11 +122,8 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
         </button>
       </header>
       <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Left column 40%: Step indicator + horizontal section tabs + Editor */}
+        {/* Left column 40%: Editor with single-open accordion */}
         <aside className="w-full lg:w-[40%] lg:max-w-[40%] flex flex-col overflow-hidden border-r border-gray-200 bg-white">
-          <div className="shrink-0 px-4 pt-3 pb-1 border-b border-gray-100">
-            <StepIndicator steps={EDITOR_STEPS} currentStep="ats" />
-          </div>
           <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
             <ResumeEditor data={data} onChange={onChange} />
           </div>
@@ -152,7 +141,9 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
               >
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">ATS feedback</span>
                 <span className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">ATS SCORE: {atsScore ?? 0}/100</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {jdText ? 'Keyword suggestions ready' : 'ATS feedback available'}
+                  </span>
                   {atsPanelExpanded ? <ChevronUp size={18} className="text-gray-500" /> : <ChevronDown size={18} className="text-gray-500" />}
                 </span>
               </button>

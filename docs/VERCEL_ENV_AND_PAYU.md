@@ -73,7 +73,41 @@ If the payment flow returns **500** in production or test:
 
 ---
 
+## Wrong amount (e.g. ₹4999) or “transaction failed” every time
+
+- **Wrong amount**  
+  PayU expects the **amount in rupees** (e.g. `49` for ₹49). The app now sends **49** from the frontend and the backend clamps/ignores paise (e.g. if `4900` was sent by mistake, it is treated as ₹49). So you should see **₹49** on the PayU page.
+
+- **“Transaction failed” or “Order not found”**  
+  Orders were only stored in memory. On Vercel, the webhook often runs on a **different serverless instance** that doesn’t have that order, so PayU got “Order not found” and the payment looked failed.  
+  **Fix:** Set **DATABASE_URL** (Postgres) in Vercel and create the **payments** table. Then:
+  - Creating an order also inserts a **PENDING** row (so any instance can see it).
+  - The webhook checks the DB for “already paid” and updates the row to **PAID**, so it works even when the order isn’t in memory.
+
+- **Payments table (required for reliable webhook)**  
+  Run this on your Postgres (e.g. RDS) and ensure **DATABASE_URL** is set in Vercel:
+
+```sql
+create table if not exists payments (
+  id serial primary key,
+  session_id text,
+  gateway_order_id text not null unique,
+  receipt_id text,
+  amount_paise integer not null,
+  status text not null default 'PENDING',
+  email text,
+  created_at timestamptz default now(),
+  paid_at timestamptz,
+  refund_status text
+);
+create unique index if not exists payments_gateway_order_id_key on payments (gateway_order_id);
+```
+
+---
+
 ## Summary
 
 - **PayU:** Do not add to repo. Add **PAYU_KEY** and **PAYU_SALT** (and optional PayU URLs) **only in Vercel Environment Variables** so real payment tests work on the deployed site.
 - **Local:** Use `.env` for PayU + OpenAI; run `npm run dev:full` so the API has access to them.
+- **Amount:** Always **49** (rupees) for ₹49; PayU shows the same.
+- **Reliable webhook:** Set **DATABASE_URL** and create the **payments** table so every instance can see orders and mark them PAID.

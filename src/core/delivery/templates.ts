@@ -2,7 +2,7 @@ import { TemplateConfig } from '../types';
 import { BASIC_TEMPLATE } from '../../templates/free/basic';
 import { ADVANCED_TEMPLATE } from '../../templates/paid/premium';
 
-/** Only two modes: Free ATS Resume + Advanced ATS Rewrite (₹49). */
+/** Only two modes: Free ATS Resume + ATS Optimized Version (₹49 wording improvement). */
 export const AVAILABLE_TEMPLATES: TemplateConfig[] = [
     BASIC_TEMPLATE,
     ADVANCED_TEMPLATE,

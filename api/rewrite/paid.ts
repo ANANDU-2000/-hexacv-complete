@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { query } from '../lib/db';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '';
 
@@ -12,6 +13,22 @@ function setCors(res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+async function ensurePaid(req: VercelRequest): Promise<boolean> {
+  const sessionId = (req.query.session_id as string) || '';
+  if (!sessionId) return false;
+
+  const result = await query<{ status: string }>(
+    `select status
+     from payments
+     where session_id = $1
+       and status = 'PAID'
+     order by created_at desc
+     limit 1`,
+    [sessionId],
+  );
+  return !!result.rows[0];
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -22,6 +39,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const isPaid = await ensurePaid(req);
+    if (!isPaid) {
+      return res.status(402).json({ error: 'Payment required for ATS wording improvements' });
+    }
+
     const body = req.body as {
       originalText?: string;
       role?: string;

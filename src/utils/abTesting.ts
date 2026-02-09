@@ -51,8 +51,8 @@ export const EXPERIMENTS: Record<string, Experiment> = {
   template_pricing: {
     name: 'template_pricing',
     variants: {
-      A: '₹49 one-time',
-      B: '₹49 - Lifetime Access'
+      A: 'Improve wording for ATS – ₹49 one-time',
+      B: 'One-time ₹49 • No auto-debit'
     },
     description: 'Test which pricing display drives more purchases'
   },

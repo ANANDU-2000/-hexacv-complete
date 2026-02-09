@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getOrderByTxnid, setOrderVerified, addUnlock } from '../lib/store.js';
 import { verifyResponseHash, isPayuConfigured } from '../lib/payu.js';
+import { query } from '../lib/db';
 
 const PAYU_KEY = process.env.PAYU_KEY || '';
 
@@ -39,11 +40,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing txnid or hash' });
     }
 
-    const order = getOrderByTxnid(txnid);
-    if (!order) {
-      return res.status(400).json({ error: 'Order not found' });
-    }
-
     const valid = verifyResponseHash({
       key: PAYU_KEY,
       txnid,
@@ -65,15 +61,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ received: true, message: 'Payment not successful' });
     }
 
-    // Idempotent: already verified then just ack
-    if (order.status === 'verified') {
+    // Session/template from PayU callback (we always send udf1=sessionId, udf2=templateId)
+    const sessionId = udf1 || '';
+    const templateId = udf2 || '';
+
+    // Idempotent: already processed? Check in-memory first, then DB
+    const order = getOrderByTxnid(txnid);
+    if (order?.status === 'verified') {
+      return res.status(200).json({ received: true, message: 'Already processed' });
+    }
+    let alreadyPaidInDb = false;
+    try {
+      const r = await query<{ status: string }>(
+        'select status from payments where gateway_order_id = $1 limit 1',
+        [txnid],
+      );
+      alreadyPaidInDb = r.rows[0]?.status === 'PAID';
+    } catch (_) {}
+    if (alreadyPaidInDb) {
       return res.status(200).json({ received: true, message: 'Already processed' });
     }
 
+    if (!sessionId || !templateId) {
+      return res.status(400).json({ error: 'Missing session or template in callback' });
+    }
+
     setOrderVerified(txnid);
-    const sessionId = udf1 || order.sessionId;
-    const templateId = udf2 || order.templateId;
     addUnlock(sessionId, templateId, txnid);
+
+    // Persist payment row for admin + unlock checks
+    try {
+      await query(
+        `insert into payments (session_id, gateway_order_id, receipt_id, amount_paise, status, email, created_at, paid_at)
+         values ($1, $2, $3, $4, $5, $6, now(), now())
+         on conflict (gateway_order_id) do update set status = excluded.status, paid_at = excluded.paid_at`,
+        [
+          sessionId,
+          txnid,
+          txnid,
+          Math.round(Number(amount) * 100),
+          'PAID',
+          email,
+        ],
+      );
+    } catch (dbErr) {
+      console.error('Failed to write payment row', dbErr);
+    }
 
     return res.status(200).json({ received: true, unlocked: true });
   } catch (e: unknown) {

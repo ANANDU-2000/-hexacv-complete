@@ -23,7 +23,13 @@ export async function rewriteWithConstraints(
   options: PaidRewriteOptions
 ): Promise<PaidRewriteResult> {
   try {
-    const res = await fetch(`${API_BASE}/api/rewrite/paid`, {
+    const params = new URLSearchParams();
+    if (typeof window !== 'undefined') {
+      // Session-based unlock is stored on server keyed by session_id cookie; backend will read it.
+      // No extra params needed for browser calls.
+    }
+
+    const res = await fetch(`${API_BASE}/api/rewrite/paid?${params.toString()}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

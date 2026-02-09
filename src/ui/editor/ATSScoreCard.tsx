@@ -47,15 +47,11 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
         <>
           {showHeader && (
             <>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-2xl font-bold text-gray-900">ATS SCORE: {displayScore}</span>
-                <span className="text-sm text-gray-500">/ 100</span>
-              </div>
-              {!hasJD && (
-                <p className="text-xs text-amber-600 mb-2">Add Job Description (Target & JD) to see keyword score.</p>
-              )}
+              <p className="text-sm text-gray-700 mb-1">
+                {hasJD ? 'ATS feedback based on your job description.' : 'ATS feedback available once you add a job description.'}
+              </p>
               <p className="text-sm text-gray-600 mb-3">
-                {structureOk ? 'Structure OK' : `Sections: ${structureScore}% — add contact and summary.`}
+                {structureOk ? 'Core sections look good for ATS.' : `Sections: ${structureScore}% — consider completing contact, summary, and experience.`}
               </p>
             </>
           )}

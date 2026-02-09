@@ -53,9 +53,9 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
 
   const fitScale = useMemo(() => {
     if (!viewportSize || previewContentHeight <= 0) return 1;
+    // Fit-to-width: anchor the A4 page visually by filling most of the preview column.
     const scaleW = viewportSize.w / A4_PX_WIDTH;
-    const scaleH = viewportSize.h / previewContentHeight;
-    return Math.max(0.35, Math.min(scaleW, scaleH, 1.2) * 0.98);
+    return Math.max(0.5, Math.min(scaleW, 1.2) * 0.98);
   }, [viewportSize, previewContentHeight]);
 
   const [documentPageCount, setDocumentPageCount] = useState(1);
@@ -93,6 +93,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   // Desktop side panels: start hidden so preview feels calm by default.
   const [showTemplatePanel, setShowTemplatePanel] = useState(false);
   const [showAtsPanel, setShowAtsPanel] = useState(false);
+  const [showZoomControls, setShowZoomControls] = useState(false);
   const mobileZoomRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const pinchStartRef = useRef<{ scale: number; dist: number } | null>(null);
@@ -223,7 +224,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
       const result = await createOrderAndPay(
         sessionId,
         selectedTemplateId,
-        4900,
+        49,
         email,
         phone
       );
@@ -450,10 +451,48 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
       )}
       <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 min-h-0">
         <div className="shrink-0 flex flex-wrap items-center gap-3 px-6 pt-4 pb-2">
-          <label className="text-sm font-medium text-gray-600">Zoom</label>
-          <button type="button" onClick={setFitInView} className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 border border-blue-200">Fit in view</button>
-          <input type="range" min={0.35} max={1.3} step={0.05} value={previewScale} onChange={(e) => setPreviewScale(Number(e.target.value))} className="w-24" aria-label="Zoom" />
-          <span className="text-sm text-gray-500 w-12">{Math.round(previewScale * 100)}%</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-800">Preview</span>
+            <span className="text-xs text-gray-500">
+              This format is safe for ATS systems used by most companies.
+            </span>
+          </div>
+          {showZoomControls && (
+            <>
+              <button
+                type="button"
+                onClick={() => setPreviewScale((s) => Math.max(0.5, s - 0.1))}
+                className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 border border-gray-300"
+                aria-label="Zoom out"
+              >
+                −
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewScale((s) => Math.min(1.5, s + 0.1))}
+                className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 border border-gray-300"
+                aria-label="Zoom in"
+              >
+                +
+              </button>
+              <button
+                type="button"
+                onClick={setFitInView}
+                className="px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-700 border border-blue-200"
+              >
+                Fit to width
+              </button>
+            </>
+          )}
+          {!showZoomControls && (
+            <button
+              type="button"
+              onClick={() => setShowZoomControls(true)}
+              className="px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Zoom
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setShowTemplatePanel((v) => !v)}
@@ -480,7 +519,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         <div
           ref={previewContainerRef}
           className="flex-1 min-h-0 overflow-auto flex justify-center items-start px-6 pb-8"
-          style={{ height: `${A4_PX_HEIGHT * previewScale}px`, maxHeight: '100%' }}
+          style={{ maxHeight: '100%' }}
           onScroll={() => {
             const el = previewContainerRef.current;
             if (!el || totalPages <= 1) return;
@@ -489,8 +528,14 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
             setCurrentPage(page);
           }}
         >
-          <div style={{ height: `${documentPageCount * A4_PX_HEIGHT * previewScale}px`, minHeight: `${A4_PX_HEIGHT * previewScale}px` }} className="flex items-start justify-center">
-            <div className="shadow-lg bg-white origin-top relative" style={{ maxWidth: '210mm' }}>
+          <div
+            style={{ minHeight: `${A4_PX_HEIGHT * previewScale}px` }}
+            className="flex items-start justify-center w-full"
+          >
+            <div
+              className="relative bg-white origin-top rounded-md shadow-md"
+              style={{ width: '90%', maxWidth: '794px' }}
+            >
               <DocumentPreview
                 resume={resumeDataToNormalized(data)}
                 options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}

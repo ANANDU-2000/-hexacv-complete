@@ -1,10 +1,10 @@
 import { TemplateConfig } from '../../core/types';
 
-/** Single paid option: Advanced ATS Rewrite (₹49 one-time). No multiple premium templates. */
+/** Single paid option: ATS Optimized Version (₹49 one-time wording improvement). No multiple premium templates. */
 export const ADVANCED_TEMPLATE: TemplateConfig = {
     id: 'template2',
-    name: 'Advanced ATS Rewrite',
-    description: 'Deep JD-aligned rewrite + premium template. One-time ₹49.',
+    name: 'ATS Optimized Version',
+    description: 'Deep JD-aligned wording improvements and premium formatting. One-time ₹49.',
         category: 'professional',
         page: {
             width: 794,

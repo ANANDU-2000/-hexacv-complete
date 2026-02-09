@@ -127,9 +127,9 @@ export default function FreeATSResumeBuilder({ onStart }: LandingPageProps) {
                   <td className="p-4 text-slate-500">Premium Only</td>
                 </tr>
                 <tr>
-                  <td className="p-4">Free PDF Download</td>
+                  <td className="p-4">Free PDF Download (no watermark)</td>
                   <td className="p-4"><Check className="text-emerald-400" size={20} /></td>
-                  <td className="p-4 text-slate-500">Watermarked</td>
+                  <td className="p-4 text-slate-500">Often watermarked or locked</td>
                 </tr>
                 <tr>
                   <td className="p-4">Data Privacy</td>

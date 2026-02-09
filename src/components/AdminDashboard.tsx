@@ -17,8 +17,7 @@ import {
     ToggleRight,
     Star
 } from 'lucide-react';
-import { analyticsCollector } from '../admin-analytics';
-import { feedbackService, FeedbackItem } from '../services/feedback';
+import { FeedbackItem } from '../services/feedback';
 
 interface AdminDashboardProps {
     onClose: () => void;
@@ -39,24 +38,59 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         if (passcode === 'hexacv2026') {
             setIsAuthenticated(true);
             setError('');
-            // Load stats
-            const summary = analyticsCollector.getSummary();
-            setStats(summary);
-
-            // Add custom insights
-            const generatedInsights = [
-                `Total active sessions recorded: ${summary.totalSessions}`,
-                `Most popular template: ${summary.templatePopularity[0]?.templateId || 'N/A'}`,
-                `Average engagement time: ${Math.round(summary.averageSessionDuration / 60000)} mins`
-            ];
-            setInsights(generatedInsights);
-
-            // Load feedback
-            setFeedback(feedbackService.getFeedback());
         } else {
             setError('Invalid passcode. Access denied.');
         }
     };
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const adminKey = process.env.NODE_ENV === 'development' ? 'hexacv2026' : 'hexacv2026';
+
+        async function loadData() {
+            try {
+                const [paymentsRes, feedbackRes] = await Promise.all([
+                    fetch('/api/admin/payments?range=30', {
+                        headers: { 'x-admin-key': adminKey },
+                    }),
+                    fetch('/api/admin/feedback', {
+                        headers: { 'x-admin-key': adminKey },
+                    }),
+                ]);
+
+                if (paymentsRes.ok) {
+                    const paymentsJson = await paymentsRes.json();
+                    setStats(paymentsJson);
+                    const totalPaid = paymentsJson.totals?.paidCount ?? 0;
+                    const revenue = paymentsJson.totals?.paidRevenueRupees ?? 0;
+                    setInsights([
+                        `Paid unlocks (last ${paymentsJson.totals?.rangeDays ?? 30} days): ${totalPaid}`,
+                        `Revenue last ${paymentsJson.totals?.rangeDays ?? 30} days: ₹${revenue.toFixed(2)}`,
+                    ]);
+                }
+
+                if (feedbackRes.ok) {
+                    const feedbackJson = await feedbackRes.json();
+                    setFeedback(
+                        feedbackJson.feedback.map((row: any) => ({
+                            id: row.id,
+                            content: row.message,
+                            role: row.page || 'General',
+                            rating: 5,
+                            isFeatured: false,
+                            createdAt: row.created_at,
+                            userName: row.email || 'User',
+                        })) as FeedbackItem[],
+                    );
+                }
+            } catch (e) {
+                console.error('Failed to load admin data', e);
+            }
+        }
+
+        loadData();
+    }, [isAuthenticated]);
 
     if (!isAuthenticated) {
         return (
@@ -158,18 +192,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         {/* Hero Metrics */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                             <MetricCard
-                                label="Total Sessions"
-                                value={stats?.totalSessions || 0}
-                                change="+12%"
+                                label="Paid unlocks"
+                                value={stats?.totals?.paidCount || 0}
+                                change="+0%"
                                 icon={<Users className="text-blue-500" />}
-                                subtext="Last 30 days"
+                                subtext={`Last ${stats?.totals?.rangeDays ?? 30} days`}
                             />
                             <MetricCard
-                                label="Resume Downloads"
-                                value={stats?.templatePopularity?.reduce((acc: number, t: any) => acc + t.count, 0) || 0}
-                                change="+24.5%"
+                                label="Revenue (₹)"
+                                value={stats?.totals?.paidRevenueRupees?.toFixed(2) || 0}
+                                change="+0%"
                                 icon={<Download className="text-emerald-500" />}
-                                subtext="Conversion: 18%"
+                                subtext="Verified PayU payments"
                             />
                             <MetricCard
                                 label="Tool Engagement"
@@ -197,23 +231,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                         <button className="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider">Expand Details</button>
                                     </div>
                                     <div className="space-y-4">
-                                        {stats?.templatePopularity?.map((t: any, idx: number) => (
-                                            <div key={t.templateId} className="flex items-center gap-4">
-                                                <span className="w-6 text-[11px] font-black text-slate-300">0{idx + 1}</span>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between mb-1.5">
-                                                        <span className="text-sm font-bold text-slate-700 capitalize">{t.templateId}</span>
-                                                        <span className="text-xs font-black text-slate-900">{t.count} use cases</span>
-                                                    </div>
-                                                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-slate-900 rounded-full transition-all duration-1000"
-                                                            style={{ width: `${Math.min(100, (t.count / stats.totalSessions) * 500)}%` }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                        <p className="text-sm text-slate-600">
+                                            Template-level analytics will appear here once wired to production events.
+                                        </p>
                                     </div>
                                 </section>
 

@@ -46,57 +46,56 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
     const progress = Math.round((completedCount / resumeSections.length) * 100);
 
     return (
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-[#0F172A] text-white">
-            {/* Context Header Area - Fluid & High Contrast */}
-            <div className="px-5 sm:px-6 pt-20 pb-8 bg-gradient-to-b from-black/50 to-transparent">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50 text-gray-900">
+            {/* Context Header Area */}
+            <div className="px-5 sm:px-6 pt-20 pb-8">
                 <div className="flex items-center justify-between mb-8 px-1">
                     <div className="min-w-0">
-                        <h2 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-tight mb-1 truncate">
+                        <h2 className="text-[24px] sm:text-[28px] font-bold tracking-tight leading-tight mb-1 truncate text-gray-900">
                             RESUME BUILDER
                         </h2>
-                        <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Vertical Flow Interface</p>
+                        <p className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-[0.3em]">Vertical Flow Interface</p>
                     </div>
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center flex-shrink-0">
-                        <Sparkles size={24} className="text-white animate-pulse" />
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <Sparkles size={24} className="text-gray-600 animate-pulse" />
                     </div>
                 </div>
 
                 {/* Target Role Setup Card - "Step 0" / Context */}
                 <button
                     onClick={() => onNavigateToSection('target-jd')}
-                    className={`w-full p-6 rounded-[2rem] transition-all border-2 flex items-center gap-5 group relative overflow-hidden ${isContextReady
-                        ? 'bg-white border-white shadow-[0_20px_40px_rgba(255,255,255,0.1)]'
-                        : 'bg-white/5 border-white/10 border-dashed'
+                    className={`w-full p-6 rounded-2xl transition-all border-2 flex items-center gap-5 group relative overflow-hidden ${isContextReady
+                        ? 'bg-white border-gray-200 shadow-sm'
+                        : 'bg-white border-gray-200 border-dashed'
                         }`}
                 >
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isContextReady ? 'bg-black text-white' : 'bg-white/10 text-slate-500'
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isContextReady ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'
                         }`}>
                         <Target size={28} strokeWidth={2.5} />
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                        <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${isContextReady ? 'text-slate-500' : 'text-slate-400'
+                        <p className={`text-[9px] font-semibold uppercase tracking-[0.2em] mb-1 ${isContextReady ? 'text-gray-500' : 'text-gray-500'
                             }`}>Resume Context</p>
-                        <h3 className={`text-[17px] sm:text-[18px] font-black tracking-tight leading-tight truncate ${isContextReady ? 'text-black' : 'text-slate-300'
+                        <h3 className={`text-[17px] sm:text-[18px] font-bold tracking-tight leading-tight truncate ${isContextReady ? 'text-gray-900' : 'text-gray-600'
                             }`}>
                             {data.basics.targetRole || 'Define Target Role'}
                         </h3>
                     </div>
                     {isContextReady ? (
                         <div className="flex-shrink-0">
-                            <CheckCircle2 size={24} className="text-black" strokeWidth={3} />
+                            <CheckCircle2 size={24} className="text-gray-700" strokeWidth={3} />
                         </div>
                     ) : (
                         <div className="flex-shrink-0">
-                            <ChevronRight size={24} className="text-slate-600" strokeWidth={3} />
+                            <ChevronRight size={24} className="text-gray-500" strokeWidth={3} />
                         </div>
                     )}
                 </button>
             </div>
 
-            {/* Sections Flow List - Master Response */}
+            {/* Sections Flow List */}
             <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-4 pb-64 scrollbar-hide relative">
-                {/* Vertical Line for progression indicator */}
-                <div className="absolute left-[3.15rem] sm:left-[3.25rem] top-12 bottom-56 w-0.5 bg-gradient-to-b from-white/20 via-white/10 to-transparent" />
+                <div className="absolute left-[3.15rem] sm:left-[3.25rem] top-12 bottom-56 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-transparent" />
 
                 <div className="space-y-4 sm:space-y-6">
                     {resumeSections.map((section, index) => {
@@ -108,39 +107,36 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                             <button
                                 key={section.id}
                                 onClick={() => onNavigateToSection(section.id)}
-                                className={`w-full min-h-[56px] py-4 px-5 sm:px-6 rounded-[1.5rem] flex items-center justify-between gap-3 transition-all active:scale-[0.98] border-2 relative z-10 touch-manipulation ${isDone
-                                    ? 'bg-white/10 border-white/20 backdrop-blur-xl'
+                                className={`w-full min-h-[56px] py-4 px-5 sm:px-6 rounded-2xl flex items-center justify-between gap-3 transition-all active:scale-[0.98] border-2 relative z-10 touch-manipulation ${isDone
+                                    ? 'bg-white border-gray-200 shadow-sm'
                                     : isNextStep
-                                        ? 'bg-white border-white shadow-2xl'
-                                        : 'bg-white/5 border-transparent opacity-60'
+                                        ? 'bg-white border-gray-300 shadow-md'
+                                        : 'bg-white/80 border-gray-100 opacity-90'
                                     }`}
                                 aria-label={`${section.label}${hasWarning ? ', ATS issue' : ''}. ${isDone ? 'Complete' : 'Edit'}`}
                             >
-                                {/* Left: Step / completion */}
-                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-black text-[14px] sm:text-[15px] transition-all flex-shrink-0 ${isDone
+                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-[14px] sm:text-[15px] transition-all flex-shrink-0 ${isDone
                                     ? 'bg-green-500 text-white'
                                     : isNextStep
-                                        ? 'bg-black text-white'
-                                        : 'bg-white/10 text-slate-500'
+                                        ? 'bg-gray-900 text-white'
+                                        : 'bg-gray-100 text-gray-500'
                                     }`}>
                                     {isDone ? <CheckCircle2 size={20} strokeWidth={3} className="sm:scale-110" /> : index + 1}
                                 </div>
 
-                                {/* Center: Section title — large, readable */}
                                 <div className="flex-1 text-left px-3 min-w-0">
-                                    <h3 className={`text-[15px] sm:text-[17px] font-black uppercase tracking-[0.12em] transition-all truncate ${isNextStep ? 'text-black' : 'text-white'}`}>
+                                    <h3 className={`text-[15px] sm:text-[17px] font-bold uppercase tracking-[0.12em] transition-all truncate ${isNextStep ? 'text-gray-900' : 'text-gray-800'}`}>
                                         {section.label}
                                     </h3>
                                 </div>
 
-                                {/* Right: ATS warning or status */}
                                 <div className="flex items-center gap-2 flex-shrink-0">
                                     {hasWarning && (
-                                        <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center" aria-hidden>
+                                        <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center" aria-hidden>
                                             <AlertCircle size={20} strokeWidth={2.5} />
                                         </span>
                                     )}
-                                    <span className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all ${isNextStep ? 'text-black' : 'text-slate-500'}`}>
+                                    <span className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all ${isNextStep ? 'text-gray-900' : 'text-gray-500'}`}>
                                         <ChevronRight size={22} strokeWidth={2.5} className="sm:scale-100" />
                                     </span>
                                 </div>
@@ -149,28 +145,26 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                     })}
                 </div>
 
-                {/* Overall Progress Progress Indicator at the bottom of the list */}
-                <div className="mt-12 p-6 sm:p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-md">
+                <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-white border border-gray-200 shadow-sm">
                     <div className="flex items-center justify-between mb-4 px-1">
-                        <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-300">Completion Status</span>
-                        <span className="text-[18px] sm:text-[20px] font-black text-white">{progress}%</span>
+                        <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-600">Completion Status</span>
+                        <span className="text-[18px] sm:text-[20px] font-bold text-gray-900">{progress}%</span>
                     </div>
-                    <div className="w-full h-2.5 sm:h-3 bg-white/10 rounded-full overflow-hidden">
+                    <div className="w-full h-2.5 sm:h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-white transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                            className="h-full bg-blue-600 transition-all duration-1000 ease-out rounded-full"
                             style={{ width: `${progress}%` }}
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Sticky ATS bar (when ATS data provided) - above CTA, min touch target 44px */}
             {onImproveClick != null && (
                 <div className="fixed left-0 right-0 bottom-[5.5rem] sm:bottom-[6rem] px-5 sm:px-6 z-40 safe-area-bottom">
                     <button
                         type="button"
                         onClick={onImproveClick}
-                        className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-xl text-white flex items-center justify-between gap-3 text-sm font-semibold active:scale-[0.98]"
+                        className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-white border border-gray-200 text-gray-900 flex items-center justify-between gap-3 text-sm font-semibold active:scale-[0.98] shadow-sm"
                         aria-label="View ATS score and missing keywords"
                     >
                         <span>ATS: {atsScore ?? 0}/100</span>
@@ -179,11 +173,10 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </div>
             )}
 
-            {/* Sticky Footer — one primary CTA: Preview */}
-            <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-black/80 backdrop-blur-2xl border-t border-white/10 safe-area-bottom z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-white/95 backdrop-blur border-t border-gray-200 safe-area-bottom z-50">
                 <button
                     onClick={onContinue}
-                    className="w-full min-h-[52px] sm:min-h-[56px] rounded-[2rem] bg-white text-black font-black text-[16px] sm:text-[17px] uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(255,255,255,0.1)] touch-manipulation"
+                    className="w-full min-h-[52px] sm:min-h-[56px] rounded-2xl bg-blue-600 text-white font-bold text-[16px] sm:text-[17px] transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-md touch-manipulation"
                     aria-label="Preview resume"
                 >
                     <Eye size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />

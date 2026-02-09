@@ -5,6 +5,7 @@
 
 const PAGE_STYLES = `
   @page { size: A4; margin: 0; }
+  html, body { background: white !important; margin: 0; padding: 0; }
   * { box-sizing: border-box; }
   .page {
     /* Match on-screen A4 canvas: 794×1123 with inner padding 40px */
@@ -41,7 +42,7 @@ const PAGE_STYLES = `
   .doc-entry-left { flex: 1; min-width: 0; }
   .doc-entry-role { font-weight: bold; font-size: 10.5pt; }
   .doc-entry-company { font-size: 10pt; color: #444; }
-  .doc-entry-date { font-size: 9.5pt; color: #444; flex-shrink: 0; white-space: nowrap; }
+  .doc-entry-date { font-size: 9.5pt; font-weight: 400; color: #444; flex-shrink: 0; white-space: nowrap; }
   .doc-entry-bullets { margin: 2px 0 0; padding-left: 12px; font-size: 9.8pt; line-height: 1.35; list-style-type: disc; }
   .doc-entry-bullets li { margin-bottom: 4px; }
   .doc-skills-category { margin-bottom: 4px; }
@@ -49,7 +50,7 @@ const PAGE_STYLES = `
   .doc-skills-items { font-size: 10pt; color: #333; }
   .doc-edu-degree { font-weight: bold; font-size: 10.5pt; }
   .doc-edu-institute { font-size: 10pt; color: #444; }
-  .doc-edu-year { font-size: 9.5pt; color: #444; }
+  .doc-edu-year { font-size: 9.5pt; font-weight: 400; color: #444; }
 `;
 
 /**

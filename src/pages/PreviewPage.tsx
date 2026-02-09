@@ -92,8 +92,6 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   const [mobileScale, setMobileScale] = useState(1);
   const [atsExpanded, setAtsExpanded] = useState(false);
   const [showTemplateSheet, setShowTemplateSheet] = useState(false);
-  // Desktop side panels: start hidden so preview feels calm by default.
-  const [showTemplatePanel, setShowTemplatePanel] = useState(false);
   const [showAtsPanel, setShowAtsPanel] = useState(false);
   const [showZoomControls, setShowZoomControls] = useState(false);
   const mobileZoomRef = useRef<HTMLDivElement>(null);
@@ -426,7 +424,6 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         </div>
       ) : (
       <div className="flex flex-1 min-h-0">
-      {showTemplatePanel && (
       <aside className="w-full sm:w-72 lg:w-[25%] lg:min-w-[200px] lg:max-w-[280px] bg-white border-r flex flex-col flex-shrink-0">
         <div className="p-4 border-b flex items-center justify-between">
           <button type="button" onClick={onBack} className="text-sm font-medium text-gray-600 hover:text-gray-900" aria-label="Back to editor">← Back</button>
@@ -450,7 +447,6 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
           )}
         </div>
       </aside>
-      )}
       <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 min-h-0">
         <div className="shrink-0 flex flex-wrap items-center gap-3 px-6 pt-4 pb-2">
           <div className="flex flex-col">
@@ -495,13 +491,6 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
               Zoom
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => setShowTemplatePanel((v) => !v)}
-            className="ml-auto px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-          >
-            {showTemplatePanel ? 'Hide templates' : 'Change template'}
-          </button>
           <button
             type="button"
             onClick={() => setShowAtsPanel((v) => !v)}

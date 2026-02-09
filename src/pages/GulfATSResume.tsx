@@ -7,12 +7,12 @@ interface LandingPageProps {
 
 export default function GulfATSResume({ onStart }: LandingPageProps) {
   useEffect(() => {
-    document.title = 'Gulf ATS Resume Format - Free CV for Dubai, UAE, Qatar | HexaCV';
+    document.title = 'Gulf CV Format - Free ATS Resume for Dubai, UAE, Qatar | HexaCV';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute(
         'content',
-        'Learn the correct Gulf CV format and build a free ATS resume for Dubai, UAE, Qatar and Saudi. Single-column, ATS-safe layout with clean PDF download.'
+        'Gulf CV format: free ATS resume for Dubai, UAE, Qatar, Saudi. Single-column, ATS-safe layout. No signup, instant PDF download.'
       );
     }
   }, []);
@@ -28,7 +28,7 @@ export default function GulfATSResume({ onStart }: LandingPageProps) {
           </div>
 
           <h1 className="text-4xl lg:text-5xl font-black mb-6 leading-tight">
-            Gulf ATS Resume Format for Dubai, UAE, Qatar &amp; Saudi
+            Gulf CV Format - Free ATS Resume for Dubai, UAE, Qatar &amp; Saudi
           </h1>
 
           <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">

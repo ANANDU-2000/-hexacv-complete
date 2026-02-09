@@ -24,14 +24,14 @@ export function resumeToBlocks(resume: NormalizedResume): DocumentBlock[] {
   blocks.push({ type: 'header', data: resume.header });
   if (resume.summary.trim()) blocks.push({ type: 'summary', text: resume.summary });
 
-  if (resume.experience.length > 0) {
-    blocks.push({ type: 'sectionTitle', title: 'EXPERIENCE' });
-    resume.experience.forEach((e) => blocks.push({ type: 'experience', data: e }));
-  }
-
   if (resume.skills.length > 0) {
     blocks.push({ type: 'sectionTitle', title: 'SKILLS' });
     resume.skills.forEach((s) => blocks.push({ type: 'skillsCategory', data: s }));
+  }
+
+  if (resume.experience.length > 0) {
+    blocks.push({ type: 'sectionTitle', title: 'EXPERIENCE' });
+    resume.experience.forEach((e) => blocks.push({ type: 'experience', data: e }));
   }
 
   if (resume.projects.length > 0) {

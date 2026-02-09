@@ -8,10 +8,10 @@ interface LandingPageProps {
 export default function FreeATSResumeBuilder({ onStart }: LandingPageProps) {
   // Set page meta on mount - focus this page purely on generic free ATS intent.
   useEffect(() => {
-    document.title = 'Free ATS Resume Builder - No Signup Required | HexaCV';
+    document.title = 'Free ATS Resume Builder - No Login Required | HexaCV';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Build an ATS-optimized resume instantly. No account, no payment, no signup. Download a clean PDF in minutes with ATS-safe formatting.');
+      metaDescription.setAttribute('content', 'Build ATS-optimized resume for free. No signup, no payment. Instant download.');
     }
   }, []);
 
@@ -26,7 +26,7 @@ export default function FreeATSResumeBuilder({ onStart }: LandingPageProps) {
           </div>
           
           <h1 className="text-4xl lg:text-6xl font-black mb-6 leading-tight">
-            Free ATS Resume Builder - No Signup Required
+            Free ATS Resume Builder - No Login Required
           </h1>
           
           <p className="text-xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">

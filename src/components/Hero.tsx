@@ -87,7 +87,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                         {/* Main Headline - SEO Optimized */}
                         <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <h1 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight tracking-tight">
-                                Free ATS Resume Builder
+                                Free ATS Resume Builder - No Login Required
                             </h1>
 
                             {/* Subtitle - Pain Point Focused */}
@@ -293,7 +293,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                     {/* 1. Main Hero Content (Swapped to Top) */}
                     <div className="text-center space-y-4 pt-10 pb-4 px-8">
                         <h1 className="text-[34px] font-black text-[#111111] leading-[1.1] tracking-tight">
-                            Build Your Resume <br /> Smarter With AI
+                            Free ATS Resume Builder - No Login Required
                         </h1>
                         <p className="text-[#6B7280] text-[16px] font-medium leading-[1.5] max-w-[280px] mx-auto">
                             Transform your experience into a professional, recruiter-ready resume.

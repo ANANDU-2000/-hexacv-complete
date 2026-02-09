@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from '../lib/db';
+import { getPaymentsCollection } from '../lib/mongo.js';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '';
 
@@ -17,16 +17,12 @@ async function ensurePaid(req: VercelRequest): Promise<boolean> {
   const sessionId = (req.query.session_id as string) || '';
   if (!sessionId) return false;
 
-  const result = await query<{ status: string }>(
-    `select status
-     from payments
-     where session_id = $1
-       and status = 'PAID'
-     order by created_at desc
-     limit 1`,
-    [sessionId],
+  const payments = await getPaymentsCollection();
+  const doc = await payments.findOne(
+    { session_id: sessionId, status: 'PAID' },
+    { sort: { created_at: -1 }, projection: { status: 1 } },
   );
-  return !!result.rows[0];
+  return !!doc;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

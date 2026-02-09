@@ -48,6 +48,7 @@ In **Vercel → Your Project → Settings → Environment Variables**, add:
 | **VITE_API_URL** | Optional | Backend API base URL. |
 | **INSFORGE_SERVICE_KEY** | Future API routes | InsForge DB (server). |
 | **ADMIN_SECRET_KEY** | `api/admin/*` | Protect admin endpoints. |
+| **MONGODB_URI** (or **DATABASE_URL**) | `api/lib/mongo.ts`, payments/feedback/admin APIs | MongoDB connection string for payments and feedback. **Required** for order creation, webhook, payment status, and admin dashboards. Do not commit the connection string; set it only in Vercel and local `.env`. |
 
 ---
 
@@ -79,29 +80,16 @@ If the payment flow returns **500** in production or test:
   PayU expects the **amount in rupees** (e.g. `49` for ₹49). The app now sends **49** from the frontend and the backend clamps/ignores paise (e.g. if `4900` was sent by mistake, it is treated as ₹49). So you should see **₹49** on the PayU page.
 
 - **“Transaction failed” or “Order not found”**  
-  Orders were only stored in memory. On Vercel, the webhook often runs on a **different serverless instance** that doesn’t have that order, so PayU got “Order not found” and the payment looked failed.  
-  **Fix:** Set **DATABASE_URL** (Postgres) in Vercel and create the **payments** table. Then:
-  - Creating an order also inserts a **PENDING** row (so any instance can see it).
-  - The webhook checks the DB for “already paid” and updates the row to **PAID**, so it works even when the order isn’t in memory.
+  Orders must be persisted so the webhook (which may run on a different serverless instance) can find them.  
+  **Fix:** Set **MONGODB_URI** (or **DATABASE_URL**) in Vercel to your MongoDB Atlas connection string. Then:
+  - Creating an order writes a **PENDING** document to the `payments` collection (so any instance can see it).
+  - The webhook finds the payment by `gateway_order_id`, updates it to **PAID**, and records `paid_at`. No SQL tables needed.
 
-- **Payments table (required for reliable webhook)**  
-  Run this on your Postgres (e.g. RDS) and ensure **DATABASE_URL** is set in Vercel:
-
-```sql
-create table if not exists payments (
-  id serial primary key,
-  session_id text,
-  gateway_order_id text not null unique,
-  receipt_id text,
-  amount_paise integer not null,
-  status text not null default 'PENDING',
-  email text,
-  created_at timestamptz default now(),
-  paid_at timestamptz,
-  refund_status text
-);
-create unique index if not exists payments_gateway_order_id_key on payments (gateway_order_id);
-```
+- **MongoDB collections (payments & feedback)**  
+  The app uses two collections. They are created automatically when first used; you can also create them and a unique index on `gateway_order_id` for `payments`:
+  - **payments:** `session_id`, `gateway_order_id` (unique), `receipt_id`, `amount_paise`, `status` ('PENDING' | 'PAID'), `email`, `created_at`, `paid_at`.
+  - **feedback:** `session_id`, `page`, `message`, `email`, `type`, `status`, `created_at`.
+  Do **not** commit your MongoDB connection string; set **MONGODB_URI** only in Vercel and local `.env`.
 
 ---
 
@@ -110,4 +98,4 @@ create unique index if not exists payments_gateway_order_id_key on payments (gat
 - **PayU:** Do not add to repo. Add **PAYU_KEY** and **PAYU_SALT** (and optional PayU URLs) **only in Vercel Environment Variables** so real payment tests work on the deployed site.
 - **Local:** Use `.env` for PayU + OpenAI; run `npm run dev:full` so the API has access to them.
 - **Amount:** Always **49** (rupees) for ₹49; PayU shows the same.
-- **Reliable webhook:** Set **DATABASE_URL** and create the **payments** table so every instance can see orders and mark them PAID.
+- **Reliable webhook:** Set **MONGODB_URI** (or **DATABASE_URL**) to your MongoDB connection string so every instance can read/update payments and mark them PAID.

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from '../lib/db';
+import { getFeedbackCollection } from '../lib/mongo.js';
 
 function isAdminAuthorized(req: VercelRequest): boolean {
   const adminKey = (req.headers['x-admin-key'] as string) || (req.query.adminKey as string);
@@ -29,25 +29,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const result = await query<{
-      id: string;
-      session_id: string | null;
-      page: string | null;
-      message: string;
-      email: string | null;
-      type: string | null;
-      status: string | null;
-      created_at: string;
-    }>(
-      `select id, session_id, page, message, email, type, status, created_at
-       from feedback
-       order by created_at desc
-       limit 100`,
-    );
+    const feedbackCol = await getFeedbackCollection();
+    const list = await feedbackCol.find({}).sort({ created_at: -1 }).limit(100).toArray();
+
+    const feedback = list.map((d) => ({
+      id: (d as { _id?: unknown })._id?.toString?.() ?? '',
+      session_id: d.session_id ?? null,
+      page: d.page ?? null,
+      message: d.message,
+      email: d.email ?? null,
+      type: d.type ?? null,
+      status: d.status ?? null,
+      created_at: d.created_at instanceof Date ? d.created_at.toISOString() : String(d.created_at),
+    }));
 
     return res.status(200).json({
       success: true,
-      feedback: result.rows,
+      feedback,
     });
   } catch (err) {
     console.error('Admin feedback error', err);

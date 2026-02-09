@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getOrderByTxnid, setOrderVerified, addUnlock } from '../lib/store.js';
 import { verifyResponseHash, isPayuConfigured } from '../lib/payu.js';
-import { query } from '../lib/db';
+import { getPaymentsCollection } from '../lib/mongo.js';
 
 const PAYU_KEY = process.env.PAYU_KEY || '';
 
@@ -65,18 +65,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sessionId = udf1 || '';
     const templateId = udf2 || '';
 
-    // Idempotent: already processed? Check in-memory first, then DB
+    // Idempotent: already processed? Check in-memory first, then MongoDB
     const order = getOrderByTxnid(txnid);
     if (order?.status === 'verified') {
       return res.status(200).json({ received: true, message: 'Already processed' });
     }
     let alreadyPaidInDb = false;
     try {
-      const r = await query<{ status: string }>(
-        'select status from payments where gateway_order_id = $1 limit 1',
-        [txnid],
-      );
-      alreadyPaidInDb = r.rows[0]?.status === 'PAID';
+      const payments = await getPaymentsCollection();
+      const doc = await payments.findOne({ gateway_order_id: txnid });
+      alreadyPaidInDb = doc?.status === 'PAID';
     } catch (_) {}
     if (alreadyPaidInDb) {
       return res.status(200).json({ received: true, message: 'Already processed' });
@@ -89,23 +87,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     setOrderVerified(txnid);
     addUnlock(sessionId, templateId, txnid);
 
-    // Persist payment row for admin + unlock checks
+    // Persist payment row to MongoDB for admin + unlock checks
     try {
-      await query(
-        `insert into payments (session_id, gateway_order_id, receipt_id, amount_paise, status, email, created_at, paid_at)
-         values ($1, $2, $3, $4, $5, $6, now(), now())
-         on conflict (gateway_order_id) do update set status = excluded.status, paid_at = excluded.paid_at`,
-        [
-          sessionId,
-          txnid,
-          txnid,
-          Math.round(Number(amount) * 100),
-          'PAID',
-          email,
-        ],
+      const payments = await getPaymentsCollection();
+      const now = new Date();
+      await payments.updateOne(
+        { gateway_order_id: txnid },
+        {
+          $set: {
+            session_id: sessionId,
+            gateway_order_id: txnid,
+            receipt_id: txnid,
+            amount_paise: Math.round(Number(amount) * 100),
+            status: 'PAID',
+            email: email || null,
+            paid_at: now,
+          },
+        },
+        { upsert: true },
       );
     } catch (dbErr) {
-      console.error('Failed to write payment row', dbErr);
+      console.error('Failed to write payment row to MongoDB', dbErr);
     }
 
     return res.status(200).json({ received: true, unlocked: true });

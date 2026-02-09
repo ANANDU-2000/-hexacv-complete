@@ -155,7 +155,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 <BarChart3 className="text-blue-600" size={20} />
                                 HexaCV Insights
                             </h2>
-                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Admin Control Center
+                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Admin Control Center · Data source: MongoDB
                             </p>
                         </div>
                     </div>

@@ -1,3 +1,7 @@
+/**
+ * @deprecated Payments, feedback, and admin data now use MongoDB (api/lib/mongo.ts).
+ * Set MONGODB_URI (or DATABASE_URL) for payments/feedback. This pg module is kept for any legacy use only.
+ */
 import { Pool } from 'pg';
 
 let pool: Pool | null = null;

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from '../lib/db';
+import { getPaymentsCollection } from '../lib/mongo.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,19 +21,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const result = await query<{ status: string }>(
-      `select status
-       from payments
-       where session_id = $1
-       order by created_at desc
-       limit 1`,
-      [sessionId],
+    const payments = await getPaymentsCollection();
+    const doc = await payments.findOne(
+      { session_id: sessionId },
+      { sort: { created_at: -1 }, projection: { status: 1 } },
     );
-
-    const row = result.rows[0];
     return res.status(200).json({
       success: true,
-      status: row?.status ?? 'NONE',
+      status: doc?.status ?? 'NONE',
     });
   } catch (err) {
     console.error('Payment status error', err);

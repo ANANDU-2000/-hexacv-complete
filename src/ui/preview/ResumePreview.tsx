@@ -1,3 +1,12 @@
+/**
+ * LEGACY: iframe-based template preview.
+ *
+ * This component is DEPRECATED in favor of the React A4 document engine:
+ * - src/ui/document/DocumentPreview.tsx
+ *
+ * It should not be imported or used in any user-facing flows.
+ * Kept temporarily for reference during migration.
+ */
 import React, { useEffect, useRef, useState } from 'react';
 import { ResumeData } from '../../core/types';
 import { populateTemplate } from '../../core/delivery/templateEngine';
@@ -113,17 +122,37 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
   const height = contentHeightProp ?? contentHeight;
   const showOverlay = showLoadingOverlay && loading;
+  // Scaled dimensions so the layout box matches visual size; prevents scroll when fit-to-view
+  const scaledW = 794 * scale;
+  const scaledH = height * scale;
 
   return (
     <div
-      className={`relative ${className}`}
+      className={`relative overflow-hidden ${className}`}
       style={{
-        width: '794px',
-        height: `${height}px`,
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
+        width: `${scaledW}px`,
+        height: `${scaledH}px`,
       }}
     >
+      <div
+        style={{
+          width: '794px',
+          height: `${height}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      >
+        <iframe
+          ref={iframeRef}
+          title="Resume Preview"
+          className="w-full h-full border-none bg-white shadow-sm"
+          style={{ minHeight: `${A4_PX_HEIGHT}px` }}
+          sandbox="allow-same-origin allow-scripts"
+        />
+      </div>
       {showOverlay && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
@@ -134,13 +163,6 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
           {dataError}
         </div>
       )}
-      <iframe
-        ref={iframeRef}
-        title="Resume Preview"
-        className="w-full h-full border-none bg-white shadow-sm"
-        style={{ minHeight: `${A4_PX_HEIGHT}px` }}
-        sandbox="allow-same-origin allow-scripts"
-      />
     </div>
   );
 };

@@ -11,8 +11,8 @@ interface SoftLockModalProps {
 const VALUE_BULLETS = [
   'Tailored to your exact job role',
   'Optimized for ATS screening',
-  'Strong action verbs & metrics',
-  'No subscription. Pay once.',
+  'Stronger action verbs & clear metrics',
+  'One-time unlock. No subscription.',
 ];
 
 export const SoftLockModal: React.FC<SoftLockModalProps> = ({
@@ -33,7 +33,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
     >
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
         <h2 id="soft-lock-title" className="text-lg font-bold text-gray-900 mb-2">
-          Advanced ATS Rewrite — ₹49 (one-time)
+          ATS Optimized Version — ₹49 (one-time)
         </h2>
         <ul className="list-none space-y-2 mb-4">
           {VALUE_BULLETS.map((text, i) => (
@@ -44,7 +44,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
           ))}
         </ul>
         <p className="text-xs text-gray-500 mb-4">
-          You will be redirected to PayU to complete payment securely. Unlock is confirmed only after payment success.
+          Secure PayU payment. No login required, we do not store your card or address. Unlock is confirmed only after payment success.
         </p>
         {error && (
           <p className="text-sm text-red-600 mb-4" role="alert">
@@ -58,7 +58,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
             disabled={loading}
             className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Redirecting…' : 'Unlock Advanced Rewrite — ₹49'}
+            {loading ? 'Redirecting…' : 'ATS Optimized Version — ₹49 (one-time)'}
           </button>
           <button
             type="button"

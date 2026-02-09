@@ -4,17 +4,16 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 const A4_PX_WIDTH = 794;
 const A4_PX_HEIGHT = 1123;
 import { ResumeEditor } from '../ui/editor/ResumeEditor';
-import { ResumePreview } from '../ui/preview/ResumePreview';
+import { DocumentPreview } from '../ui/document';
+import { resumeDataToNormalized } from '../core/normalizedResume';
 import { StepIndicator } from '../ui/editor/StepIndicator';
 import { ATSScoreCard } from '../ui/editor/ATSScoreCard';
 import { ResumeData } from '../core/types';
-import { AVAILABLE_TEMPLATES } from '../core/delivery/templates';
 import { resumeToText } from '../core/ats/resumeToText';
 import { extractKeywordsFromJD } from '../core/ats/extractKeywords';
 import { scoreATS } from '../core/ats/scoreATS';
 import { checkResumeStructure } from '../core/ats/scoreATS';
 
-const DEFAULT_PREVIEW_TEMPLATE = AVAILABLE_TEMPLATES[0]?.id ?? 'basic';
 const ATS_DEBOUNCE_MS = 500;
 
 type StepId = 'content' | 'ats' | 'template' | 'download';
@@ -194,13 +193,11 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
             >
               <div className="flex items-start justify-center p-2" style={{ minHeight: '100%', minWidth: '100%' }}>
                 <div className="shadow-lg bg-white inline-block">
-                  <ResumePreview
-                    data={data}
-                    templateId={DEFAULT_PREVIEW_TEMPLATE}
+                  <DocumentPreview
+                    resume={resumeDataToNormalized(data)}
+                    options={{ tier: 'free' }}
                     scale={previewScale}
-                    onContentHeight={setPreviewContentHeight}
-                    contentHeight={previewContentHeight}
-                    showLoadingOverlay={false}
+                    onPagesRendered={(pageCount) => setPreviewContentHeight(pageCount * A4_PX_HEIGHT)}
                   />
                 </div>
               </div>

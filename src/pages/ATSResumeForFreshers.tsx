@@ -7,10 +7,10 @@ interface LandingPageProps {
 
 export default function ATSResumeForFreshers({ onStart }: LandingPageProps) {
   useEffect(() => {
-    document.title = 'ATS Resume for Freshers - Free Template & Guide | HexaCV';
+    document.title = 'ATS Resume for Freshers Applying to Gulf Jobs | HexaCV';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Free ATS-optimized resume template for freshers. No experience needed. Highlight projects, skills, and education. Download free PDF - no signup.');
+      metaDescription.setAttribute('content', 'Free ATS-optimized resume template for freshers in India applying to Gulf jobs (Dubai, UAE, Qatar, Saudi). Highlight projects, skills, and education. Download clean PDF - no signup.');
     }
 
     // Add FAQ Schema

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ResumeData } from '../core/types';
-import { ResumePreview } from '../ui/preview/ResumePreview';
+import { resumeDataToNormalized } from '../core/normalizedResume';
+import { DocumentPreview } from '../ui/document';
+import { printDocumentPreview } from '../core/delivery/generatePDFFromDocument';
 import { TemplateList } from '../ui/templates/TemplateList';
 import { OptimizationPanel } from '../ui/preview/OptimizationPanel';
 import { SoftLockModal } from '../ui/preview/SoftLockModal';
 import { AVAILABLE_TEMPLATES } from '../core/delivery/templates';
-import { generatePDF } from '../core/delivery/generatePDF';
 import { getSessionId } from '../api-service';
 import { checkUnlockStatus } from '../core/payment/checkUnlock';
 import { createOrderAndPay } from '../core/payment/createOrder';
@@ -45,6 +46,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   const [viewportSize, setViewportSize] = useState<{ w: number; h: number } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const documentContentRef = useRef<HTMLDivElement>(null);
   const pollAttempts = useRef(0);
 
   const isMobile = useIsMobile();
@@ -56,7 +58,8 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
     return Math.max(0.35, Math.min(scaleW, scaleH, 1.2) * 0.98);
   }, [viewportSize, previewContentHeight]);
 
-  const totalPages = Math.max(1, Math.ceil(previewContentHeight / A4_PX_HEIGHT));
+  const [documentPageCount, setDocumentPageCount] = useState(1);
+  const totalPages = documentPageCount;
 
   useEffect(() => {
     const el = previewContainerRef.current;
@@ -87,6 +90,9 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   const [mobileScale, setMobileScale] = useState(1);
   const [atsExpanded, setAtsExpanded] = useState(false);
   const [showTemplateSheet, setShowTemplateSheet] = useState(false);
+  // Desktop side panels: start hidden so preview feels calm by default.
+  const [showTemplatePanel, setShowTemplatePanel] = useState(false);
+  const [showAtsPanel, setShowAtsPanel] = useState(false);
   const mobileZoomRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const pinchStartRef = useRef<{ scale: number; dist: number } | null>(null);
@@ -186,14 +192,19 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
     if (isLocked) return;
     setDownloading(true);
     try {
-      await generatePDF(selectedTemplateId, data);
+      const el = documentContentRef.current;
+      if (el) {
+        printDocumentPreview(el);
+      } else {
+        alert('Preview not ready. Wait a moment and try again.');
+      }
     } catch (e) {
       console.error('Download failed', e);
       alert('Download failed. Try again.');
     } finally {
       setDownloading(false);
     }
-  }, [selectedTemplateId, data, isLocked]);
+  }, [isLocked]);
 
   const handleUnlockClick = useCallback(() => {
     setSoftLockOpen(true);
@@ -335,22 +346,28 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
             <div
               className="relative shadow-2xl bg-white origin-top"
               style={{
-                width: '210mm',
-                minHeight: '297mm',
                 transform: `scale(${mobileScale})`,
                 transformOrigin: 'top center',
               }}
             >
-              <ResumePreview data={data} templateId={selectedTemplateId} scale={1} />
+              <DocumentPreview
+                resume={resumeDataToNormalized(data)}
+                options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
+                scale={1}
+                contentRef={documentContentRef}
+                onPagesRendered={setDocumentPageCount}
+              />
               {isLocked && unlockChecked && (
                 <div className="absolute inset-0 bg-white/85 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
-                  <p className="text-gray-800 font-medium mb-3 text-center px-4">Unlock to download this template.</p>
+                  <p className="text-gray-800 font-medium mb-3 text-center px-4">
+                    Free template and PDF stay unlocked forever. Upgrade wording for this role with an ATS-optimized version.
+                  </p>
                   <button
                     type="button"
                     onClick={handleUnlockClick}
                     className="px-5 py-3 bg-blue-600 text-white rounded-xl font-semibold text-[15px]"
                   >
-                    Unlock stronger wording — ₹49 one-time
+                    ATS Optimized Version — ₹49 (one-time)
                   </button>
                 </div>
               )}
@@ -381,7 +398,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                 className="w-full min-h-[52px] mt-3 flex items-center justify-center gap-2 rounded-xl bg-white text-black font-black text-[15px] touch-manipulation"
               >
                 <Sparkles size={20} />
-                Unlock stronger wording — ₹49 one-time
+                ATS Optimized Version — ₹49 (one-time)
               </button>
             )}
           </footer>
@@ -406,6 +423,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         </div>
       ) : (
       <div className="flex flex-1 min-h-0">
+      {showTemplatePanel && (
       <aside className="w-full sm:w-72 lg:w-[25%] lg:min-w-[200px] lg:max-w-[280px] bg-white border-r flex flex-col flex-shrink-0">
         <div className="p-4 border-b flex items-center justify-between">
           <button type="button" onClick={onBack} className="text-sm font-medium text-gray-600 hover:text-gray-900" aria-label="Back to editor">← Back</button>
@@ -413,22 +431,43 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         </div>
         <div className="p-4 overflow-y-auto flex-1">
           <h2 className="text-lg font-bold mb-4 text-gray-800">Choose Template</h2>
-          <p className="text-xs text-gray-600 mb-3">Free: ATS-friendly layout. Paid: JD-tailored wording, stronger verbs, and better keyword fit.</p>
+          <p className="text-xs text-gray-600 mb-3">Free: ATS-friendly layout and clean PDF. Paid: ATS-optimized wording tailored to your job description.</p>
           <TemplateList templates={AVAILABLE_TEMPLATES} selectedTemplateId={selectedTemplateId} onSelect={setSelectedTemplateId} freeTemplateId={FREE_TEMPLATE_ID} />
-          <p className="text-xs text-gray-500 mt-3">One-time fee for advanced rewrite; free template stays free for life.</p>
+          <p className="text-xs text-gray-500 mt-3">One-time fee for wording optimization; free template and PDF stay free for life.</p>
           {isLocked && unlockChecked && (
             <div className="mt-4 lg:hidden">
-              <button type="button" onClick={handleUnlockClick} className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700">Unlock Advanced ATS Rewrite — ₹49</button>
+              <button
+                type="button"
+                onClick={handleUnlockClick}
+                className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
+              >
+                ATS Optimized Version — ₹49 (one-time)
+              </button>
             </div>
           )}
         </div>
       </aside>
+      )}
       <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 min-h-0">
         <div className="shrink-0 flex flex-wrap items-center gap-3 px-6 pt-4 pb-2">
           <label className="text-sm font-medium text-gray-600">Zoom</label>
           <button type="button" onClick={setFitInView} className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 border border-blue-200">Fit in view</button>
           <input type="range" min={0.35} max={1.3} step={0.05} value={previewScale} onChange={(e) => setPreviewScale(Number(e.target.value))} className="w-24" aria-label="Zoom" />
           <span className="text-sm text-gray-500 w-12">{Math.round(previewScale * 100)}%</span>
+          <button
+            type="button"
+            onClick={() => setShowTemplatePanel((v) => !v)}
+            className="ml-auto px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+          >
+            {showTemplatePanel ? 'Hide templates' : 'Change template'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowAtsPanel((v) => !v)}
+            className="px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+          >
+            {showAtsPanel ? 'Hide ATS tips' : 'Improve ATS'}
+          </button>
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-500">Page</span>
@@ -450,28 +489,41 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
             setCurrentPage(page);
           }}
         >
-          <div style={{ height: `${previewContentHeight * previewScale}px`, minHeight: `${A4_PX_HEIGHT * previewScale}px` }} className="flex items-start justify-center">
+          <div style={{ height: `${documentPageCount * A4_PX_HEIGHT * previewScale}px`, minHeight: `${A4_PX_HEIGHT * previewScale}px` }} className="flex items-start justify-center">
             <div className="shadow-lg bg-white origin-top relative" style={{ maxWidth: '210mm' }}>
-              <ResumePreview
-                data={data}
-                templateId={selectedTemplateId}
+              <DocumentPreview
+                resume={resumeDataToNormalized(data)}
+                options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
                 scale={previewScale}
-                onContentHeight={setPreviewContentHeight}
-                contentHeight={previewContentHeight}
+                contentRef={documentContentRef}
+                onPagesRendered={(n) => {
+                  setDocumentPageCount(n);
+                  setPreviewContentHeight(n * A4_PX_HEIGHT);
+                }}
               />
               {isLocked && unlockChecked && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
-                  <p className="text-gray-700 font-medium mb-2">Unlock this template to download.</p>
-                  <button type="button" onClick={handleUnlockClick} className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700">Unlock Advanced ATS Rewrite — ₹49</button>
+                  <p className="text-gray-700 font-medium mb-2 text-center px-4">
+                    Free template is fully usable. Unlock an ATS-optimized version of your wording for a one-time ₹49.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleUnlockClick}
+                    className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700"
+                  >
+                    ATS Optimized Version — ₹49 (one-time)
+                  </button>
                 </div>
               )}
             </div>
           </div>
         </div>
       </main>
+      {showAtsPanel && (
       <aside className="hidden lg:flex w-[25%] min-w-[200px] max-w-[280px] bg-gray-100 border-l flex-col flex-shrink-0 p-4 overflow-y-auto">
         <OptimizationPanel atsScoreBefore={atsScoreBefore} isPaidUnlocked={unlocked && !isFreeTemplate} onUnlockClick={handleUnlockClick} />
       </aside>
+      )}
       </div>
       )}
 

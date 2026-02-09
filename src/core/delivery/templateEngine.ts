@@ -1,3 +1,13 @@
+/**
+ * LEGACY: HTML template renderer for iframe-based resumes.
+ *
+ * New preview + PDF use the React A4 document engine instead:
+ * - src/ui/document/DocumentPreview.tsx
+ * - src/core/delivery/generatePDFFromDocument.ts
+ *
+ * This module is kept only for backwards compatibility (e.g. old admin tools).
+ * Do not call it from new user-facing flows.
+ */
 import { ResumeData } from '../types';
 import { extractKeywordsFromJD } from '../ats/extractKeywords';
 

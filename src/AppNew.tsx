@@ -31,6 +31,7 @@ const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const FreeATSResumeBuilder = lazy(() => import('./pages/FreeATSResumeBuilder'));
 const ResumeKeywordExtractor = lazy(() => import('./pages/ResumeKeywordExtractor'));
 const ATSResumeForFreshers = lazy(() => import('./pages/ATSResumeForFreshers'));
+const GulfATSResume = lazy(() => import('./pages/GulfATSResume'));
 const NoLoginResumeBuilder = lazy(() => import('./pages/NoLoginResumeBuilder'));
 const JobDescriptionKeywordTool = lazy(() => import('./pages/JobDescriptionKeywordTool'));
 const FreeToolsPage = lazy(() => import('./pages/FreeToolsPage'));
@@ -132,14 +133,10 @@ export default function AppNew() {
 
     const { showRestorePrompt, onRestore, onDismiss } = useDraftPersistence(resume, setResume);
 
-    // Handler to navigate to preview with validation
+    // Handler to navigate to preview.
+    // Keep this path low-friction: go straight to preview and surface
+    // any structural feedback inside the editor/ATS panel instead.
     const handleNavigateToPreview = () => {
-        const validation = validateResumeForTemplates(resume);
-        if (!validation.isValid) {
-            setValidationErrors(validation.errors);
-            setTimeout(() => setValidationErrors([]), 5000);
-            return;
-        }
         setValidationErrors([]);
         navigate('/preview');
         trackEvent('preview_opened');
@@ -363,6 +360,7 @@ export default function AppNew() {
                     <Route path="/free-ats-resume-builder" element={<Suspense fallback={<LoadingSpinner />}><FreeATSResumeBuilder onStart={handleStartNew} /></Suspense>} />
                     <Route path="/resume-keyword-extractor" element={<Suspense fallback={<LoadingSpinner />}><ResumeKeywordExtractor onStart={handleStartNew} /></Suspense>} />
                     <Route path="/ats-resume-for-freshers" element={<Suspense fallback={<LoadingSpinner />}><ATSResumeForFreshers onStart={handleStartNew} /></Suspense>} />
+                    <Route path="/gulf-ats-resume" element={<Suspense fallback={<LoadingSpinner />}><GulfATSResume onStart={handleStartNew} /></Suspense>} />
                     <Route path="/no-login-resume-builder" element={<Suspense fallback={<LoadingSpinner />}><NoLoginResumeBuilder onStart={handleStartNew} /></Suspense>} />
                     <Route path="/job-description-keyword-tool" element={<Suspense fallback={<LoadingSpinner />}><JobDescriptionKeywordTool onStart={handleStartNew} /></Suspense>} />
 

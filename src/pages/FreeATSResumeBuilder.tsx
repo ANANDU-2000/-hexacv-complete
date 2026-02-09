@@ -6,12 +6,12 @@ interface LandingPageProps {
 }
 
 export default function FreeATSResumeBuilder({ onStart }: LandingPageProps) {
-  // Set page meta on mount
+  // Set page meta on mount - focus this page purely on generic free ATS intent.
   useEffect(() => {
     document.title = 'Free ATS Resume Builder - No Signup Required | HexaCV';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Build ATS-optimized resume instantly. No account, no payment, no signup. Extract keywords from job descriptions. Download in 2 minutes.');
+      metaDescription.setAttribute('content', 'Build an ATS-optimized resume instantly. No account, no payment, no signup. Download a clean PDF in minutes with ATS-safe formatting.');
     }
   }, []);
 
@@ -30,7 +30,7 @@ export default function FreeATSResumeBuilder({ onStart }: LandingPageProps) {
           </h1>
           
           <p className="text-xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Build an ATS-optimized resume in minutes. No signup, no payment, no hidden fees. 
+            Build an ATS-optimized resume in minutes. No signup, no payment, no hidden fees.
             Your resume stays in your browser - we never store your data.
           </p>
           

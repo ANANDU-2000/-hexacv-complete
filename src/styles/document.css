@@ -1,0 +1,138 @@
+/**
+ * A4 document engine — shared by preview and PDF.
+ * No @media print pagination; app controls pages.
+ */
+
+.page {
+  width: 210mm;
+  height: 297mm;
+  padding: 20mm;
+  background: white;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-family: 'Inter', 'Calibri', 'Arial', system-ui, sans-serif;
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #222;
+}
+
+/* Section title: border-bottom, never break after */
+.doc-section-title {
+  font-size: 11pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid #222;
+  margin: 8px 0 6px;
+  padding-bottom: 2px;
+  page-break-after: avoid;
+}
+
+.doc-section {
+  margin-bottom: 6px;
+  page-break-inside: avoid;
+}
+
+/* Header block */
+.doc-header-name {
+  font-size: 17pt;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.doc-header-title {
+  font-size: 11pt;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.doc-header-contact {
+  font-size: 9.5pt;
+  color: #444;
+  line-height: 1.4;
+}
+
+.doc-header-contact a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.doc-header-contact a:hover {
+  text-decoration: underline;
+}
+
+/* Experience / project entry: role and date on same baseline */
+.doc-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+.doc-entry-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-entry-role {
+  font-weight: bold;
+  font-size: 10.5pt;
+}
+
+.doc-entry-company {
+  font-size: 10pt;
+  color: #444;
+}
+
+.doc-entry-date {
+  font-size: 9.5pt;
+  color: #444;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.doc-entry-bullets {
+  margin: 2px 0 0;
+  padding-left: 14px;
+  font-size: 10pt;
+  line-height: 1.35;
+}
+
+.doc-entry-bullets li {
+  margin-bottom: 2px;
+}
+
+/* Skills: category: item1, item2 */
+.doc-skills-category {
+  margin-bottom: 4px;
+  page-break-inside: avoid;
+}
+
+.doc-skills-label {
+  font-weight: 600;
+  font-size: 10pt;
+}
+
+.doc-skills-items {
+  font-size: 10pt;
+  color: #333;
+}
+
+/* Education */
+.doc-edu-degree {
+  font-weight: bold;
+  font-size: 10.5pt;
+}
+
+.doc-edu-institute {
+  font-size: 10pt;
+  color: #444;
+}
+
+.doc-edu-year {
+  font-size: 9.5pt;
+  color: #444;
+}

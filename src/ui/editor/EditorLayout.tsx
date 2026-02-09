@@ -7,8 +7,8 @@ export type SectionCompletionMap = Partial<Record<TabId, 'done' | 'partial' | 'e
 
 interface EditorLayoutProps {
   children: ReactNode;
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
   sectionCompletion?: SectionCompletionMap;
 }
 

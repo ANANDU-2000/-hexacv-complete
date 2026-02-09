@@ -55,7 +55,9 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
     if (!viewportSize || previewContentHeight <= 0) return 1;
     // Fit-to-width: anchor the A4 page visually by filling most of the preview column.
     const scaleW = viewportSize.w / A4_PX_WIDTH;
-    return Math.max(0.5, Math.min(scaleW, 1.2) * 0.98);
+    const target = Math.min(scaleW, 1.0) * 0.98;
+    // Clamp into design zoom window 0.75–1.25
+    return Math.max(0.75, Math.min(target, 1.25));
   }, [viewportSize, previewContentHeight]);
 
   const [documentPageCount, setDocumentPageCount] = useState(1);
@@ -461,7 +463,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
             <>
               <button
                 type="button"
-                onClick={() => setPreviewScale((s) => Math.max(0.5, s - 0.1))}
+                onClick={() => setPreviewScale((s) => Math.max(0.75, s - 0.1))}
                 className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 border border-gray-300"
                 aria-label="Zoom out"
               >
@@ -469,7 +471,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
               </button>
               <button
                 type="button"
-                onClick={() => setPreviewScale((s) => Math.min(1.5, s + 0.1))}
+                onClick={() => setPreviewScale((s) => Math.min(1.25, s + 0.1))}
                 className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 border border-gray-300"
                 aria-label="Zoom in"
               >
@@ -518,7 +520,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         </div>
         <div
           ref={previewContainerRef}
-          className="flex-1 min-h-0 overflow-auto flex justify-center items-start px-6 pb-8"
+          className="flex-1 min-h-0 px-6 pb-8 preview-scroll"
           style={{ maxHeight: '100%' }}
           onScroll={() => {
             const el = previewContainerRef.current;
@@ -527,19 +529,22 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
             const page = Math.min(totalPages, Math.floor(el.scrollTop / pageHeight) + 1);
             setCurrentPage(page);
           }}
-        >
+          >
           <div
             style={{ minHeight: `${A4_PX_HEIGHT * previewScale}px` }}
             className="flex items-start justify-center w-full"
           >
             <div
-              className="relative bg-white origin-top rounded-md shadow-md"
-              style={{ width: '90%', maxWidth: '794px' }}
+              className="relative page-stack"
+              style={{
+                transform: `scale(${previewScale})`,
+                transformOrigin: 'top center',
+              }}
             >
               <DocumentPreview
                 resume={resumeDataToNormalized(data)}
                 options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
-                scale={previewScale}
+                scale={1}
                 contentRef={documentContentRef}
                 onPagesRendered={(n) => {
                   setDocumentPageCount(n);

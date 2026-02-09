@@ -24,6 +24,7 @@ interface DocumentPreviewProps {
 export function DocumentPreview({
   resume,
   options = { tier: 'free' },
+  // Scale is applied by the outer page-stack wrapper; keep for API compatibility but unused here.
   scale = 1,
   className = '',
   contentRef,
@@ -59,7 +60,7 @@ export function DocumentPreview({
   const tier = options.tier ?? 'free';
 
   return (
-    <div className={className} style={{ fontFamily: 'Inter, Calibri, Arial, sans-serif' }}>
+    <div style={{ fontFamily: 'Inter, Calibri, Arial, sans-serif' }}>
       {/* Hidden measure container: same width as page content so layout is accurate */}
       <div
         aria-hidden="true"
@@ -90,14 +91,12 @@ export function DocumentPreview({
       {/* Page stack: scroll only between pages */}
       <div
         ref={contentRef}
-        className="document-preview-pages"
+        className={`document-preview-pages ${className}`.trim()}
         style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 0,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center',
         }}
       >
         {pageAssignments.map((pageBlocks, pageIndex) => (

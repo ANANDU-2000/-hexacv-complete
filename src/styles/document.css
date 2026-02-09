@@ -4,10 +4,12 @@
  */
 
 .page {
-  width: 210mm;
-  height: 297mm;
-  padding: 20mm;
-  background: white;
+  /* Exact A4 canvas in px for on-screen preview (794×1123) */
+  width: 794px;
+  min-height: 1123px;
+  /* Inner white page padding: uniform 40px */
+  padding: 40px;
+  background: #fff;
   box-sizing: border-box;
   overflow: hidden;
   flex-shrink: 0;
@@ -15,6 +17,21 @@
   font-size: 10pt;
   line-height: 1.35;
   color: #222;
+  margin-bottom: 24px;
+}
+
+/* Scroll container and page stack for preview zoom – behaves like Word/PDF viewer */
+.preview-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #f4f5f7;
+}
+
+.page-stack {
+  transform-origin: top center;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 /* Section title: border-bottom, never break after */
@@ -23,9 +40,10 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  border-bottom: 1px solid #222;
-  margin: 8px 0 6px;
-  padding-bottom: 2px;
+  border-bottom: 1px solid #000;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
   page-break-after: avoid;
 }
 
@@ -35,15 +53,19 @@
 }
 
 /* Header block */
+.doc-header {
+  margin-bottom: 12px;
+}
+
 .doc-header-name {
-  font-size: 17pt;
-  font-weight: bold;
+  font-size: 18pt;
+  font-weight: 700;
   margin-bottom: 2px;
 }
 
-.doc-header-title {
-  font-size: 11pt;
-  font-weight: 600;
+ .doc-header-title {
+  font-size: 10.5pt;
+  font-weight: 500;
   margin-bottom: 6px;
   color: #333;
 }
@@ -94,10 +116,11 @@
   white-space: nowrap;
 }
 
-.doc-entry-bullets {
+ .doc-entry-bullets {
   margin: 2px 0 0;
-  padding-left: 14px;
-  font-size: 10pt;
+  /* Bullet indent ≈ 12px from text column */
+  padding-left: 12px;
+  font-size: 9.8pt;
   line-height: 1.35;
 }
 

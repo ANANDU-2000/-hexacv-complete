@@ -174,20 +174,26 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
               <span className="text-sm text-gray-500 w-12">{Math.round(previewScale * 100)}%</span>
               <span className="text-xs text-gray-400">Ctrl+scroll to zoom</span>
             </div>
-            {/* Full resume in viewport (no scroll by default); zoom in/out with buttons or Ctrl+scroll */}
+            {/* Right preview scrolls independently; page stack scales as a unit */}
             <div
               ref={previewContainerRef}
-              className="flex-1 min-h-0 overflow-auto flex justify-center items-start border border-gray-200 rounded-lg bg-gray-200/50"
+              className="flex-1 min-h-0 border border-gray-200 rounded-lg bg-gray-200/50 preview-scroll"
               onWheel={handlePreviewWheel}
               role="region"
               aria-label="Resume preview — full resume in view; zoom with +/− or Ctrl+scroll"
             >
               <div className="flex items-start justify-center p-2" style={{ minHeight: '100%', minWidth: '100%' }}>
-                <div className="shadow-lg bg-white inline-block">
+                <div
+                  className="page-stack"
+                  style={{
+                    transform: `scale(${previewScale})`,
+                    transformOrigin: 'top center',
+                  }}
+                >
                   <DocumentPreview
                     resume={resumeDataToNormalized(data)}
                     options={{ tier: 'free' }}
-                    scale={previewScale}
+                    scale={1}
                     onPagesRendered={(pageCount) => setPreviewContentHeight(pageCount * A4_PX_HEIGHT)}
                   />
                 </div>

@@ -7,9 +7,10 @@ const PAGE_STYLES = `
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
   .page {
-    width: 210mm;
-    height: 297mm;
-    padding: 20mm;
+    /* Match on-screen A4 canvas: 794×1123 with inner padding 40px */
+    width: 794px;
+    min-height: 1123px;
+    padding: 40px;
     background: white;
     overflow: hidden;
     font-family: 'Inter', 'Calibri', 'Arial', system-ui, sans-serif;
@@ -24,13 +25,15 @@ const PAGE_STYLES = `
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    border-bottom: 1px solid #222;
-    margin: 8px 0 6px;
-    padding-bottom: 2px;
+    border-bottom: 1px solid #000;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
   }
   .doc-section { margin-bottom: 6px; }
-  .doc-header-name { font-size: 17pt; font-weight: bold; margin-bottom: 2px; }
-  .doc-header-title { font-size: 11pt; font-weight: 600; margin-bottom: 6px; color: #333; }
+  .doc-header { margin-bottom: 12px; }
+  .doc-header-name { font-size: 18pt; font-weight: 700; margin-bottom: 2px; }
+  .doc-header-title { font-size: 10.5pt; font-weight: 500; margin-bottom: 6px; color: #333; }
   .doc-header-contact { font-size: 9.5pt; color: #444; line-height: 1.4; }
   .doc-header-contact a { color: #2563eb; text-decoration: none; }
   .doc-entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 2px; }
@@ -38,7 +41,7 @@ const PAGE_STYLES = `
   .doc-entry-role { font-weight: bold; font-size: 10.5pt; }
   .doc-entry-company { font-size: 10pt; color: #444; }
   .doc-entry-date { font-size: 9.5pt; color: #444; flex-shrink: 0; white-space: nowrap; }
-  .doc-entry-bullets { margin: 2px 0 0; padding-left: 14px; font-size: 10pt; line-height: 1.35; }
+  .doc-entry-bullets { margin: 2px 0 0; padding-left: 12px; font-size: 9.8pt; line-height: 1.35; }
   .doc-entry-bullets li { margin-bottom: 2px; }
   .doc-skills-category { margin-bottom: 4px; }
   .doc-skills-label { font-weight: 600; font-size: 10pt; }

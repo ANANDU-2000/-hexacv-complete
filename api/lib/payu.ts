@@ -10,11 +10,12 @@ const PAYU_SALT = process.env.PAYU_SALT || '';
 
 /**
  * Generate hash for PayU payment request (redirect to PayU).
+ * Amount must be in RUPEES as per PayU docs.
  * Formula: sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||salt)
  */
 export function generateRequestHash(params: {
   txnid: string;
-  amount: number; // in paise
+  amount: number; // in rupees
   productinfo: string;
   firstname: string;
   email: string;
@@ -35,6 +36,7 @@ export function generateRequestHash(params: {
 
 /**
  * Verify PayU webhook/callback response hash.
+ * Amount must be in RUPEES (same as sent in request).
  * Formula: sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|status||||||salt)
  */
 export function verifyResponseHash(params: {

@@ -18,7 +18,7 @@ const API_BASE = typeof window !== 'undefined' ? '' : '';
 export async function createOrderAndPay(
   sessionId: string,
   templateId: string,
-  amount: number = 4900, // paise, default ₹49
+  amountInRupees: number = 49,
   email: string,
   phone?: string
 ): Promise<PaymentResult> {
@@ -31,7 +31,7 @@ export async function createOrderAndPay(
         templateId,
         email,
         phone: phone || '',
-        amount: amount,
+        amount: amountInRupees,
       }),
     });
 

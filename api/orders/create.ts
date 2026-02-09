@@ -8,7 +8,7 @@ const PAYU_SALT = process.env.PAYU_SALT || '';
 // PayU test URL (use https://secure.payu.in/_payment for production)
 const PAYU_PAYMENT_URL = process.env.PAYU_PAYMENT_URL || 'https://test.payu.in/_payment';
 
-const DEFAULT_AMOUNT_PAISE = 4900; // ₹49
+const DEFAULT_AMOUNT_RUPEES = 49; // ₹49
 
 function setCors(res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -39,7 +39,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const templateId = typeof body.templateId === 'string' ? body.templateId.trim() : '';
     const email = typeof body.email === 'string' ? body.email.trim() : '';
     const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
-    const amountPaise = Number(body.amount) || DEFAULT_AMOUNT_PAISE;
+    const amountRupees = Number(body.amount) || DEFAULT_AMOUNT_RUPEES;
+    const amountPaise = Math.round(amountRupees * 100);
 
     if (!sessionId || !templateId || !email || !email.includes('@')) {
       return res.status(400).json({ error: 'Missing or invalid: sessionId, templateId, email' });
@@ -51,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const hash = generateRequestHash({
       txnid,
-      amount: amountPaise,
+      amount: amountRupees,
       productinfo,
       firstname,
       email,
@@ -63,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       txnid,
       sessionId,
       templateId,
-      amount: amountPaise / 100,
+      amount: amountRupees,
       amountPaise,
       email,
       phone,
@@ -86,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params: {
         key: PAYU_KEY,
         txnid,
-        amount: String(amountPaise),
+        amount: String(amountRupees), // rupees for PayU
         productinfo,
         firstname,
         email,

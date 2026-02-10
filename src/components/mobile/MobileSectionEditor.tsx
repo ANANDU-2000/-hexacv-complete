@@ -118,6 +118,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                 .scrollbar-hide::-webkit-scrollbar { display: none; }
                 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
                 .pl-13 { padding-left: 3.25rem; }
+                .mobile-compact-form input, .mobile-compact-form textarea { padding: 12px 14px; font-size: 14px; border-radius: 12px; }
             `}</style>
         </div>
     );
@@ -125,57 +126,101 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
     // ===== PERSONAL INFO =====
     if (sectionId === 'profile') {
         const photoInputRef = useRef<HTMLInputElement>(null);
+        const includePhoto = data.basics?.includePhoto !== false;
+        const targetMarket = data.basics?.targetMarket;
+        const photoGuidance =
+            targetMarket === 'gulf'
+                ? 'For Gulf roles, photo is often optional unless the job ad asks for it.'
+                : targetMarket === 'india'
+                    ? 'In India, a professional photo is common on resumes.'
+                    : targetMarket && ['us', 'uk', 'eu', 'remote'].includes(targetMarket)
+                        ? 'For international roles, check the job ad; many prefer no photo.'
+                        : 'Check the job ad to see if a photo is expected.';
+
         return (
             <SectionWrapper isDoneEnabled={!!(data.basics.fullName?.trim() && data.basics.email?.trim())}>
-                <div className="flex flex-col items-center mb-12 sm:mb-16 pt-4">
-                    <div className="relative group">
-                        {data.photoUrl ? (
-                            <div className="relative w-44 h-44 sm:w-48 sm:h-48 rounded-[3.5rem] sm:rounded-[4rem] overflow-hidden border-4 border-gray-200 shadow-lg bg-gray-100">
-                                <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
-                                <button
-                                    onClick={() => onChange({ photoUrl: undefined })}
-                                    className="absolute top-4 right-4 w-10 h-10 bg-gray-800 rounded-2xl flex items-center justify-center border-2 border-gray-200 shadow-lg active:scale-90 transition-all hover:bg-gray-900"
-                                >
-                                    <X size={18} className="text-white" strokeWidth={3} aria-hidden />
-                                </button>
-                            </div>
-                        ) : (
+                <div className="flex flex-col min-[380px]:flex-row gap-6 min-[380px]:items-start pt-4 mobile-compact-form">
+                    <div className="flex-1 min-w-0 space-y-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-2">Add a professional photo (optional)</p>
+                        <p className="text-sm text-gray-600 mb-3">Do you want to add a profile photo?</p>
+                        <div className="flex gap-3 mb-4">
                             <button
-                                onClick={() => photoInputRef.current?.click()}
-                                className="w-44 h-44 sm:w-48 sm:h-48 rounded-[3.5rem] sm:rounded-[4rem] bg-white border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-4 text-gray-600 active:scale-[0.98] transition-all shadow group hover:border-gray-400"
+                                type="button"
+                                onClick={() => onChange({ basics: { ...data.basics, includePhoto: true } })}
+                                className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${includePhoto ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-200 text-gray-700'}`}
                             >
-                                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-[1.75rem] sm:rounded-[2rem] bg-white text-black flex items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.2)] group-active:scale-95 transition-transform">
-                                    <Camera size={32} strokeWidth={2.5} />
-                                </div>
-                                <div className="text-center">
-                                    <span className="text-[11px] font-black uppercase tracking-[0.25em] block mb-1">Add Identity</span>
-                                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Professional Photo</span>
-                                </div>
+                                Yes
                             </button>
-                        )}
-                        <input ref={photoInputRef} type="file" accept="image/*" onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                                const r = new FileReader();
-                                r.onload = (ev) => onChange({ photoUrl: ev.target?.result as string });
-                                r.readAsDataURL(file);
-                            }
-                        }} className="hidden" />
-                    </div>
-                </div>
+                            <button
+                                type="button"
+                                onClick={() => onChange({ basics: { ...data.basics, includePhoto: false } })}
+                                className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${!includePhoto ? 'bg-gray-200 border-gray-300 text-gray-800' : 'bg-white border-gray-200 text-gray-700'}`}
+                            >
+                                No / Skip
+                            </button>
+                        </div>
 
-                <div className="space-y-4">
-                    <InputField label="Full Name" icon={User} value={data.basics.fullName} onChange={(val: string) => onChange({ basics: { ...data.basics, fullName: val } })} placeholder="e.g. Surag M.S." />
-                    <InputField label="Email Address" icon={Mail} value={data.basics.email} onChange={(val: string) => onChange({ basics: { ...data.basics, email: val } })} placeholder="e.g. name@email.com" type="email" />
-                    <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
-                        <InputField label="Phone" icon={Phone} value={data.basics.phone} onChange={(val: string) => onChange({ basics: { ...data.basics, phone: val } })} placeholder="+91 987..." />
-                        <InputField label="Location" icon={MapPin} value={data.basics.location} onChange={(val: string) => onChange({ basics: { ...data.basics, location: val } })} placeholder="London, UK" />
+                        {includePhoto && (
+                            <>
+                                <div className="flex flex-col items-center min-[380px]:items-start mb-6">
+                                    <div className="relative group">
+                                        {data.photoUrl ? (
+                                            <div className="relative w-36 h-36 min-[380px]:w-44 min-[380px]:h-44 rounded-3xl overflow-hidden border-2 border-gray-200 shadow bg-gray-100">
+                                                <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onChange({ photoUrl: undefined })}
+                                                    className="absolute top-2 right-2 w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center text-white"
+                                                >
+                                                    <X size={14} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => photoInputRef.current?.click()}
+                                                className="w-36 h-36 min-[380px]:w-44 min-[380px]:h-44 rounded-3xl bg-white border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-2 text-gray-500 active:scale-[0.98]"
+                                            >
+                                                <Camera size={28} strokeWidth={2.5} />
+                                                <span className="text-[10px] font-semibold uppercase">Add Photo</span>
+                                            </button>
+                                        )}
+                                        <input ref={photoInputRef} type="file" accept="image/*" onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                const r = new FileReader();
+                                                r.onload = (ev) => onChange({ photoUrl: ev.target?.result as string });
+                                                r.readAsDataURL(file);
+                                            }
+                                        }} className="hidden" />
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-2 max-w-[280px]">{photoGuidance}</p>
+                                </div>
+                            </>
+                        )}
+                        {!includePhoto && (
+                            <p className="text-xs text-gray-500 mb-4">You can add a photo later from the editor.</p>
+                        )}
+
+                        <InputField label="Full Name" icon={User} value={data.basics.fullName} onChange={(val: string) => onChange({ basics: { ...data.basics, fullName: val } })} placeholder="e.g. Surag M.S." />
+                        <InputField label="Email Address" icon={Mail} value={data.basics.email} onChange={(val: string) => onChange({ basics: { ...data.basics, email: val } })} placeholder="e.g. name@email.com" type="email" />
+                        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3">
+                            <InputField label="Phone" icon={Phone} value={data.basics.phone} onChange={(val: string) => onChange({ basics: { ...data.basics, phone: val } })} placeholder="+91 987..." />
+                            <InputField label="Location" icon={MapPin} value={data.basics.location} onChange={(val: string) => onChange({ basics: { ...data.basics, location: val } })} placeholder="London, UK" />
+                        </div>
+                        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3">
+                            <InputField label="LinkedIn" icon={Linkedin} value={data.basics.linkedin} onChange={(val: string) => onChange({ basics: { ...data.basics, linkedin: val } })} placeholder="username" optional />
+                            <InputField label="GitHub" icon={Github} value={data.basics.github} onChange={(val: string) => onChange({ basics: { ...data.basics, github: val } })} placeholder="username" optional />
+                        </div>
+                        <TextAreaField label="Professional Summary" icon={Sparkles} value={data.summary} onChange={(val: string) => onChange({ summary: val })} placeholder="Briefly describe your professional background..." rows={5} />
                     </div>
-                    <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
-                        <InputField label="LinkedIn" icon={Linkedin} value={data.basics.linkedin} onChange={(val: string) => onChange({ basics: { ...data.basics, linkedin: val } })} placeholder="username" optional />
-                        <InputField label="GitHub" icon={Github} value={data.basics.github} onChange={(val: string) => onChange({ basics: { ...data.basics, github: val } })} placeholder="username" optional />
-                    </div>
-                    <TextAreaField label="Professional Summary" icon={Sparkles} value={data.summary} onChange={(val: string) => onChange({ summary: val })} placeholder="Briefly describe your professional background..." rows={6} />
+                    {data.photoUrl && (
+                        <div className="min-[380px]:shrink-0 min-[380px]:w-32 min-[380px]:pt-10">
+                            <div className="w-28 h-28 min-[380px]:w-32 min-[380px]:h-32 rounded-2xl overflow-hidden border-2 border-gray-200 shadow-sm bg-gray-100">
+                                <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                    )}
                 </div>
             </SectionWrapper>
         );

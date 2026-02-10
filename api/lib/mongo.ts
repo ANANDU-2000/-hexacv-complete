@@ -44,12 +44,25 @@ export async function getDb(): Promise<Db> {
   return cachedDb;
 }
 
+/** Returns payments collection, or null if MONGODB_URI/DATABASE_URL is not set (order create still returns 200; webhook may not find order on another instance). */
+export async function getPaymentsCollectionIfConfigured(): Promise<Collection<PaymentDoc> | null> {
+  if (!uri) return null;
+  try {
+    const db = await getDb();
+    const col = db.collection<PaymentDoc>('payments');
+    await col.createIndex({ gateway_order_id: 1 }, { unique: true }).catch(() => {});
+    await col.createIndex({ session_id: 1 }).catch(() => {});
+    await col.createIndex({ created_at: -1 }).catch(() => {});
+    return col;
+  } catch {
+    return null;
+  }
+}
+
 export async function getPaymentsCollection(): Promise<Collection<PaymentDoc>> {
-  const db = await getDb();
-  const col = db.collection<PaymentDoc>('payments');
-  await col.createIndex({ gateway_order_id: 1 }, { unique: true }).catch(() => {});
-  await col.createIndex({ session_id: 1 }).catch(() => {});
-  await col.createIndex({ created_at: -1 }).catch(() => {});
+  if (!uri) throw new Error('MONGODB_URI or DATABASE_URL is not configured');
+  const col = await getPaymentsCollectionIfConfigured();
+  if (!col) throw new Error('MONGODB_URI or DATABASE_URL is not configured');
   return col;
 }
 

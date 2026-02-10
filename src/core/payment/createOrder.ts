@@ -38,16 +38,14 @@ export async function createOrderAndPay(
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      return {
-        success: false,
-        message: data.error || 'Payment not available',
-      };
+      const msg = data.error || (res.status >= 500 ? 'Payment temporarily unavailable. Try again later.' : 'Payment not available');
+      return { success: false, message: msg };
     }
 
     if (!data.success || !data.paymentUrl || !data.params) {
       return {
         success: false,
-        message: data.error || 'Invalid response from server',
+        message: data.error || 'Payment temporarily unavailable. Try again later.',
       };
     }
 

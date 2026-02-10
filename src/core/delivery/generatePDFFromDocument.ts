@@ -32,7 +32,7 @@ const PAGE_STYLES = `
     padding-bottom: 4px;
   }
   .doc-section { margin-bottom: 6px; }
-  .doc-header { margin-bottom: 12px; text-align: center; }
+  .doc-header { margin-bottom: 12px; text-align: left; }
   .doc-header-name { font-size: 18pt; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.01em; }
   .doc-header-title { font-size: 10.5pt; font-weight: 500; margin-bottom: 6px; color: #333; }
   .doc-header-contact { font-size: 9.5pt; color: #444; line-height: 1.4; }
@@ -42,7 +42,7 @@ const PAGE_STYLES = `
   .doc-entry-left { flex: 1; min-width: 0; }
   .doc-entry-role { font-weight: bold; font-size: 10.5pt; }
   .doc-entry-company { font-size: 10pt; color: #444; }
-  .doc-entry-date { font-size: 9.5pt; font-weight: 400; color: #444; flex-shrink: 0; white-space: nowrap; }
+  .doc-entry-date { font-size: 9.5pt; font-weight: 600; color: #444; flex-shrink: 0; white-space: nowrap; }
   .doc-entry-bullets { margin: 2px 0 0; padding-left: 12px; font-size: 9.8pt; line-height: 1.35; list-style-type: disc; }
   .doc-entry-bullets li { margin-bottom: 4px; }
   .doc-skills-category { margin-bottom: 4px; }

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { insertOrder } from '../lib/store.js';
 import { generateRequestHash, isPayuConfigured } from '../lib/payu.js';
-import { getPaymentsCollection } from '../lib/mongo.js';
+import { getPaymentsCollectionIfConfigured } from '../lib/mongo.js';
 
 const PAYU_KEY = process.env.PAYU_KEY || '';
 const PAYU_SALT = process.env.PAYU_SALT || '';
@@ -76,26 +76,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       createdAt: new Date().toISOString(),
     });
 
-    // Persist pending order to MongoDB so webhook can find it on any serverless instance
-    try {
-      const payments = await getPaymentsCollection();
-      await payments.updateOne(
-        { gateway_order_id: txnid },
-        {
-          $set: {
-            session_id: sessionId,
-            gateway_order_id: txnid,
-            receipt_id: txnid,
-            amount_paise: amountPaise,
-            status: 'PENDING',
-            email: email || null,
-            created_at: new Date(),
+    // Persist pending order to MongoDB when configured (webhook can find it on any instance)
+    const payments = await getPaymentsCollectionIfConfigured();
+    if (payments) {
+      try {
+        await payments.updateOne(
+          { gateway_order_id: txnid },
+          {
+            $set: {
+              session_id: sessionId,
+              gateway_order_id: txnid,
+              receipt_id: txnid,
+              amount_paise: amountPaise,
+              status: 'PENDING',
+              email: email || null,
+              created_at: new Date(),
+            },
           },
-        },
-        { upsert: true },
-      );
-    } catch (dbErr) {
-      console.error('Failed to persist order to MongoDB (webhook may still work if same instance)', dbErr);
+          { upsert: true },
+        );
+      } catch (dbErr) {
+        console.error('Failed to persist order to MongoDB (webhook may still work if same instance)', dbErr);
+      }
     }
 
     const origin = (req.headers.origin || req.headers.referer || '').toString().replace(/\/$/, '');

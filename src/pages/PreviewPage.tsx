@@ -229,7 +229,9 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
         phone
       );
       if (!result.success) {
-        setPaymentError(result.message || 'Payment not available. Check your connection or try again.');
+        const msg = result.message || 'Payment not available. Check your connection or try again.';
+        const isUnavailable = /temporarily|unavailable|5xx|server error/i.test(msg);
+        setPaymentError(isUnavailable ? 'Payment temporarily unavailable. Try again later.' : msg);
       }
       // On success, createOrderAndPay redirects to PayU so modal will unmount
     } finally {
@@ -304,14 +306,13 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
       )}
 
       {isMobile ? (
-        /* Mobile: one action per screen, full-width A4, vertical scroll, pinch/double-tap zoom */
-        <div className="flex-1 flex flex-col min-h-0 bg-[#0F172A]">
-          {/* Top bar: Back, Download PDF */}
-          <header className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 bg-black/40 border-b border-white/10 safe-area-top">
+        /* Mobile: PDF-viewer style — Back, Download PDF, full-width page, page indicator only */
+        <div className="flex-1 flex flex-col min-h-0 bg-gray-100">
+          <header className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 bg-white border-b border-gray-200 safe-area-top">
             <button
               type="button"
               onClick={onBack}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center gap-2 text-white font-semibold touch-manipulation"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center gap-2 text-gray-800 font-semibold touch-manipulation"
               aria-label="Back to editor"
             >
               <ArrowLeft size={22} strokeWidth={2.5} />
@@ -319,38 +320,17 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
             </button>
             <button
               type="button"
-              onClick={() => setShowTemplateSheet(true)}
-              className="min-h-[44px] px-3 flex items-center gap-1.5 text-white/90 text-[14px] font-medium touch-manipulation"
-            >
-              Template <ChevronDown size={18} />
-            </button>
-            <button
-              type="button"
               onClick={handleDownload}
               disabled={downloading || isLocked}
-              className="min-h-[44px] px-4 flex items-center justify-center gap-2 rounded-xl bg-white text-black font-bold text-[14px] disabled:opacity-50 touch-manipulation"
+              className="min-h-[44px] px-4 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold text-[14px] disabled:opacity-50 touch-manipulation"
             >
               <FileDown size={18} />
-              <span>{downloading ? '…' : 'PDF'}</span>
+              <span>{downloading ? '…' : 'Download PDF'}</span>
             </button>
           </header>
 
-          {/* Full-width A4 preview: pinch zoom, double-tap reset */}
-          <main
-            ref={mobileZoomRef}
-            className="flex-1 min-h-0 overflow-auto flex justify-center items-start p-4 touch-pan-y"
-            onTouchStart={handleMobileTouchStart}
-            onTouchMove={handleMobileTouchMove}
-            onTouchEnd={handleMobileTouchEnd}
-            onClick={handleMobileDoubleTap}
-          >
-            <div
-              className="relative shadow-2xl bg-white origin-top"
-              style={{
-                transform: `scale(${mobileScale})`,
-                transformOrigin: 'top center',
-              }}
-            >
+          <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col items-center py-3 px-2">
+            <div className="mobile-preview-doc w-full" style={{ maxWidth: 420 }}>
               <DocumentPreview
                 resume={resumeDataToNormalized(data)}
                 options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
@@ -358,69 +338,29 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                 contentRef={documentContentRef}
                 onPagesRendered={setDocumentPageCount}
               />
-              {isLocked && unlockChecked && (
-                <div className="absolute inset-0 bg-white/85 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
-                  <p className="text-gray-800 font-medium mb-3 text-center px-4">
-                    Free template and PDF stay unlocked forever. Upgrade wording for this role with an ATS-optimized version.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleUnlockClick}
-                    className="px-5 py-3 bg-blue-600 text-white rounded-xl font-semibold text-[15px]"
-                  >
-                    ATS Optimized Version — ₹49 (one-time)
-                  </button>
-                </div>
-              )}
             </div>
           </main>
 
-          {/* Bottom sticky: ATS (tap to expand), Unlock CTA if locked */}
-          <footer className="shrink-0 p-4 bg-black/50 border-t border-white/10 safe-area-bottom">
-            <button
-              type="button"
-              onClick={() => setAtsExpanded((e) => !e)}
-              className="w-full min-h-[48px] flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white text-[15px] font-semibold touch-manipulation"
-              aria-expanded={atsExpanded}
-            >
-              <span>ATS Score</span>
-              <span className="font-black">{atsScoreBefore != null ? `${atsScoreBefore}/100` : '—'}</span>
-              {atsExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-            {atsExpanded && atsScoreBefore != null && (
-              <div className="mt-2 px-4 py-3 rounded-xl bg-white/5 text-[13px] text-slate-300">
-                Add keywords from your job description to improve your score. Edit Skills and Experience in the editor.
-              </div>
-            )}
+          <footer className="shrink-0 flex items-center justify-between gap-3 py-3 px-4 bg-white border-t border-gray-200 safe-area-bottom">
+            <div className="flex items-center justify-center min-w-0 flex-1">
+              {totalPages > 1 ? (
+                <span className="text-sm font-medium text-gray-600">
+                  Page {currentPage} / {totalPages}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-500">Page 1</span>
+              )}
+            </div>
             {isLocked && unlockChecked && (
               <button
                 type="button"
                 onClick={handleUnlockClick}
-                className="w-full min-h-[52px] mt-3 flex items-center justify-center gap-2 rounded-xl bg-white text-black font-black text-[15px] touch-manipulation"
+                className="shrink-0 min-h-[44px] px-4 rounded-xl bg-blue-600 text-white font-semibold text-[14px] touch-manipulation"
               >
-                <Sparkles size={20} />
-                ATS Optimized Version — ₹49 (one-time)
+                Improve ATS
               </button>
             )}
           </footer>
-
-          {/* Template picker sheet */}
-          {showTemplateSheet && (
-            <div className="fixed inset-0 z-50 flex flex-col bg-[#0F172A]">
-              <div className="shrink-0 flex items-center justify-between p-4 border-b border-white/10">
-                <h2 className="text-lg font-bold text-white">Choose Template</h2>
-                <button type="button" onClick={() => setShowTemplateSheet(false)} className="min-h-[44px] min-w-[44px] flex items-center justify-center text-white" aria-label="Close">×</button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                <TemplateList
-                  templates={AVAILABLE_TEMPLATES}
-                  selectedTemplateId={selectedTemplateId}
-                  onSelect={(id) => { setSelectedTemplateId(id); setShowTemplateSheet(false); }}
-                  freeTemplateId={FREE_TEMPLATE_ID}
-                />
-              </div>
-            </div>
-          )}
         </div>
       ) : (
       <div className="flex flex-1 min-h-0">
@@ -441,7 +381,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                 onClick={handleUnlockClick}
                 className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
               >
-                ATS Optimized Version — ₹49 (one-time)
+                Improve ATS
               </button>
             </div>
           )}
@@ -543,14 +483,14 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
               {isLocked && unlockChecked && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
                   <p className="text-gray-700 font-medium mb-2 text-center px-4">
-                    Free template is fully usable. Unlock an ATS-optimized version of your wording for a one-time ₹49.
+                    Free template is fully usable. Improve wording for ATS when you’re ready.
                   </p>
                   <button
                     type="button"
                     onClick={handleUnlockClick}
                     className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700"
                   >
-                    ATS Optimized Version — ₹49 (one-time)
+                    Improve ATS
                   </button>
                 </div>
               )}

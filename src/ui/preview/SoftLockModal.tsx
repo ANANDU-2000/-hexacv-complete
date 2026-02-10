@@ -55,10 +55,10 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
           <button
             type="button"
             onClick={onContinue}
-            disabled={loading}
+            disabled={loading || !!error}
             className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Redirecting…' : 'ATS Optimized Version — ₹49 (one-time)'}
+            {loading ? 'Redirecting…' : error ? 'Try again after closing' : 'Pay'}
           </button>
           <button
             type="button"

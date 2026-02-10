@@ -128,7 +128,9 @@ export const MobileOptimizationEngine: React.FC<{ children: React.ReactNode, isA
             setShowDashboard(true);
         }
 
-        console.log('🚀 Mobile Optimization Engine Check:', { status: issues.length === 0 ? 'Optimal' : 'Issues Found', issues });
+        if (issues.length > 0) {
+            console.log('MobileOptimizationEngine: issues found', issues.length, issues);
+        }
     };
 
     useEffect(() => {

@@ -37,7 +37,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
                 isFree ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-800'
               }`}
             >
-              {isFree ? 'FREE' : '₹49 one-time'}
+              {isFree ? 'FREE' : 'Paid'}
             </span>
           </button>
         );

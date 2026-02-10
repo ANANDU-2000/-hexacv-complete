@@ -15,6 +15,7 @@ import { MobileOptimizationEngine } from './components/mobile/MobileOptimization
 import { trackEvent } from './analytics/googleAnalytics';
 import { initAccessibility } from './utils/accessibility';
 import { useDraftPersistence } from './hooks/useDraftPersistence';
+import type { RoleContext } from './core/resumeIntelligence';
 
 // ============== LAZY LOADED COMPONENTS ==============
 // Core editor components - lazy load for faster initial page load
@@ -133,20 +134,43 @@ export default function AppNew() {
 
     const { showRestorePrompt, onRestore, onDismiss } = useDraftPersistence(resume, setResume);
 
+    // Role context — collected on homepage, used everywhere
+    const [roleContext, setRoleContext] = useState<RoleContext | null>(null);
+
     // Handler to navigate to preview.
-    // Keep this path low-friction: go straight to preview and surface
-    // any structural feedback inside the editor/ATS panel instead.
     const handleNavigateToPreview = () => {
         setValidationErrors([]);
         navigate('/preview');
         trackEvent('preview_opened');
     };
 
-    // Handler to start new resume from scratch
+    // Handler to start new resume from scratch (with role context already set)
     const handleStartNew = () => {
         navigate('/editor');
         trackEvent('resume_started');
         trackEvent('editor_opened');
+    };
+
+    // Handler: start from homepage role card
+    const handleRoleStart = (ctx: RoleContext, mode: 'upload' | 'scratch') => {
+        setRoleContext(ctx);
+        // Seed resume basics with role info
+        setResume((prev) => ({
+            ...prev,
+            basics: {
+                ...prev.basics,
+                targetRole: ctx.roleTitle,
+                experienceLevel: ctx.experienceLevel as any,
+                targetMarket: ctx.market as any,
+            },
+            jobDescription: ctx.jdText || prev.jobDescription,
+        }));
+        if (mode === 'scratch') {
+            navigate('/editor');
+            trackEvent('resume_started');
+            trackEvent('editor_opened');
+        }
+        // If mode === 'upload', the Hero component handles file input; onUpload callback will route to editor
     };
 
     // Feedback success handling
@@ -309,6 +333,7 @@ export default function AppNew() {
                             <Hero
                                 onStart={handleStartNew}
                                 onUpload={handleFileUpload}
+                                onRoleStart={handleRoleStart}
                                 showFeedbackSuccess={feedbackSent}
                             />
                         </>
@@ -323,13 +348,15 @@ export default function AppNew() {
                                     onNext={handleNavigateToPreview}
                                     onBack={() => navigate('/')}
                                     validationErrors={validationErrors}
+                                    roleContext={roleContext}
                                 />
                             ) : (
                                 <EditorPage
                                     data={resume}
-                                    onChange={setResume} // EditorPage now accepts props
+                                    onChange={setResume}
                                     onNext={handleNavigateToPreview}
                                     onBack={() => navigate('/')}
+                                    roleContext={roleContext}
                                 />
                             )}
                         </Suspense>

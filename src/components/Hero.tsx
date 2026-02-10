@@ -1,20 +1,143 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Check, X, Zap, ShieldCheck } from "lucide-react";
+import { Upload, Check, X, Zap, ShieldCheck, ChevronDown } from "lucide-react";
 import { FeedbackStrip } from "./FeedbackStrip";
 import { SiteFooter } from "./SiteFooter";
+import type { RoleContext, ExperienceLevel, TargetMarket } from "../core/resumeIntelligence";
 
 interface HeroProps {
     onStart: () => void;
     onUpload: (file: File) => void;
+    onRoleStart?: (ctx: RoleContext, mode: 'upload' | 'scratch') => void;
     showFeedbackSuccess?: boolean;
 }
 
 // Upload states
 type HeroUploadState = 'idle' | 'dragging' | 'uploading' | 'success' | 'error';
 
-export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
+// ===== ROLE CARD (right side) =====
+function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, mode: 'upload' | 'scratch') => void; onUpload: (file: File) => void }) {
+    const [role, setRole] = useState('');
+    const [level, setLevel] = useState<ExperienceLevel>('fresher');
+    const [market, setMarket] = useState<TargetMarket>('india');
+    const [jd, setJd] = useState('');
+    const [jdOpen, setJdOpen] = useState(false);
+    const fileRef = useRef<HTMLInputElement>(null);
+
+    const ctx: RoleContext = { roleTitle: role, experienceLevel: level, market, jdText: jd, year: 2026 };
+    const canProceed = role.trim().length > 1;
+
+    const handleUpload = (file: File) => {
+        onRoleStart(ctx, 'upload');
+        onUpload(file);
+    };
+
+    return (
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mx-auto lg:mx-0">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Start your ATS resume</h2>
+            <p className="text-xs text-gray-500 mb-5">Tell us your target and we'll analyze your fit.</p>
+
+            {/* Target Role */}
+            <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider mb-1 block">Target Role</label>
+            <input
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                placeholder="e.g. Generative AI Engineer"
+                className="w-full h-11 px-3 border border-gray-200 rounded-lg text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none mb-4"
+            />
+
+            {/* Experience Level */}
+            <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider mb-1.5 block">Experience</label>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+                {([
+                    { id: 'fresher' as const, label: 'Fresher' },
+                    { id: '1-3' as const, label: '1–3 yrs' },
+                    { id: '3-5' as const, label: '3–5 yrs' },
+                    { id: '5-8' as const, label: '5–8 yrs' },
+                    { id: '8+' as const, label: '8+ yrs' },
+                ]).map((l) => (
+                    <button
+                        key={l.id}
+                        type="button"
+                        onClick={() => setLevel(l.id)}
+                        className={`px-3 py-1.5 text-[12px] font-semibold rounded-full border transition-all ${level === l.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}`}
+                    >
+                        {l.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Market */}
+            <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider mb-1.5 block">Market</label>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+                {([
+                    { id: 'india' as const, label: 'India' },
+                    { id: 'gulf' as const, label: 'Gulf' },
+                    { id: 'us' as const, label: 'US' },
+                    { id: 'global' as const, label: 'Global' },
+                ]).map((m) => (
+                    <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setMarket(m.id)}
+                        className={`px-3 py-1.5 text-[12px] font-semibold rounded-full border transition-all ${market === m.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}`}
+                    >
+                        {m.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Optional JD */}
+            <button type="button" onClick={() => setJdOpen(!jdOpen)} className="flex items-center gap-1.5 text-[12px] font-medium text-gray-500 mb-2">
+                <ChevronDown size={14} className={`transition-transform ${jdOpen ? 'rotate-180' : ''}`} />
+                Job description (optional)
+            </button>
+            {jdOpen && (
+                <textarea
+                    value={jd}
+                    onChange={(e) => setJd(e.target.value)}
+                    placeholder="Paste job description for better analysis…"
+                    className="w-full min-h-[80px] px-3 py-2 border border-gray-200 rounded-lg text-[14px] text-gray-900 placeholder:text-gray-400 resize-none focus:border-blue-500 outline-none mb-4"
+                    rows={4}
+                />
+            )}
+
+            {/* CTAs */}
+            <div className="space-y-2 mt-4">
+                <label htmlFor="role-card-upload" className="block w-full cursor-pointer">
+                    <div className={`w-full min-h-[48px] rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 transition-all ${canProceed ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98]' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
+                        <Upload size={18} />
+                        Upload & analyze my resume
+                    </div>
+                </label>
+                <input
+                    ref={fileRef}
+                    id="role-card-upload"
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    disabled={!canProceed}
+                    onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUpload(f);
+                    }}
+                />
+                <button
+                    type="button"
+                    onClick={() => canProceed && onRoleStart(ctx, 'scratch')}
+                    disabled={!canProceed}
+                    className={`w-full min-h-[44px] rounded-xl font-semibold text-[14px] border-2 transition-all ${canProceed ? 'border-gray-900 text-gray-900 hover:bg-gray-50 active:scale-[0.98]' : 'border-gray-200 text-gray-400 cursor-not-allowed'}`}
+                >
+                    Build from scratch
+                </button>
+            </div>
+            <p className="text-[11px] text-gray-400 mt-3 text-center">No signup. No data stored. Free.</p>
+        </div>
+    );
+}
+
+export function Hero({ onStart, onUpload, onRoleStart, showFeedbackSuccess }: HeroProps) {
     const [uploadState, setUploadState] = useState<HeroUploadState>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -210,37 +333,18 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                     </div>
                 </div>
 
-                {/* RIGHT PANEL - 50% - extra top padding so resume preview clears nav */}
-                <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 pt-40 overflow-hidden">
-                    {/* Resume Preview - Large & Crystal Clear */}
-                    <div className="relative w-full max-w-2xl">
-                        {/* Resume Shadow */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-300/30 to-slate-400/30 blur-3xl transform translate-y-6"></div>
-
-                        {/* Resume Image - Scaled for Readability */}
-                        <div className="relative bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)] rounded-lg overflow-hidden border-2 border-slate-200/80 transform hover:scale-105 transition-transform duration-500 ease-out">
-                            <img
-                                src="/homesectionrigthsidecv.png"
-                                alt="Resume Preview - Benjamin Shah Example"
-                                className="w-full h-auto select-none"
-                                style={{
-                                    imageRendering: 'auto',
-                                }}
-                                draggable={false}
-                                onContextMenu={(e) => e.preventDefault()}
-                                onError={(e) => {
-                                    console.error('Failed to load resume preview image');
-                                    (e.target as HTMLImageElement).src = '/resume-preview.png';
-                                }}
-                            />
+                {/* RIGHT PANEL - Role Card (premium card feel) */}
+                <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 overflow-hidden">
+                    {onRoleStart ? (
+                        <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} />
+                    ) : (
+                        /* Fallback: old image if onRoleStart not provided */
+                        <div className="relative w-full max-w-2xl">
+                            <div className="relative bg-white shadow-xl rounded-lg overflow-hidden border-2 border-slate-200/80">
+                                <img src="/homesectionrigthsidecv.png" alt="Resume Preview" className="w-full h-auto select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} onError={(e) => { (e.target as HTMLImageElement).src = '/resume-preview.png'; }} />
+                            </div>
                         </div>
-
-                        {/* Subtle Floating Badge */}
-                        <div className="absolute -bottom-4 -right-4 bg-black text-white px-4 py-2 rounded-full shadow-xl flex items-center gap-2">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                            <span className="text-xs font-medium">ATS Friendly</span>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
@@ -307,60 +411,24 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                         </p>
                     </div>
 
-                    {/* 2. Resume Preview Display (Moved Below Content) */}
-                    <div className="w-full pb-10 flex justify-center px-6">
-                        <div className="relative w-full max-w-[300px] animate-float">
-                            {/* Card Container */}
-                            <div className="relative bg-white rounded-[16px] shadow-[0_20px_48px_-12px_rgba(0,0,0,0.12)] border border-[#E5E7EB] overflow-hidden">
-                                <img
-                                    src="/homesectionrigthsidecv.png"
-                                    alt="Resume Preview"
-                                    className="w-full h-auto opacity-100"
-                                    onContextMenu={(e) => e.preventDefault()}
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = '/resume-preview.png';
-                                    }}
-                                />
-                                {/* Subtle white overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none"></div>
+                    {/* 2. Role Card (mobile) — same as desktop but in mobile view */}
+                    <div className="w-full px-4 pb-8">
+                        {onRoleStart ? (
+                            <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} />
+                        ) : (
+                            <div className="w-full max-w-[360px] space-y-4 px-2 mx-auto">
+                                <label htmlFor="pdf-upload-mobile" className="block w-full cursor-pointer">
+                                    <div className="w-full bg-[#0F172A] text-white min-h-[56px] h-[56px] rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.97]">
+                                        <Upload size={20} strokeWidth={2.5} />
+                                        <span className="text-[16px] font-semibold">Upload Existing PDF</span>
+                                    </div>
+                                </label>
+                                <input type="file" id="pdf-upload-mobile" className="hidden" accept="application/pdf" onChange={handleFileChange} />
+                                <button onClick={onStart} className="w-full bg-white text-[#111111] border-2 border-[#111111] min-h-[56px] h-[56px] rounded-2xl font-bold transition-all active:scale-[0.97] flex items-center justify-center">
+                                    Build my resume — free
+                                </button>
                             </div>
-
-                            {/* Floating Badge */}
-                            <div className="absolute -bottom-3 -right-2 bg-[#0F172A] text-white px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-white/10 z-10">
-                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                                <span className="text-[10px] font-medium uppercase tracking-wider">ATS Friendly</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. Primary Action Buttons - Touch Optimized */}
-                    <div className="w-full max-w-[360px] space-y-4 px-6 mb-12">
-                        <label htmlFor="pdf-upload-mobile" className="block w-full cursor-pointer">
-                            <div className="w-full bg-[#0F172A] text-white min-h-[56px] h-[56px] rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.97] shadow-[0_4px_16px_rgba(15,23,42,0.15)]">
-                                {uploadState === 'uploading' ? (
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                ) : (
-                                    <Upload size={20} strokeWidth={2.5} />
-                                )}
-                                <span className="text-[16px] font-semibold">
-                                    {uploadState === 'uploading' ? `Uploading ${uploadProgress}%` : 'Upload Existing PDF'}
-                                </span>
-                            </div>
-                        </label>
-                        <input
-                            type="file"
-                            id="pdf-upload-mobile"
-                            className="hidden"
-                            accept="application/pdf"
-                            onChange={handleFileChange}
-                        />
-
-                        <button
-                            onClick={onStart}
-                            className="w-full bg-white text-[#111111] border-2 border-[#111111] min-h-[56px] h-[56px] rounded-2xl font-bold transition-all active:scale-[0.97] flex items-center justify-center shadow-sm hover:bg-gray-50"
-                        >
-                            Build my resume — free
-                        </button>
+                        )}
                     </div>
                 </div>
 

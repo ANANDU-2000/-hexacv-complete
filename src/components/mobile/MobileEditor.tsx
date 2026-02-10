@@ -10,6 +10,7 @@ import { scoreATS } from '../../core/ats/scoreATS';
 import MobileSectionDashboard from './MobileSectionDashboard';
 import MobileSectionEditor from './MobileSectionEditor';
 import { MobileATSModal } from './MobileATSModal';
+import { MobileAlertWizard } from '../../components/AnalysisPanel';
 
 import { getRoleSuggestions } from '../../constants/roles';
 
@@ -50,9 +51,10 @@ interface MobileEditorProps {
     onNext: () => void;
     onBack: () => void;
     validationErrors?: string[];
+    roleContext?: import('../../core/resumeIntelligence').RoleContext | null;
 }
 
-const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onBack, validationErrors = [] }) => {
+const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onBack, validationErrors = [], roleContext }) => {
     const [currentView, setCurrentView] = useState<MobileView>('dashboard');
     const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<TabId>('target-jd');
@@ -66,6 +68,24 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
     const [atsModalOpen, setAtsModalOpen] = useState(false);
     const [atsScore, setAtsScore] = useState<number | null>(null);
     const [atsMissing, setAtsMissing] = useState<string[]>([]);
+
+    // Resume Intelligence (mobile)
+    const [mobileAnalysis, setMobileAnalysis] = useState<import('../../core/resumeIntelligence').AnalysisResult | null>(null);
+    const [showAlertWizard, setShowAlertWizard] = useState(false);
+    const [alertWizardIdx, setAlertWizardIdx] = useState(0);
+
+    useEffect(() => {
+        if (!roleContext) return;
+        import('../../core/resumeIntelligence').then(({ analyzeResume }) => {
+            const result = analyzeResume(data, roleContext, data.jobDescription);
+            setMobileAnalysis(result);
+            // Auto-show wizard if there are red alerts
+            if (result.stats.redAlerts > 0 && !showAlertWizard) {
+                setShowAlertWizard(true);
+                setAlertWizardIdx(0);
+            }
+        });
+    }, [data, roleContext]);
 
     const resumeText = useMemo(() => resumeToText(data), [data]);
     const jdText = data.jobDescription?.trim() ?? '';
@@ -139,8 +159,33 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
     return (
         <div className="flex flex-col h-[100dvh] bg-gray-50 relative font-sans overflow-hidden">
             {/* Dashboard View - Master Shell Fix */}
-            {currentView === 'dashboard' && (
+            {/* Mobile Alert Wizard — shown before dashboard when roleContext has red alerts */}
+            {showAlertWizard && mobileAnalysis && (
+                <MobileAlertWizard
+                    alerts={mobileAnalysis.alerts}
+                    currentIndex={alertWizardIdx}
+                    onAction={(alertId: string, actionId: string, payload?: Record<string, unknown>) => {
+                        if (actionId === 'remove_skill' && payload?.skill) {
+                            onChange({ ...data, skills: data.skills.filter((s: string) => s.toLowerCase() !== String(payload.skill).toLowerCase()) });
+                        }
+                    }}
+                    onNext={() => setAlertWizardIdx((i: number) => i + 1)}
+                    onDone={() => { setShowAlertWizard(false); setAlertWizardIdx(0); }}
+                />
+            )}
+
+            {currentView === 'dashboard' && !showAlertWizard && (
                 <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+                    {/* Role context bar (mobile) */}
+                    {roleContext && (
+                        <div className="shrink-0 bg-gray-900 text-white px-4 py-2 flex items-center gap-2 text-[13px]">
+                            <span className="font-semibold truncate">{roleContext.roleTitle}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-gray-300">{roleContext.experienceLevel === 'fresher' ? 'Fresher' : roleContext.experienceLevel}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-gray-300 capitalize">{roleContext.market}</span>
+                        </div>
+                    )}
                     <MobileHeader
                         title="RESUME EDITOR"
                         onBack={onBack}

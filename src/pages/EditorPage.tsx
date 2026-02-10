@@ -12,6 +12,9 @@ import { resumeToText } from '../core/ats/resumeToText';
 import { extractKeywordsFromJD } from '../core/ats/extractKeywords';
 import { scoreATS } from '../core/ats/scoreATS';
 import { checkResumeStructure } from '../core/ats/scoreATS';
+import { analyzeResume } from '../core/resumeIntelligence';
+import type { RoleContext, AnalysisResult } from '../core/resumeIntelligence';
+import { AnalysisPanel } from '../components/AnalysisPanel';
 
 const ATS_DEBOUNCE_MS = 500;
 
@@ -20,9 +23,10 @@ interface EditorPageProps {
   onChange: (data: ResumeData) => void;
   onNext?: () => void;
   onBack?: () => void;
+  roleContext?: RoleContext | null;
 }
 
-export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, onBack }) => {
+export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, onBack, roleContext }) => {
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [structureScore, setStructureScore] = useState(0);
   const [structureOk, setStructureOk] = useState(false);
@@ -74,6 +78,36 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
   const resumeText = useMemo(() => resumeToText(data), [data]);
   const jdText = data.jobDescription?.trim() ?? '';
 
+  // Resume Intelligence analysis
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+
+  useEffect(() => {
+    if (!roleContext) {
+      setAnalysis(null);
+      return;
+    }
+    setAnalysisLoading(true);
+    const t = setTimeout(() => {
+      const result = analyzeResume(data, roleContext, data.jobDescription);
+      setAnalysis(result);
+      setAnalysisLoading(false);
+    }, 600);
+    return () => clearTimeout(t);
+  }, [data, roleContext]);
+
+  const handleAlertAction = useCallback((alertId: string, actionId: string, payload?: Record<string, unknown>) => {
+    if (actionId === 'remove_skill' && payload?.skill) {
+      const skillToRemove = String(payload.skill);
+      onChange({
+        ...data,
+        skills: data.skills.filter((s) => s.toLowerCase() !== skillToRemove.toLowerCase()),
+      });
+    }
+    // Other actions (add_proof, edit_manually, skip) — for now just dismiss
+    // Later: open specific editor section or show inline edit
+  }, [data, onChange]);
+
   const computeATS = useCallback(() => {
     setAtsLoading(true);
     const structure = checkResumeStructure(resumeText);
@@ -121,6 +155,17 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
           Review format
         </button>
       </header>
+      {/* Role context bar */}
+      {roleContext && (
+        <div className="shrink-0 bg-gray-900 text-white px-4 py-2 flex items-center gap-3 text-sm">
+          <span className="font-semibold">{roleContext.roleTitle}</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-300">{roleContext.experienceLevel === 'fresher' ? 'Fresher' : roleContext.experienceLevel === '8+' ? '8+ yrs' : roleContext.experienceLevel + ' yrs'}</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-300 capitalize">{roleContext.market}</span>
+          {roleContext.jdText && <span className="text-gray-400 ml-1">• JD added</span>}
+        </div>
+      )}
       <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Left column 40%: Editor with single-open accordion */}
         <aside className="w-full lg:w-[40%] lg:max-w-[40%] flex flex-col overflow-hidden border-r border-gray-200 bg-white">
@@ -130,37 +175,30 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
         </aside>
         {/* Right column 60%: ATS (collapsible) + Live preview - full resume with zoom */}
         <main className="hidden lg:flex flex-1 flex-col overflow-hidden bg-gray-100 min-w-0">
-          <div className="shrink-0 p-4">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm sticky top-0 z-10 overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setAtsPanelExpanded((e) => !e)}
-                className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                aria-expanded={atsPanelExpanded}
-                aria-label={atsPanelExpanded ? 'Collapse ATS feedback' : 'Expand ATS feedback'}
-              >
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">ATS feedback</span>
-                <span className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    {jdText ? 'Keyword suggestions ready' : 'ATS feedback available'}
-                  </span>
-                  {atsPanelExpanded ? <ChevronUp size={18} className="text-gray-500" /> : <ChevronDown size={18} className="text-gray-500" />}
-                </span>
-              </button>
-              {atsPanelExpanded && (
-                <div className="border-t border-gray-100 px-4 pb-4 pt-2">
-                  <ATSScoreCard
-                    score={atsScore}
-                    structureOk={structureOk}
-                    structureScore={structureScore}
-                    missingKeywords={missingKeywords}
-                    sectionWarnings={sectionWarnings}
-                    loading={atsLoading}
-                    showHeader={false}
-                  />
+          {/* Resume Intelligence Panel — replaces old ATS-only feedback */}
+          <div className="shrink-0 max-h-[50%] overflow-y-auto border-b border-gray-200 bg-white">
+            {roleContext ? (
+              <AnalysisPanel analysis={analysis} onAction={handleAlertAction} loading={analysisLoading} />
+            ) : (
+              <div className="p-4">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setAtsPanelExpanded((e) => !e)}
+                    className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    aria-expanded={atsPanelExpanded}
+                  >
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">ATS feedback</span>
+                    {atsPanelExpanded ? <ChevronUp size={18} className="text-gray-500" /> : <ChevronDown size={18} className="text-gray-500" />}
+                  </button>
+                  {atsPanelExpanded && (
+                    <div className="border-t border-gray-100 px-4 pb-4 pt-2">
+                      <ATSScoreCard score={atsScore} structureOk={structureOk} structureScore={structureScore} missingKeywords={missingKeywords} sectionWarnings={sectionWarnings} loading={atsLoading} showHeader={false} />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
           <div className="flex-1 flex flex-col min-h-0 p-4 overflow-hidden">
             <div className="shrink-0 flex flex-wrap items-center gap-3 mb-2">

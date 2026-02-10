@@ -46,9 +46,9 @@ export const DownloadFeedbackModal: React.FC<DownloadFeedbackModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-[360px] p-6"
+        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-[360px] p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -59,14 +59,14 @@ export const DownloadFeedbackModal: React.FC<DownloadFeedbackModalProps> = ({
         </h2>
         <p className="text-sm text-gray-500 mb-4 text-center">You’re one step closer to more callbacks. Quick feedback (optional)</p>
 
-        {/* Star rating */}
-        <div className="flex justify-center gap-1 mb-4">
+        {/* Star rating — centered, touch-friendly, no overflow on mobile */}
+        <div className="flex justify-center gap-2 mb-4">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
               type="button"
               onClick={() => setRating(star)}
-              className="p-1 focus:outline-none"
+              className="p-0.5 focus:outline-none min-w-[36px] min-h-[36px] flex items-center justify-center"
               aria-label={`${star} star`}
             >
               <span className={`text-2xl ${star <= rating ? 'text-amber-400' : 'text-gray-200'}`}>★</span>

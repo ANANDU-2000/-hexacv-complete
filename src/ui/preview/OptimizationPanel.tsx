@@ -22,25 +22,25 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
       </h3>
       <p className="text-sm text-gray-700 mb-4">
         {atsScoreBefore != null
-          ? (atsScoreBefore >= 100 ? 'Score: Excellent — keyword match is strong.' : `Current: ${atsScoreBefore} / 100`)
-          : 'Add a job description in the editor to see your score.'}
+          ? (atsScoreBefore >= 100 ? 'Keyword match strong — good for callbacks.' : `Keyword match: ${atsScoreBefore} / 100. Improve to get more callbacks.`)
+          : 'Add a job description to see how well your resume matches.'}
       </p>
       {!isPaidUnlocked && (
         <>
           <p className="text-sm text-gray-600 mb-2">
-            One-time ATS wording improvement for this resume.
+            Match your bullets to the job description keywords. One-time.
           </p>
           <button
             type="button"
             onClick={onUnlockClick}
             className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
           >
-            Unlock ATS-Optimized Wording
+            Pay ₹49 & get keyword-matched wording
           </button>
         </>
       )}
       {isPaidUnlocked && (
-        <p className="text-sm text-green-700 font-medium">Payment verified. You can download now.</p>
+        <p className="text-sm text-green-700 font-medium">Unlocked. Download your PDF when ready.</p>
       )}
     </div>
   );

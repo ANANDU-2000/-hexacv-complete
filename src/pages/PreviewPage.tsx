@@ -287,9 +287,9 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
         >
           <span>
             {paymentBanner === 'verifying' && 'Payment received. Verifying…'}
-            {paymentBanner === 'verified' && 'Payment verified. You can download now.'}
+            {paymentBanner === 'verified' && 'Unlocked. Download your PDF when ready.'}
             {paymentBanner === 'delayed' && 'Payment confirmed but delivery delayed. Please wait a moment and refresh.'}
-            {paymentBanner === 'failed' && 'Payment was not completed. You can try again or use the free template.'}
+            {paymentBanner === 'failed' && 'Payment was not completed. Try again or use the free template.'}
           </span>
           <button
             type="button"
@@ -409,7 +409,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
                 onClick={handleUnlockClick}
                 className="mobile-app-cta shrink-0 min-h-[44px] px-4 rounded-xl font-semibold text-[14px]"
               >
-                Unlock ATS-Optimized Wording
+                Get keyword-matched wording — ₹49
               </button>
             )}
           </footer>
@@ -423,9 +423,17 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
         </div>
         <div className="p-4 overflow-y-auto flex-1">
           <h2 className="text-lg font-bold mb-4 text-gray-800">Choose Template</h2>
-          <p className="text-xs text-gray-600 mb-3">Free: ATS-friendly layout and clean PDF. Paid: ATS-optimized wording tailored to your job description.</p>
+          <p className="text-xs text-gray-600 mb-3">
+            <strong>Free:</strong> Your words, ATS-friendly layout and PDF. <strong>Paid:</strong> We match your bullets to the job description keywords so you get more callbacks — ₹49 one-time.
+          </p>
           <TemplateList templates={AVAILABLE_TEMPLATES} selectedTemplateId={selectedTemplateId} onSelect={setSelectedTemplateId} freeTemplateId={FREE_TEMPLATE_ID} />
-          <p className="text-xs text-gray-500 mt-3">One-time fee for wording optimization; free template and PDF stay free for life.</p>
+          {isLocked && unlockChecked && (
+            <button type="button" onClick={handleUnlockClick} className="w-full mt-4 py-3 px-4 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700">
+              Get keyword-matched wording — ₹49
+            </button>
+          )}
+          {!isLocked && !isFreeTemplate && <p className="text-xs text-green-600 mt-3">Unlocked. Download your PDF when ready.</p>}
+          <p className="text-xs text-gray-500 mt-3">Free template and PDF stay free for life.</p>
         </div>
       </aside>
       <main className="flex-1 flex flex-col min-w-0 relative min-h-0" style={{ backgroundColor: '#f3f4f6' }}>
@@ -489,14 +497,14 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
               {isLocked && unlockChecked && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded z-10" aria-live="polite">
                   <p className="text-gray-700 font-medium mb-2 text-center px-4">
-                    Free template is fully usable. Improve wording for ATS when you’re ready.
+                    Match your resume to the job description keywords and get more callbacks.
                   </p>
                   <button
                     type="button"
                     onClick={handleUnlockClick}
-                    className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700"
+                    className="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 min-h-[44px]"
                   >
-                    Unlock ATS-Optimized Wording
+                    Get keyword-matched wording — ₹49
                   </button>
                 </div>
               )}

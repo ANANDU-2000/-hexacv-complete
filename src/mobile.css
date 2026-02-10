@@ -355,6 +355,47 @@
         padding-left: env(safe-area-inset-left, 0);
         padding-right: env(safe-area-inset-right, 0);
     }
+
+    /* ===== FORM FIELD SIZE SYSTEM (UX RULES) ===== */
+    .mobile-app .ux-input {
+        height: 44px;
+        min-height: 44px;
+        padding: 0 12px;
+        font-size: 16px;
+        border-radius: 10px;
+        border: 1px solid #E5E7EB;
+        color: #111827;
+        background: #fff;
+    }
+    .mobile-app .ux-input::placeholder {
+        color: #6B7280;
+    }
+    .mobile-app .ux-textarea {
+        min-height: 72px;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 10px;
+        border: 1px solid #E5E7EB;
+        color: #111827;
+    }
+    .mobile-app .ux-section { gap: 24px; }
+    .mobile-app .ux-field-gap { gap: 12px; }
+    .mobile-app .ux-label-gap { margin-bottom: 6px; }
+    .mobile-app .ux-chip {
+        height: 36px;
+        min-height: 36px;
+        padding: 0 14px;
+        font-size: 14px;
+        border-radius: 999px;
+        border: 1px solid #E5E7EB;
+        color: #111827;
+        background: #fff;
+    }
+    .mobile-app .ux-chip.active {
+        background: #111827;
+        color: #fff;
+        border-color: #111827;
+    }
 }
 
 

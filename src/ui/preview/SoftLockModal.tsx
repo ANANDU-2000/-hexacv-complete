@@ -9,10 +9,10 @@ interface SoftLockModalProps {
 }
 
 const VALUE_BULLETS = [
-  'Tailored to your exact job role',
-  'Optimized for ATS screening',
-  'Stronger action verbs & clear metrics',
-  'One-time unlock. No subscription.',
+  'Resumes that match job keywords get more callbacks',
+  'Bullets rewritten to your job description',
+  'ATS-friendly wording + stronger action verbs',
+  'One-time ₹49. No subscription.',
 ];
 
 export const SoftLockModal: React.FC<SoftLockModalProps> = ({
@@ -33,8 +33,11 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
     >
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
         <h2 id="soft-lock-title" className="text-lg font-bold text-gray-900 mb-2">
-          Unlock ATS-Optimized Wording — ₹49 one-time
+          Get more callbacks — keyword-matched wording
         </h2>
+        <p className="text-sm text-gray-700 mb-3">
+          We rewrite your bullets to match the job description keywords so ATS shortlists you. One-time ₹49; no subscription.
+        </p>
         <ul className="list-none space-y-2 mb-4">
           {VALUE_BULLETS.map((text, i) => (
             <li key={i} className="flex items-center gap-2 text-gray-700 text-sm">
@@ -44,7 +47,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
           ))}
         </ul>
         <p className="text-xs text-gray-500 mb-4">
-          Secure PayU payment. No login required, we do not store your card or address. Unlock is confirmed only after payment success.
+          Secure PayU payment. No login required. Unlock is confirmed only after payment success.
         </p>
         {error && (
           <p className="text-sm text-red-600 mb-4" role="alert">
@@ -56,16 +59,16 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
             type="button"
             onClick={onContinue}
             disabled={loading || !!error}
-            className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 min-h-[44px]"
           >
-            {loading ? 'Redirecting…' : error ? 'Try again after closing' : 'Pay'}
+            {loading ? 'Redirecting to payment…' : error ? 'Try again' : 'Pay ₹49 — get keyword-matched wording'}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="w-full px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
           >
-            Keep current wording (Free)
+            Stay with my current wording
           </button>
         </div>
       </div>

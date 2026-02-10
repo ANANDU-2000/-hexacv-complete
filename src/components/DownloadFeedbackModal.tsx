@@ -57,7 +57,7 @@ export const DownloadFeedbackModal: React.FC<DownloadFeedbackModalProps> = ({
         <h2 id="download-feedback-title" className="text-lg font-bold text-gray-900 mb-1 text-center">
           Thanks for downloading!
         </h2>
-        <p className="text-sm text-gray-500 mb-4 text-center">Quick feedback (optional)</p>
+        <p className="text-sm text-gray-500 mb-4 text-center">You’re one step closer to more callbacks. Quick feedback (optional)</p>
 
         {/* Star rating */}
         <div className="flex justify-center gap-1 mb-4">

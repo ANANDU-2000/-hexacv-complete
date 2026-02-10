@@ -31,7 +31,7 @@ export const MobileATSModal: React.FC<MobileATSModalProps> = ({
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 id="mobile-ats-title" className="text-lg font-bold text-white">
-              ATS feedback
+              Keyword match
             </h2>
             <button
               type="button"
@@ -55,7 +55,7 @@ export const MobileATSModal: React.FC<MobileATSModalProps> = ({
             </div>
           )}
           {missing.length === 0 && (
-            <p className="text-sm text-slate-400">Add a job description in the editor to see keyword match.</p>
+            <p className="text-sm text-slate-400">Add a job description to see how well your resume matches and get more callbacks.</p>
           )}
         </div>
       </div>

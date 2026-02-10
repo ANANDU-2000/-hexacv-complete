@@ -165,7 +165,7 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                     aria-label="Preview resume"
                 >
                     <Eye size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />
-                    <span>Preview resume</span>
+                    <span>Preview & download</span>
                 </button>
             </div>
 

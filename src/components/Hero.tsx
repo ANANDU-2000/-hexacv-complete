@@ -91,9 +91,9 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                                 Free ATS Resume Builder - No Login Required
                             </h1>
 
-                            {/* Subtitle - Pain Point Focused */}
+                            {/* Subtitle - Pain point + outcome + trust */}
                             <p className="text-base text-slate-600 leading-relaxed">
-                                Stop getting rejected by ATS. Extract keywords from job descriptions instantly.
+                                Stop getting rejected by ATS. Match your resume to job description keywords and get more callbacks.
                                 <span className="font-semibold text-slate-900"> No signup. No payment. No data stored.</span>
                             </p>
 
@@ -168,12 +168,12 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                                     )}
                                 </label>
 
-                                {/* Create New Resume Button */}
+                                {/* Create New Resume Button - benefit-led CTA */}
                                 <button
                                     onClick={onStart}
                                     className="flex-1 bg-white text-slate-900 border-2 border-slate-200 px-6 py-4 rounded-xl font-bold text-base hover:border-slate-900 hover:scale-[1.02] active:scale-95 transition-all duration-300"
                                 >
-                                    Create New Resume
+                                    Build my ATS resume — free
                                 </button>
                             </div>
 
@@ -191,10 +191,10 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                             </p>
                         </div>
 
-                        {/* Honest Guidance */}
+                        {/* Honest Guidance - outcome */}
                         <div className="space-y-2.5 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                             <p className="text-sm text-slate-600 leading-relaxed">
-                                Edits based on your actual experience. Layout optimized for readability.
+                                Your experience, ATS-friendly layout. Add a job description to get keyword-matched wording.
                             </p>
                         </div>
 
@@ -303,7 +303,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                             Free ATS Resume Builder - No Login Required
                         </h1>
                         <p className="text-[#6B7280] text-[16px] font-medium leading-[1.5] max-w-[280px] mx-auto">
-                            Transform your experience into a professional, recruiter-ready resume.
+                            Match job description keywords. Get more callbacks. No signup.
                         </p>
                     </div>
 
@@ -359,7 +359,7 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                             onClick={onStart}
                             className="w-full bg-white text-[#111111] border-2 border-[#111111] min-h-[56px] h-[56px] rounded-2xl font-bold transition-all active:scale-[0.97] flex items-center justify-center shadow-sm hover:bg-gray-50"
                         >
-                            Build From Scratch
+                            Build my resume — free
                         </button>
                     </div>
                 </div>

@@ -13,7 +13,7 @@ import {
     Plus, Trash2, Camera, X, CheckCircle2, Briefcase, Globe,
     FileText, Sparkles, User, Mail, Phone, MapPin,
     Linkedin, Github, Calendar, GraduationCap, Award, Target,
-    ChevronDown, ChevronUp, MoreVertical, Pencil, ArrowUp, ArrowDown
+    ChevronDown, ChevronUp, MoreVertical, Pencil, ArrowUp, ArrowDown, GripVertical, ChevronRight
 } from 'lucide-react';
 import { matchKeywords, extractJDSkills } from '../../utils/keywordMatcher';
 import { MobileHeader } from './MobileHeader';
@@ -89,7 +89,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
         else onBack();
     };
 
-    const stickyLabel = onSaveAndPreview ? 'Save & Preview' : `Save ${getSectionTitle()}`;
+    const stickyLabel = onSaveAndPreview ? 'Save' : `Save ${getSectionTitle()}`;
 
     // Layout Wrapper - one primary CTA per screen
     const SectionWrapper = ({ children, isDoneEnabled = true }: any) => (
@@ -122,104 +122,83 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
         </div>
     );
 
-    // ===== PERSONAL INFO =====
+    // ===== PERSONAL INFO (compact, mobile-first) =====
     if (sectionId === 'profile') {
         const photoInputRef = useRef<HTMLInputElement>(null);
-        const includePhoto = data.basics?.includePhoto !== false;
-        const targetMarket = data.basics?.targetMarket;
-        const photoGuidance =
-            targetMarket === 'gulf'
-                ? 'For Gulf roles, photo is often optional unless the job ad asks for it.'
-                : targetMarket === 'india'
-                    ? 'In India, a professional photo is common on resumes.'
-                    : targetMarket && ['us', 'uk', 'eu', 'remote'].includes(targetMarket)
-                        ? 'For international roles, check the job ad; many prefer no photo.'
-                        : 'Check the job ad for photo requirements.';
+        const [summaryOpen, setSummaryOpen] = useState(false);
 
         return (
             <SectionWrapper isDoneEnabled={!!(data.basics.fullName?.trim() && data.basics.email?.trim())}>
-                <div className="flex flex-col min-[380px]:flex-row gap-6 min-[380px]:items-start pt-4 mobile-compact-form">
-                    <div className="flex-1 min-w-0 space-y-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-2">Add a professional photo (optional)</p>
-                        <p className="text-sm text-gray-600 mb-3">Do you want to add a profile photo?</p>
-                        <div className="flex gap-3 mb-4">
-                            <button
-                                type="button"
-                                onClick={() => onChange({ basics: { ...data.basics, includePhoto: true } })}
-                                className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${includePhoto ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-200 text-gray-700'}`}
-                            >
-                                Yes
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => onChange({ basics: { ...data.basics, includePhoto: false } })}
-                                className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${!includePhoto ? 'bg-gray-200 border-gray-300 text-gray-800' : 'bg-white border-gray-200 text-gray-700'}`}
-                            >
-                                No / Skip
-                            </button>
-                        </div>
-
-                        {includePhoto && (
-                            <>
-                                <div className="flex flex-col items-center min-[380px]:items-start mb-6">
-                                    <div className="relative group">
-                                        {data.photoUrl ? (
-                                            <div className="relative w-36 h-36 min-[380px]:w-44 min-[380px]:h-44 rounded-3xl overflow-hidden border-2 border-gray-200 shadow bg-gray-100">
-                                                <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => onChange({ photoUrl: undefined })}
-                                                    className="absolute top-2 right-2 w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center text-white"
-                                                >
-                                                    <X size={14} strokeWidth={3} />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={() => photoInputRef.current?.click()}
-                                                className="w-36 h-36 min-[380px]:w-44 min-[380px]:h-44 rounded-3xl bg-white border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-2 text-gray-500 active:scale-[0.98]"
-                                            >
-                                                <Camera size={28} strokeWidth={2.5} />
-                                                <span className="text-[10px] font-semibold uppercase">Add Photo</span>
-                                            </button>
-                                        )}
-                                        <input ref={photoInputRef} type="file" accept="image/*" onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                const r = new FileReader();
-                                                r.onload = (ev) => onChange({ photoUrl: ev.target?.result as string });
-                                                r.readAsDataURL(file);
-                                            }
-                                        }} className="hidden" />
-                                    </div>
-                                    <p className="text-xs text-gray-500 mt-2 max-w-[280px]">{photoGuidance}</p>
-                                </div>
-                            </>
-                        )}
-                        {!includePhoto && (
-                            <p className="text-xs text-gray-500 mb-4">You can add a photo later from the editor.</p>
-                        )}
-
-                        <InputField label="Full Name" icon={User} value={data.basics.fullName} onChange={(val: string) => onChange({ basics: { ...data.basics, fullName: val } })} placeholder="e.g. Surag M.S." />
-                        <InputField label="Email Address" icon={Mail} value={data.basics.email} onChange={(val: string) => onChange({ basics: { ...data.basics, email: val } })} placeholder="e.g. name@email.com" type="email" />
-                        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3">
-                            <InputField label="Phone" icon={Phone} value={data.basics.phone} onChange={(val: string) => onChange({ basics: { ...data.basics, phone: val } })} placeholder="+91 987..." />
-                            <InputField label="Location" icon={MapPin} value={data.basics.location} onChange={(val: string) => onChange({ basics: { ...data.basics, location: val } })} placeholder="London, UK" />
-                        </div>
-                        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3">
-                            <InputField label="LinkedIn" icon={Linkedin} value={data.basics.linkedin} onChange={(val: string) => onChange({ basics: { ...data.basics, linkedin: val } })} placeholder="username" optional />
-                            <InputField label="GitHub" icon={Github} value={data.basics.github} onChange={(val: string) => onChange({ basics: { ...data.basics, github: val } })} placeholder="username" optional />
-                        </div>
-                        <TextAreaField label="Professional Summary" icon={Sparkles} value={data.summary} onChange={(val: string) => onChange({ summary: val })} placeholder="Briefly describe your professional background..." rows={5} />
+                <div className="ux-section flex flex-col pt-2 mobile-app-scroll">
+                    {/* Identity */}
+                    <div className="ux-field-gap flex flex-col">
+                        <label className="text-[13px] font-medium text-[#111827] ux-label-gap">Full Name</label>
+                        <input className="ux-input w-full" value={data.basics.fullName || ''} onChange={(e) => onChange({ basics: { ...data.basics, fullName: e.target.value } })} placeholder="e.g. Surag M.S." />
                     </div>
-                    {data.photoUrl && (
-                        <div className="min-[380px]:shrink-0 min-[380px]:w-32 min-[380px]:pt-10">
-                            <div className="w-28 h-28 min-[380px]:w-32 min-[380px]:h-32 rounded-2xl overflow-hidden border-2 border-gray-200 shadow-sm bg-gray-100">
-                                <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
-                            </div>
+                    <div className="ux-field-gap flex flex-col">
+                        <label className="text-[13px] font-medium text-[#6B7280] ux-label-gap">Role title <span className="font-normal text-[#6B7280]">(optional)</span></label>
+                        <input className="ux-input w-full" value={data.basics.targetRole || ''} onChange={(e) => onChange({ basics: { ...data.basics, targetRole: e.target.value } })} placeholder="e.g. Senior Engineer" />
+                    </div>
+
+                    {/* Contact — 2-col */}
+                    <div className="ux-field-gap flex flex-col">
+                        <p className="text-[13px] font-medium text-[#111827] ux-label-gap">Contact</p>
+                        <div className="grid grid-cols-2 gap-3">
+                            <input className="ux-input w-full" value={data.basics.email || ''} onChange={(e) => onChange({ basics: { ...data.basics, email: e.target.value } })} placeholder="Email" type="email" />
+                            <input className="ux-input w-full" value={data.basics.phone || ''} onChange={(e) => onChange({ basics: { ...data.basics, phone: e.target.value } })} placeholder="Phone" type="tel" />
+                            <input className="ux-input w-full col-span-2" value={data.basics.location || ''} onChange={(e) => onChange({ basics: { ...data.basics, location: e.target.value } })} placeholder="Location" />
                         </div>
-                    )}
+                    </div>
+
+                    {/* Links */}
+                    <div className="ux-field-gap flex flex-col">
+                        <p className="text-[13px] font-medium text-[#111827] ux-label-gap">Links</p>
+                        <div className="grid grid-cols-2 gap-3">
+                            <input className="ux-input w-full" value={data.basics.linkedin || ''} onChange={(e) => onChange({ basics: { ...data.basics, linkedin: e.target.value } })} placeholder="LinkedIn" />
+                            <input className="ux-input w-full" value={data.basics.github || ''} onChange={(e) => onChange({ basics: { ...data.basics, github: e.target.value } })} placeholder="GitHub" />
+                        </div>
+                    </div>
+
+                    {/* Photo — one compact row */}
+                    <div className="ux-field-gap flex flex-col">
+                        <p className="text-[13px] font-medium text-[#6B7280] ux-label-gap">Photo (optional)</p>
+                        <div className="flex items-center gap-3">
+                            {data.photoUrl ? (
+                                <>
+                                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-[#E5E7EB] bg-[#f9fafb] shrink-0">
+                                        <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                                    </div>
+                                    <button type="button" onClick={() => onChange({ photoUrl: undefined, basics: { ...data.basics, includePhoto: false } })} className="text-[13px] font-medium text-[#6B7280]">Remove</button>
+                                </>
+                            ) : (
+                                <button type="button" onClick={() => photoInputRef.current?.click()} className="flex items-center gap-2 ux-chip h-11 min-h-[44px]">
+                                    <Camera size={18} className="text-[#6B7280]" />
+                                    <span>Add photo</span>
+                                </button>
+                            )}
+                            <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    const r = new FileReader();
+                                    r.onload = (ev) => onChange({ photoUrl: ev.target?.result as string, basics: { ...data.basics, includePhoto: true } });
+                                    r.readAsDataURL(file);
+                                }
+                            }} />
+                        </div>
+                    </div>
+
+                    {/* Summary — expandable, 3–4 lines when collapsed */}
+                    <div className="ux-field-gap flex flex-col">
+                        <button type="button" onClick={() => setSummaryOpen((o) => !o)} className="flex items-center justify-between w-full text-left">
+                            <span className="text-[13px] font-medium text-[#111827]">Summary</span>
+                            <ChevronDown size={18} className={`text-[#6B7280] transition-transform ${summaryOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {summaryOpen ? (
+                            <textarea className="ux-textarea w-full min-h-[100px] resize-none" value={data.summary || ''} onChange={(e) => onChange({ summary: e.target.value })} placeholder="Brief professional summary..." rows={5} />
+                        ) : (
+                            <p className="text-[14px] text-[#6B7280] leading-relaxed line-clamp-3" style={{ minHeight: 56 }}>{data.summary || 'Tap to add summary'}</p>
+                        )}
+                    </div>
                 </div>
             </SectionWrapper>
         );
@@ -279,11 +258,9 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
         );
     }
 
-    // ===== EXPERIENCE ===== — Collapsible role cards, bullets vertical, Move Up/Down, no drag
+    // ===== EXPERIENCE ===== Flat list, no cards; edit: inline bullets, drag grip, Done CTA
     if (sectionId === 'experience') {
-        const [expandedRoleIndex, setExpandedRoleIndex] = useState<number | null>(0);
-        const [bulletMenu, setBulletMenu] = useState<{ roleIdx: number; bulletIdx: number } | null>(null);
-        const [editingBullet, setEditingBullet] = useState<{ roleIdx: number; bulletIdx: number } | null>(null);
+        const [expandedRoleIndex, setExpandedRoleIndex] = useState<number | null>(null);
         const items = data.experience;
         const addItem = () => {
             const next = [{ id: generateId(), company: '', position: '', startDate: '', endDate: '', highlights: [''] }, ...items];
@@ -309,115 +286,85 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
             u[idx] = { ...u[idx], highlights: lines };
             onChange({ experience: u });
         };
-        const moveBullet = (roleIdx: number, bulletIdx: number, dir: 'up' | 'down') => {
-            const lines = [...highlights(items[roleIdx])];
-            const toIdx = dir === 'up' ? bulletIdx - 1 : bulletIdx + 1;
-            if (toIdx < 0 || toIdx >= lines.length) return;
-            [lines[bulletIdx], lines[toIdx]] = [lines[toIdx], lines[bulletIdx]];
-            setHighlights(roleIdx, lines);
-            setBulletMenu(null);
-            setEditingBullet(null);
-        };
-        const editBullet = (roleIdx: number, bulletIdx: number, text: string) => {
+        const setBullet = (roleIdx: number, bulletIdx: number, text: string) => {
             const lines = [...highlights(items[roleIdx])];
             lines[bulletIdx] = text;
             setHighlights(roleIdx, lines);
-            setBulletMenu(null);
-            setEditingBullet(null);
         };
         const deleteBullet = (roleIdx: number, bulletIdx: number) => {
             const lines = highlights(items[roleIdx]).filter((_, i) => i !== bulletIdx);
             setHighlights(roleIdx, lines.length ? lines : ['']);
-            setBulletMenu(null);
-            setEditingBullet(null);
         };
-        const addBullet = (roleIdx: number) => {
-            const lines = [...highlights(items[roleIdx]), ''];
+        const addBulletAt = (roleIdx: number, afterIdx: number) => {
+            const lines = [...highlights(items[roleIdx])];
+            lines.splice(afterIdx + 1, 0, '');
+            setHighlights(roleIdx, lines);
+        };
+        const moveBullet = (roleIdx: number, fromIdx: number, toIdx: number) => {
+            if (toIdx < 0 || toIdx >= highlights(items[roleIdx]).length) return;
+            const lines = [...highlights(items[roleIdx])];
+            [lines[fromIdx], lines[toIdx]] = [lines[toIdx], lines[fromIdx]];
             setHighlights(roleIdx, lines);
         };
 
         return (
             <SectionWrapper>
-                <button type="button" onClick={addItem} className="mobile-app-cta w-full min-h-[52px] py-3 mb-6 rounded-[14px] bg-white text-gray-900 border-2 border-gray-200 flex items-center justify-center gap-3 font-bold text-[15px]">
-                    <Plus size={22} strokeWidth={4} aria-hidden />
+                <button type="button" onClick={addItem} className="mobile-app-cta w-full min-h-[52px] py-3 mb-4 rounded-[14px] bg-white text-[#111827] border border-[#E5E7EB] flex items-center justify-center gap-2 font-bold text-[15px]">
+                    <Plus size={20} aria-hidden />
                     <span>Add position</span>
                 </button>
 
-                <div className="space-y-4 pb-10">
+                <div className="space-y-0 pb-24">
                     {items.map((item, idx) => {
                         const isExpanded = expandedRoleIndex === idx;
                         const bullets = highlights(item);
                         return (
-                            <div key={item.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                                {/* Role card header — collapsible */}
-                                <button
-                                    type="button"
-                                    onClick={() => setExpandedRoleIndex(isExpanded ? null : idx)}
-                                    className="w-full min-h-[48px] flex items-center gap-3 p-4 sm:p-5 text-left"
-                                >
-                                    <span className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
-                                        {isExpanded ? <ChevronUp size={20} className="text-gray-700" /> : <ChevronDown size={20} className="text-gray-700" />}
-                                    </span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[15px] sm:text-[16px] font-bold text-gray-900 truncate">{item.position || 'Position'}</p>
-                                        <p className="text-[12px] text-gray-500 truncate">{item.company || 'Company'} · {item.startDate || '—'} – {item.endDate || '—'}</p>
-                                    </div>
-                                    <div className="flex items-center gap-1 flex-shrink-0">
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'up'); }} disabled={idx === 0} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move up"><ArrowUp size={18} /></button>
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'down'); }} disabled={idx === items.length - 1} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move down"><ArrowDown size={18} /></button>
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); deleteItem(idx); }} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 active:bg-red-500 active:text-white" aria-label="Delete role"><Trash2 size={18} /></button>
-                                    </div>
-                                </button>
+                            <div key={item.id} className="border-b border-[#E5E7EB] last:border-b-0">
+                                {/* List row: flat, no card */}
+                                <div className="flex items-center gap-3 py-3">
+                                    <button type="button" onClick={() => setExpandedRoleIndex(isExpanded ? null : idx)} className="flex-1 min-w-0 text-left">
+                                        <p className="text-[15px] font-semibold text-[#111827] truncate">{item.position || 'Position'} — {item.company || 'Company'}</p>
+                                        <p className="text-[13px] text-[#6B7280]">{item.startDate || '—'} – {item.endDate || '—'}</p>
+                                        <p className="text-[12px] text-[#6B7280] mt-0.5">{bullets.filter(Boolean).length} bullet{bullets.filter(Boolean).length !== 1 ? 's' : ''}</p>
+                                    </button>
+                                    <button type="button" onClick={() => setExpandedRoleIndex(isExpanded ? null : idx)} className="flex items-center gap-1 text-[13px] font-medium text-[#111827] shrink-0 min-h-[44px]">
+                                        Edit <ChevronRight size={16} />
+                                    </button>
+                                </div>
 
+                                {/* Edit block: compact fields + inline bullets with grip */}
                                 {isExpanded && (
-                                    <div className="px-4 pb-5 pt-1 border-t border-gray-200">
-                                        <InputField label="Position" icon={Briefcase} value={item.position} onChange={(v: string) => updateItem(idx, 'position', v)} placeholder="e.g. Senior Engineer" />
-                                        <InputField label="Company" icon={Globe} value={item.company} onChange={(v: string) => updateItem(idx, 'company', v)} placeholder="Company name" />
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <InputField label="Start" icon={Calendar} value={item.startDate} onChange={(v: string) => updateItem(idx, 'startDate', v)} placeholder="Jan 2020" />
-                                            <InputField label="End" icon={Calendar} value={item.endDate} onChange={(v: string) => updateItem(idx, 'endDate', v)} placeholder="Present" />
+                                    <div className="ux-section pb-4 pt-2 border-t border-[#E5E7EB]">
+                                        <div className="ux-field-gap flex flex-col">
+                                            <input className="ux-input w-full" placeholder="Position" value={item.position || ''} onChange={(e) => updateItem(idx, 'position', e.target.value)} />
+                                            <input className="ux-input w-full" placeholder="Company" value={item.company || ''} onChange={(e) => updateItem(idx, 'company', e.target.value)} />
                                         </div>
-                                        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mt-4 mb-2 px-1">Bullets</p>
+                                        <div className="grid grid-cols-2 gap-3 ux-field-gap">
+                                            <input className="ux-input w-full" placeholder="Start Date" value={item.startDate || ''} onChange={(e) => updateItem(idx, 'startDate', e.target.value)} />
+                                            <input className="ux-input w-full" placeholder="End Date" value={item.endDate || ''} onChange={(e) => updateItem(idx, 'endDate', e.target.value)} />
+                                        </div>
+                                        <p className="text-[13px] font-medium text-[#6B7280] ux-label-gap">Bullets</p>
                                         <div className="space-y-2">
                                             {bullets.map((bullet, bIdx) => (
-                                                <div key={bIdx} className="flex items-start gap-2 group/bullet">
-                                                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-200 mt-1.5" aria-hidden />
-                                                    <div className="flex-1 min-w-0 flex items-center gap-2">
-                                                        {editingBullet?.roleIdx === idx && editingBullet?.bulletIdx === bIdx ? (
-                                                            <input
-                                                                type="text"
-                                                                defaultValue={bullet}
-                                                                onBlur={(e) => editBullet(idx, bIdx, e.target.value.trim() || bullet)}
-                                                                onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                                                                className="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400"
-                                                                placeholder="Bullet point"
-                                                                autoFocus
-                                                            />
-                                                        ) : (
-                                                            <button type="button" onClick={() => { setEditingBullet({ roleIdx: idx, bulletIdx: bIdx }); setBulletMenu(null); }} className="flex-1 text-left px-3 py-2.5 rounded-xl bg-gray-50 text-[14px] text-gray-900 min-h-[44px] touch-manipulation">
-                                                                {bullet || 'Tap to edit'}
-                                                            </button>
-                                                        )}
-                                                        <div className="flex items-center gap-0.5 flex-shrink-0">
-                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'up')} disabled={bIdx === 0} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move bullet up"><ArrowUp size={16} /></button>
-                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'down')} disabled={bIdx === bullets.length - 1} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move bullet down"><ArrowDown size={16} /></button>
-                                                            <div className="relative">
-                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setBulletMenu(bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx ? null : { roleIdx: idx, bulletIdx: bIdx }); setEditingBullet(null); }} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600" aria-label="Actions"><MoreVertical size={18} /></button>
-                                                                {bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx && (
-                                                                    <div className="absolute right-0 top-full mt-1 py-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[140px]">
-                                                                        <button type="button" onClick={() => { setEditingBullet({ roleIdx: idx, bulletIdx: bIdx }); setBulletMenu(null); }} className="w-full min-h-[44px] px-4 py-3 text-left text-[14px] text-gray-900 flex items-center gap-2 hover:bg-gray-50"><Pencil size={14} /> Edit</button>
-                                                                        <button type="button" onClick={() => setBulletMenu(null)} className="w-full min-h-[44px] px-4 py-3 text-left text-[14px] text-gray-900 flex items-center gap-2 hover:bg-gray-50"><Sparkles size={14} /> Improve</button>
-                                                                        <button type="button" onClick={() => deleteBullet(idx, bIdx)} className="w-full min-h-[44px] px-4 py-3 text-left text-[14px] text-red-600 flex items-center gap-2 hover:bg-gray-50"><Trash2 size={14} /> Delete</button>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                <div key={bIdx} className="flex items-start gap-2 border-b border-[#E5E7EB] pb-2 last:border-0">
+                                                    <span className="flex-shrink-0 mt-2.5 text-[#6B7280] cursor-grab" aria-hidden><GripVertical size={18} /></span>
+                                                    <input
+                                                        type="text"
+                                                        value={bullet}
+                                                        onChange={(e) => setBullet(idx, bIdx, e.target.value)}
+                                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBulletAt(idx, bIdx); } }}
+                                                        className="flex-1 min-w-0 ux-input min-h-[44px] text-[14px] max-w-[90%]"
+                                                        placeholder="Bullet point (Enter = new)"
+                                                    />
+                                                    <button type="button" onClick={() => deleteBullet(idx, bIdx)} className="flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#6B7280] active:text-red-600" aria-label="Delete"><Trash2 size={16} /></button>
                                                 </div>
                                             ))}
                                         </div>
-                                        <button type="button" onClick={() => addBullet(idx)} className="mt-3 w-full min-h-[48px] rounded-xl border-2 border-dashed border-gray-300 text-gray-500 text-[14px] font-semibold flex items-center justify-center gap-2">
-                                            <Plus size={18} /> Add bullet
+                                        <button type="button" onClick={() => addBulletAt(idx, bullets.length - 1)} className="mt-2 w-full ux-chip flex items-center justify-center gap-2">
+                                            <Plus size={16} /> Add bullet
+                                        </button>
+                                        <button type="button" onClick={() => setExpandedRoleIndex(null)} className="mobile-app-cta w-full min-h-[52px] rounded-[14px] font-bold text-[16px] bg-[#111827] text-white mt-4">
+                                            Done
                                         </button>
                                     </div>
                                 )}
@@ -425,12 +372,9 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                         );
                     })}
                     {items.length === 0 && (
-                        <div className="py-20 text-center">
-                            <div className="w-20 h-20 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mx-auto mb-6 text-gray-500">
-                                <Briefcase size={40} strokeWidth={1.5} />
-                            </div>
-                            <p className="font-bold text-[13px] uppercase tracking-wider text-gray-500">No positions yet</p>
-                            <p className="text-[12px] text-slate-500 mt-1">Tap “Add position” above</p>
+                        <div className="py-12 text-center">
+                            <p className="text-[13px] font-medium text-[#6B7280]">No positions yet</p>
+                            <p className="text-[12px] text-[#6B7280] mt-1">Tap “Add position” above</p>
                         </div>
                     )}
                 </div>

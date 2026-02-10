@@ -15,6 +15,33 @@ import { getRoleSuggestions } from '../../constants/roles';
 
 const ATS_DEBOUNCE_MS = 500;
 
+function CollapsibleJD({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="border border-[#E5E7EB] rounded-[10px] overflow-hidden bg-white">
+            <button
+                type="button"
+                onClick={() => setOpen((o) => !o)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left text-[13px] font-medium text-[#111827]"
+            >
+                <span>Optional JD</span>
+                <ChevronRight size={18} className={`text-[#6B7280] transition-transform ${open ? 'rotate-90' : ''}`} />
+            </button>
+            {open && (
+                <div className="border-t border-[#E5E7EB] p-3">
+                    <textarea
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        placeholder="Paste job description for AI optimization..."
+                        className="ux-textarea w-full min-h-[120px] resize-none"
+                        rows={5}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
 type MobileView = 'dashboard' | 'section-editor';
 
 interface MobileEditorProps {
@@ -170,179 +197,104 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
             )}
 
             {currentView === 'section-editor' && currentSectionId === 'target-jd' && (
-                <div className="mobile-app flex-1 flex flex-col h-full min-h-0 bg-gray-50 relative overflow-hidden">
-                    <MobileHeader
-                        title="TARGET ROLE"
-                        onBack={navigateToDashboard}
-                        showNext={false}
-                        variant="light"
-                    />
+                <div className="mobile-app flex-1 flex flex-col h-full min-h-0 bg-[#fafafa] relative overflow-hidden">
+                    <MobileHeader title="Target Setup" onBack={navigateToDashboard} showNext={false} variant="light" />
 
-                    <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 pt-24 pb-60 scrollbar-hide">
-                        {/* Role Selection Card - Master Refinement */}
-                        <div className="mb-10 relative pt-4">
-                            <div className="mobile-app-card rounded-[14px] p-5 border border-gray-200/80">
-                                <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-600 mb-4 block px-1">Target Job Role</label>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white text-black flex items-center justify-center shrink-0 shadow-lg">
-                                        <Target size={28} strokeWidth={2.5} className="scale-90 sm:scale-100" />
-                                    </div>
-                                    <input
-                                        value={data.basics.targetRole || ''}
-                                        onChange={(e) => onRoleChange(e.target.value)}
-                                        className="w-full bg-transparent border-none text-[22px] sm:text-[26px] font-bold text-gray-900 placeholder:text-gray-400 focus:ring-0 p-0 tracking-tight leading-none"
-                                        placeholder="Software Engineer"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Suggestions Dropdown - Limited Height & Scroll */}
+                    <div className="flex-1 min-h-0 overflow-y-auto mobile-app-scroll px-4 pt-20 pb-24 scrollbar-hide ux-section flex flex-col">
+                        {/* Role — one task, searchable chips */}
+                        <div className="ux-field-gap flex flex-col">
+                            <p className="text-[13px] font-medium text-[#111827] ux-label-gap">What role are you targeting?</p>
+                            <input
+                                value={data.basics.targetRole || ''}
+                                onChange={(e) => onRoleChange(e.target.value)}
+                                placeholder="e.g. Software Engineer"
+                                className="ux-input w-full"
+                            />
                             {showSuggestions && roleSuggestions.length > 0 && (
-                                <div className="absolute left-0 right-0 top-[90%] mt-2 z-50 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-y-auto max-h-[280px] sm:max-h-[350px] animate-in fade-in slide-in-from-top-4 duration-300">
-                                    {roleSuggestions.map((suggestion, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => selectRole(suggestion)}
-                                            className="w-full px-7 sm:px-8 py-4 sm:py-5 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-100 last:border-none flex items-center justify-between group"
-                                        >
-                                            <span className="text-[12px] sm:text-[13px] font-bold text-gray-900 uppercase tracking-widest leading-none">{suggestion}</span>
-                                            <ChevronRight size={18} className="text-gray-500 group-active:text-gray-700 transition-colors" strokeWidth={3} />
+                                <div className="flex flex-wrap gap-2">
+                                    {roleSuggestions.map((s, i) => (
+                                        <button key={i} type="button" onClick={() => selectRole(s)} className="ux-chip">
+                                            {s}
                                         </button>
                                     ))}
                                 </div>
                             )}
                         </div>
 
-                        {/* Experience & Market Grid — compact to reduce scroll */}
-                        <div className="space-y-6">
-                            {/* Experience Level */}
-                            <div>
-                                <div className="flex items-center gap-2 mb-3 px-1">
-                                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                        <Briefcase size={16} className="text-gray-600" strokeWidth={2.5} />
-                                    </div>
-                                    <h2 className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Experience Level</h2>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                                    {[
-                                        { id: 'fresher', label: 'Fresher', sub: '0-1 yrs' },
-                                        { id: '1-3', label: 'Early Career', sub: '1-3 Yrs' },
-                                        { id: '3-5', label: 'Professional', sub: '3-5 Yrs' },
-                                        { id: '5-8', label: 'Expert', sub: '5-8 Yrs' },
-                                        { id: '8+', label: 'Lead', sub: '8+ Yrs' }
-                                    ].map((lvl) => {
-                                        const isSelected = data.basics.experienceLevel === lvl.id;
-                                        return (
-                                            <button
-                                                key={lvl.id}
-                                                // @ts-ignore - We know these IDs match the type
-                                                onClick={() => updateData({ basics: { ...data.basics, experienceLevel: lvl.id as any } })}
-                                                className={`p-3 sm:p-4 rounded-xl border-2 text-left transition-all active:scale-[0.95] flex flex-col justify-between min-h-[72px] ${isSelected
-                                                    ? 'bg-white border-gray-300 shadow-md'
-                                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                                                    }`}
-                                            >
-                                                <div className="flex justify-between items-start w-full">
-                                                    <div className={`w-9 h-9 min-[400px]:w-10 min-[400px]:h-10 rounded-xl flex items-center justify-center transition-all ${isSelected ? 'bg-gray-900 text-white shadow' : 'bg-gray-100 text-gray-500'}`}>
-                                                        {isSelected ? <CheckCircle2 size={18} strokeWidth={3} /> : <div className="w-1.5 h-1.5 rounded-full bg-current" />}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className={`font-bold text-[13px] min-[400px]:text-[14px] uppercase tracking-wide leading-none transition-colors ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{lvl.label}</p>
-                                                    <p className={`text-[10px] font-semibold mt-1.5 transition-colors ${isSelected ? 'text-gray-500' : 'text-gray-500'}`}>{lvl.sub}</p>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                        {/* Experience Level — chips, max 2 rows */}
+                        <div className="ux-field-gap flex flex-col">
+                            <p className="text-[13px] font-medium text-[#6B7280] ux-label-gap">Experience Level</p>
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { id: 'fresher', label: 'Fresher' },
+                                    { id: '1-3', label: 'Early Career' },
+                                    { id: '3-5', label: 'Professional' },
+                                    { id: '5-8', label: 'Expert' },
+                                    { id: '8+', label: 'Lead' }
+                                ].map((lvl) => {
+                                    const isSelected = data.basics.experienceLevel === lvl.id;
+                                    return (
+                                        <button
+                                            key={lvl.id}
+                                            type="button"
+                                            onClick={() => updateData({ basics: { ...data.basics, experienceLevel: lvl.id as any } })}
+                                            className={`ux-chip ${isSelected ? 'active' : ''}`}
+                                        >
+                                            {lvl.label}
+                                        </button>
+                                    );
+                                })}
                             </div>
+                        </div>
 
-                            {/* Target Market */}
-                            <div className="pb-4">
-                                <div className="flex items-center gap-2 mb-3 px-1">
-                                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                        <Globe size={16} className="text-gray-600" strokeWidth={2.5} />
-                                    </div>
-                                    <h2 className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Target Market</h2>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                                    {[
-                                        { id: 'india', label: 'India', sub: 'Domestic Market', icon: 'IN' },
-                                        { id: 'us', label: 'USA', sub: 'International (US)', icon: 'US' },
-                                        { id: 'gulf', label: 'Gulf', sub: 'UAE / Saudi / Qatar', icon: 'AE' },
-                                        { id: 'global', label: 'Global', sub: 'Europe / UK / Others', icon: <Globe size={18} /> }
-                                    ].map((m) => {
-                                        const isSelected = data.basics.targetMarket === m.id;
-                                        return (
-                                            <button
-                                                key={m.id}
-                                                // @ts-ignore
-                                                onClick={() => updateData({ basics: { ...data.basics, targetMarket: m.id as any } })}
-                                                className={`p-3 sm:p-4 rounded-xl border-2 text-left transition-all active:scale-[0.98] flex items-center justify-between gap-3 ${isSelected
-                                                    ? 'bg-white border-gray-300 shadow-md'
-                                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-4 min-[400px]:gap-6">
-                                                    <div className={`w-11 h-11 min-[400px]:w-14 min-[400px]:h-14 rounded-2xl flex items-center justify-center font-bold text-[14px] min-[400px]:text-[16px] transition-all ${isSelected ? 'bg-gray-900 text-white shadow' : 'bg-gray-100 text-gray-500'}`}>
-                                                        {m.icon}
-                                                    </div>
-                                                    <div>
-                                                        <p className={`font-bold text-[14px] min-[400px]:text-[15px] uppercase tracking-wide leading-tight transition-colors ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{m.label}</p>
-                                                        <p className={`text-[9px] min-[400px]:text-[10px] font-semibold mt-1.5 transition-colors ${isSelected ? 'text-gray-500' : 'text-gray-500'}`}>{m.sub}</p>
-                                                    </div>
-                                                </div>
-                                                {isSelected && (
-                                                    <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center shrink-0">
-                                                        <CheckCircle2 size={14} className="text-white" strokeWidth={4} />
-                                                    </div>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                        {/* Market — chips */}
+                        <div className="ux-field-gap flex flex-col">
+                            <p className="text-[13px] font-medium text-[#6B7280] ux-label-gap">Market</p>
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { id: 'india', label: 'India' },
+                                    { id: 'us', label: 'US' },
+                                    { id: 'gulf', label: 'Gulf' },
+                                    { id: 'global', label: 'Global' }
+                                ].map((m) => {
+                                    const isSelected = data.basics.targetMarket === m.id;
+                                    return (
+                                        <button
+                                            key={m.id}
+                                            type="button"
+                                            onClick={() => updateData({ basics: { ...data.basics, targetMarket: m.id as any } })}
+                                            className={`ux-chip ${isSelected ? 'active' : ''}`}
+                                        >
+                                            {m.label}
+                                        </button>
+                                    );
+                                })}
                             </div>
+                        </div>
 
-                            {/* Job Description (Optional) */}
-                            <div className="pb-4">
-                                <div className="flex items-center gap-2 mb-3 px-1">
-                                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                        <FileText size={16} className="text-gray-600" strokeWidth={2.5} />
-                                    </div>
-                                    <h2 className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Job Description <span className="text-gray-400 font-normal">(optional)</span></h2>
-                                </div>
-                                <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm overflow-hidden">
-                                    <textarea
-                                        value={data.jobDescription || ''}
-                                        onChange={(e) => updateData({ jobDescription: e.target.value })}
-                                        className="w-full bg-transparent border-none text-[14px] font-medium text-gray-900 placeholder:text-gray-400 focus:ring-0 p-0 min-h-[120px] sm:min-h-[160px] resize-none leading-relaxed"
-                                        placeholder="Paste the job description here for AI optimization..."
-                                    />
-                                </div>
-                            </div>
+                        {/* Optional JD — collapsible, collapsed by default */}
+                        <div className="ux-field-gap flex flex-col">
+                            <CollapsibleJD
+                                value={data.jobDescription || ''}
+                                onChange={(v) => updateData({ jobDescription: v })}
+                            />
                         </div>
                     </div>
 
                     <div className="mobile-app-sticky fixed bottom-0 left-0 right-0 p-4 z-[200]">
                         <button
+                            type="button"
                             onClick={navigateToDashboard}
                             disabled={!data.basics.targetRole?.trim() || !data.basics.experienceLevel || !data.basics.targetMarket}
-                            className={`mobile-app-cta w-full min-h-[52px] rounded-[14px] font-bold text-[16px] transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${data.basics.targetRole?.trim() && data.basics.experienceLevel && data.basics.targetMarket
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                }`}
+                            className="mobile-app-cta w-full min-h-[52px] rounded-[14px] font-bold text-[16px] flex items-center justify-center gap-2 text-white bg-blue-600 disabled:bg-gray-200 disabled:text-gray-500"
                         >
-                            <Sparkles size={24} strokeWidth={3} className="sm:scale-110" />
-                            <span>Confirm & Next</span>
+                            Continue →
                         </button>
                     </div>
 
                     <style>{`
-                        .safe-area-bottom { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
                         .scrollbar-hide::-webkit-scrollbar { display: none; }
                         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-                        .h-15 { height: 3.75rem; }
-                        .h-18 { height: 4.5rem; }
                     `}</style>
                 </div>
             )}

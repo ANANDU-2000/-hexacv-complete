@@ -22,20 +22,20 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
       </h3>
       <p className="text-sm text-gray-700 mb-4">
         {atsScoreBefore != null
-          ? `Current: ${atsScoreBefore} / 100`
+          ? (atsScoreBefore >= 100 ? 'Score: Excellent — keyword match is strong.' : `Current: ${atsScoreBefore} / 100`)
           : 'Add a job description in the editor to see your score.'}
       </p>
       {!isPaidUnlocked && (
         <>
           <p className="text-sm text-gray-600 mb-2">
-            Improve wording for ATS: tailored to your JD, stronger verbs and metrics.
+            One-time ATS wording improvement for this resume.
           </p>
           <button
             type="button"
             onClick={onUnlockClick}
             className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
           >
-            Improve ATS
+            Unlock ATS-Optimized Wording
           </button>
         </>
       )}

@@ -25,7 +25,7 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #f4f5f7;
+  background: #f3f4f6;
 }
 
 .page-stack {
@@ -36,13 +36,13 @@
 
 /* Section title: border-bottom, never break after */
 .doc-section-title {
-  font-size: 11pt;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   border-bottom: 1px solid #000;
   margin-top: 18px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   padding-bottom: 4px;
   page-break-after: avoid;
 }
@@ -59,28 +59,52 @@
   text-align: left;
 }
 
-/* Header block — left-aligned name, target role, contact */
+/* Header block — left-aligned name, target role, contact; optional photo on right */
 .doc-header {
   margin-bottom: 12px;
   text-align: left;
 }
 
+.doc-header-with-photo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.doc-header-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-header-photo-wrap {
+  flex-shrink: 0;
+}
+
+.doc-header-photo {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+
 .doc-header-name {
-  font-size: 18pt;
+  font-size: 19px;
   font-weight: 700;
   margin-bottom: 2px;
   letter-spacing: 0.01em;
 }
 
 .doc-header-title {
-  font-size: 10.5pt;
+  font-size: 12.5px;
   font-weight: 500;
   margin-bottom: 6px;
   color: #333;
 }
 
 .doc-header-contact {
-  font-size: 9.5pt;
+  font-size: 10.5px;
   color: #444;
   line-height: 1.4;
 }
@@ -133,6 +157,8 @@
   font-size: 9.8pt;
   line-height: 1.35;
   list-style-type: disc;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .doc-entry-bullets li {

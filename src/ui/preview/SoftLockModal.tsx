@@ -33,7 +33,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
     >
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
         <h2 id="soft-lock-title" className="text-lg font-bold text-gray-900 mb-2">
-          ATS Optimized Version — ₹49 (one-time)
+          Unlock ATS-Optimized Wording — ₹49 one-time
         </h2>
         <ul className="list-none space-y-2 mb-4">
           {VALUE_BULLETS.map((text, i) => (
@@ -65,7 +65,7 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
             onClick={onClose}
             className="w-full px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
           >
-            Continue with Free Version
+            Keep current wording (Free)
           </button>
         </div>
       </div>

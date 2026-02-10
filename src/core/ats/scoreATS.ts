@@ -70,8 +70,11 @@ export function scoreATS(resumeText: string, jdKeywords: ExtractedKeywords): ATS
     };
 
     jdKeywords.skills.forEach(k => check(k, 'skill'));
+    jdKeywords.tools.forEach(k => check(k, 'tool'));
+    jdKeywords.technologies.forEach(k => check(k, 'tech'));
     jdKeywords.softSkills.forEach(k => check(k, 'soft'));
     jdKeywords.roleKeywords.forEach(k => check(k, 'role'));
+    jdKeywords.businessTerms.forEach(k => check(k, 'business'));
 
     const total = matched.length + missing.length;
     const score = total > 0 ? Math.round((matched.length / total) * 100) : 0;

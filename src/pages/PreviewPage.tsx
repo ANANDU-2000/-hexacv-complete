@@ -5,17 +5,13 @@ import { resumeDataToNormalized } from '../core/normalizedResume';
 import { DocumentPreview } from '../ui/document';
 import { printDocumentPreview } from '../core/delivery/generatePDFFromDocument';
 import { TemplateList } from '../ui/templates/TemplateList';
-import { OptimizationPanel } from '../ui/preview/OptimizationPanel';
 import { SoftLockModal } from '../ui/preview/SoftLockModal';
 import { AVAILABLE_TEMPLATES } from '../core/delivery/templates';
 import { getSessionId } from '../api-service';
 import { checkUnlockStatus } from '../core/payment/checkUnlock';
 import { createOrderAndPay } from '../core/payment/createOrder';
-import { resumeToText } from '../core/ats/resumeToText';
-import { extractKeywordsFromJD } from '../core/ats/extractKeywords';
-import { scoreATS } from '../core/ats/scoreATS';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, FileDown, ArrowLeft, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, FileDown, ArrowLeft, Sparkles } from 'lucide-react';
 
 const FREE_TEMPLATE_ID = AVAILABLE_TEMPLATES[0]?.id ?? 'template1free';
 const A4_PX_HEIGHT = 1123;
@@ -82,18 +78,8 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
     setPreviewScale(fitScale);
   }, [fitScale]);
 
-  const goToPage = useCallback((page: number) => {
-    const el = previewContainerRef.current;
-    if (!el) return;
-    const pageHeight = A4_PX_HEIGHT * previewScale;
-    el.scrollTop = (page - 1) * pageHeight;
-    setCurrentPage(page);
-  }, [previewScale]);
   const [mobileScale, setMobileScale] = useState(1);
-  const [atsExpanded, setAtsExpanded] = useState(false);
   const [showTemplateSheet, setShowTemplateSheet] = useState(false);
-  const [showAtsPanel, setShowAtsPanel] = useState(false);
-  const [showZoomControls, setShowZoomControls] = useState(false);
   const mobileZoomRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const pinchStartRef = useRef<{ scale: number; dist: number } | null>(null);
@@ -102,15 +88,6 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
   const isLocked = !isFreeTemplate && !unlocked;
 
   const sessionId = getSessionId();
-
-  const atsScoreBefore = useMemo(() => {
-    const text = resumeToText(data);
-    const jd = data.jobDescription?.trim();
-    if (!jd) return null;
-    const keywords = extractKeywordsFromJD(jd);
-    const result = scoreATS(text, keywords);
-    return result.score;
-  }, [data]);
 
   // Unlock status (single source of truth from backend)
   useEffect(() => {
@@ -357,7 +334,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                 onClick={handleUnlockClick}
                 className="shrink-0 min-h-[44px] px-4 rounded-xl bg-blue-600 text-white font-semibold text-[14px] touch-manipulation"
               >
-                Improve ATS
+                Unlock ATS-Optimized Wording
               </button>
             )}
           </footer>
@@ -374,83 +351,37 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
           <p className="text-xs text-gray-600 mb-3">Free: ATS-friendly layout and clean PDF. Paid: ATS-optimized wording tailored to your job description.</p>
           <TemplateList templates={AVAILABLE_TEMPLATES} selectedTemplateId={selectedTemplateId} onSelect={setSelectedTemplateId} freeTemplateId={FREE_TEMPLATE_ID} />
           <p className="text-xs text-gray-500 mt-3">One-time fee for wording optimization; free template and PDF stay free for life.</p>
-          {isLocked && unlockChecked && (
-            <div className="mt-4 lg:hidden">
-              <button
-                type="button"
-                onClick={handleUnlockClick}
-                className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700"
-              >
-                Improve ATS
-              </button>
-            </div>
-          )}
         </div>
       </aside>
-      <main className="flex-1 flex flex-col min-w-0 relative bg-gray-100 min-h-0">
+      <main className="flex-1 flex flex-col min-w-0 relative min-h-0" style={{ backgroundColor: '#f3f4f6' }}>
         <div className="shrink-0 flex flex-wrap items-center gap-3 px-6 pt-4 pb-2">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-gray-800">Preview</span>
             <span className="text-xs text-gray-500">
-              This format is safe for ATS systems used by most companies.
+              Preview your resume exactly as it will appear in the PDF.
             </span>
           </div>
-          {showZoomControls && (
-            <>
-              <button
-                type="button"
-                onClick={() => setPreviewScale((s) => Math.max(0.75, s - 0.1))}
-                className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 border border-gray-300"
-                aria-label="Zoom out"
-              >
-                −
-              </button>
-              <button
-                type="button"
-                onClick={() => setPreviewScale((s) => Math.min(1.25, s + 0.1))}
-                className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 border border-gray-300"
-                aria-label="Zoom in"
-              >
-                +
-              </button>
-              <button
-                type="button"
-                onClick={setFitInView}
-                className="px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-700 border border-blue-200"
-              >
-                Fit to width
-              </button>
-            </>
-          )}
-          {!showZoomControls && (
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setShowZoomControls(true)}
-              className="px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              onClick={setFitInView}
+              className={`px-2 py-1 text-xs font-medium rounded border ${Math.abs(previewScale - fitScale) < 0.01 ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
             >
-              Zoom
+              Fit to width
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowAtsPanel((v) => !v)}
-            className="px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-          >
-            {showAtsPanel ? 'Hide ATS tips' : 'Improve ATS'}
-          </button>
-          {totalPages > 1 && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-500">Page</span>
-              <button type="button" onClick={() => goToPage(Math.max(1, currentPage - 1))} disabled={currentPage <= 1} className="p-1.5 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Previous page"><ChevronLeft size={18} /></button>
-              <span className="text-xs font-medium text-gray-700 min-w-[4rem] text-center">{currentPage} / {totalPages}</span>
-              <button type="button" onClick={() => goToPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage >= totalPages} className="p-1.5 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Next page"><ChevronRight size={18} /></button>
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={() => setPreviewScale(1)}
+              className={`px-2 py-1 text-xs font-medium rounded border ${previewScale >= 0.99 && previewScale <= 1.01 ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+            >
+              Actual size (100%)
+            </button>
+          </div>
         </div>
         <div
           ref={previewContainerRef}
-          className="flex-1 min-h-0 px-6 pb-8 preview-scroll"
-          style={{ maxHeight: '100%' }}
+          className="flex-1 min-h-0 preview-scroll overflow-x-hidden"
+          style={{ maxHeight: '100%', padding: '0 24px 24px 24px' }}
           onScroll={() => {
             const el = previewContainerRef.current;
             if (!el || totalPages <= 1) return;
@@ -490,19 +421,19 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack }) => {
                     onClick={handleUnlockClick}
                     className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700"
                   >
-                    Improve ATS
+                    Unlock ATS-Optimized Wording
                   </button>
                 </div>
               )}
             </div>
           </div>
         </div>
+        {totalPages > 1 && (
+          <div className="shrink-0 py-2 text-center">
+            <span className="text-xs text-gray-500">Page {currentPage} / {totalPages}</span>
+          </div>
+        )}
       </main>
-      {showAtsPanel && (
-      <aside className="hidden lg:flex w-[25%] min-w-[200px] max-w-[280px] bg-gray-100 border-l flex-col flex-shrink-0 p-4 overflow-y-auto">
-        <OptimizationPanel atsScoreBefore={atsScoreBefore} isPaidUnlocked={unlocked && !isFreeTemplate} onUnlockClick={handleUnlockClick} />
-      </aside>
-      )}
       </div>
       )}
 

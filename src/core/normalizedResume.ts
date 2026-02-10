@@ -11,6 +11,8 @@ export interface NormalizedHeader {
   phone: string;
   linkedin?: string;
   github?: string;
+  /** Optional profile photo URL (data URL or https). Rendered when includePhoto is true. */
+  photoUrl?: string;
 }
 
 export interface NormalizedSkillCategory {
@@ -79,6 +81,8 @@ export function emptyNormalizedResume(): NormalizedResume {
 
 export function resumeDataToNormalized(data: ResumeData): NormalizedResume {
   const b = (data.basics ?? {}) as Record<string, unknown>;
+  const includePhoto = b.includePhoto !== false;
+  const photoUrl = (data.photoUrl ?? b.photoUrl) as string | undefined;
   const header: NormalizedHeader = {
     name: String(b.fullName ?? ''),
     title: String(b.targetRole ?? ''),
@@ -86,6 +90,7 @@ export function resumeDataToNormalized(data: ResumeData): NormalizedResume {
     phone: String(b.phone ?? ''),
     linkedin: b.linkedin as string | undefined,
     github: b.github as string | undefined,
+    photoUrl: includePhoto && photoUrl ? photoUrl : undefined,
   };
 
   const skills: NormalizedSkillCategory[] = Array.isArray(data.skills) && data.skills.length > 0

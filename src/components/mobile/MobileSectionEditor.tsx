@@ -135,7 +135,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                     ? 'In India, a professional photo is common on resumes.'
                     : targetMarket && ['us', 'uk', 'eu', 'remote'].includes(targetMarket)
                         ? 'For international roles, check the job ad; many prefer no photo.'
-                        : 'Check the job ad to see if a photo is expected.';
+                        : 'Check the job ad for photo requirements.';
 
         return (
             <SectionWrapper isDoneEnabled={!!(data.basics.fullName?.trim() && data.basics.email?.trim())}>

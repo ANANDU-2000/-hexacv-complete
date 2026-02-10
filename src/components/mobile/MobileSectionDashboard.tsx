@@ -159,20 +159,6 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </div>
             </div>
 
-            {onImproveClick != null && (
-                <div className="fixed left-0 right-0 bottom-[5.5rem] sm:bottom-[6rem] px-5 sm:px-6 z-40 safe-area-bottom">
-                    <button
-                        type="button"
-                        onClick={onImproveClick}
-                        className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-white border border-gray-200 text-gray-900 flex items-center justify-between gap-3 text-sm font-semibold active:scale-[0.98] shadow-sm"
-                        aria-label="View ATS score and missing keywords"
-                    >
-                        <span>ATS: {atsScore ?? 0}/100</span>
-                        <span className="flex items-center gap-1">Improve <ChevronRight size={18} strokeWidth={2.5} /></span>
-                    </button>
-                </div>
-            )}
-
             <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-white/95 backdrop-blur border-t border-gray-200 safe-area-bottom z-50">
                 <button
                     onClick={onContinue}

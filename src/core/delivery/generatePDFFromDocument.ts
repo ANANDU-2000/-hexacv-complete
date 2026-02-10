@@ -22,20 +22,24 @@ const PAGE_STYLES = `
   }
   .page:last-child { page-break-after: auto; }
   .doc-section-title {
-    font-size: 11pt;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
     border-bottom: 1px solid #000;
     margin-top: 18px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     padding-bottom: 4px;
   }
   .doc-section { margin-bottom: 6px; }
   .doc-header { margin-bottom: 12px; text-align: left; }
-  .doc-header-name { font-size: 18pt; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.01em; }
-  .doc-header-title { font-size: 10.5pt; font-weight: 500; margin-bottom: 6px; color: #333; }
-  .doc-header-contact { font-size: 9.5pt; color: #444; line-height: 1.4; }
+  .doc-header-with-photo { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .doc-header-main { flex: 1; min-width: 0; }
+  .doc-header-photo-wrap { flex-shrink: 0; }
+  .doc-header-photo { width: 72px; height: 72px; object-fit: cover; border-radius: 4px; display: block; }
+  .doc-header-name { font-size: 19px; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.01em; }
+  .doc-header-title { font-size: 12.5px; font-weight: 500; margin-bottom: 6px; color: #333; }
+  .doc-header-contact { font-size: 10.5px; color: #444; line-height: 1.4; }
   .doc-header-contact a { color: #2563eb; text-decoration: none; }
   .doc-summary-text { font-size: 10pt; font-weight: 400; line-height: 1.35; text-align: left; }
   .doc-entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 2px; }

@@ -93,7 +93,7 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
             </div>
 
             {/* Sections Flow List — compact spacing */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 py-2 pb-56 scrollbar-hide relative">
+            <div className="mobile-app-scroll flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 py-2 pb-56 scrollbar-hide relative">
                 <div className="absolute left-[2.5rem] sm:left-[2.75rem] top-8 bottom-48 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-transparent" />
 
                 <div className="space-y-2.5 sm:space-y-3">

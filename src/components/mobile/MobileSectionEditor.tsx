@@ -96,7 +96,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
         <div className="mobile-app h-full bg-gray-50 flex flex-col relative overflow-hidden">
             <MobileHeader title={getSectionTitle()} onBack={onBack} showNext={false} variant="light" />
 
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 pt-20 pb-56 scrollbar-hide relative z-10 text-gray-900">
+            <div className="mobile-app-scroll flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 pt-20 pb-56 scrollbar-hide relative z-10 text-gray-900">
                 {children}
             </div>
 
@@ -338,7 +338,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
 
         return (
             <SectionWrapper>
-                <button onClick={addItem} className="w-full min-h-[52px] py-4 mb-8 rounded-[2rem] bg-white text-black flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] font-black uppercase tracking-[0.2em] text-[14px] touch-manipulation">
+                <button type="button" onClick={addItem} className="mobile-app-cta w-full min-h-[52px] py-3 mb-6 rounded-[14px] bg-white text-gray-900 border-2 border-gray-200 flex items-center justify-center gap-3 font-bold text-[15px]">
                     <Plus size={22} strokeWidth={4} aria-hidden />
                     <span>Add position</span>
                 </button>
@@ -353,7 +353,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                 <button
                                     type="button"
                                     onClick={() => setExpandedRoleIndex(isExpanded ? null : idx)}
-                                    className="w-full flex items-center gap-3 p-4 sm:p-5 text-left touch-manipulation"
+                                    className="w-full min-h-[48px] flex items-center gap-3 p-4 sm:p-5 text-left"
                                 >
                                     <span className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
                                         {isExpanded ? <ChevronUp size={20} className="text-gray-700" /> : <ChevronDown size={20} className="text-gray-700" />}
@@ -363,9 +363,9 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                         <p className="text-[12px] text-gray-500 truncate">{item.company || 'Company'} · {item.startDate || '—'} – {item.endDate || '—'}</p>
                                     </div>
                                     <div className="flex items-center gap-1 flex-shrink-0">
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'up'); }} disabled={idx === 0} className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30 touch-manipulation" aria-label="Move up"><ArrowUp size={18} /></button>
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'down'); }} disabled={idx === items.length - 1} className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30 touch-manipulation" aria-label="Move down"><ArrowDown size={18} /></button>
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); deleteItem(idx); }} className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 active:bg-red-500 active:text-white touch-manipulation" aria-label="Delete role"><Trash2 size={18} /></button>
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'up'); }} disabled={idx === 0} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move up"><ArrowUp size={18} /></button>
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); moveRole(idx, 'down'); }} disabled={idx === items.length - 1} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move down"><ArrowDown size={18} /></button>
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); deleteItem(idx); }} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 active:bg-red-500 active:text-white" aria-label="Delete role"><Trash2 size={18} /></button>
                                     </div>
                                 </button>
 
@@ -399,15 +399,15 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                                             </button>
                                                         )}
                                                         <div className="flex items-center gap-0.5 flex-shrink-0">
-                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'up')} disabled={bIdx === 0} className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30 touch-manipulation" aria-label="Move bullet up"><ArrowUp size={16} /></button>
-                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'down')} disabled={bIdx === bullets.length - 1} className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30 touch-manipulation" aria-label="Move bullet down"><ArrowDown size={16} /></button>
+                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'up')} disabled={bIdx === 0} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move bullet up"><ArrowUp size={16} /></button>
+                                                            <button type="button" onClick={() => moveBullet(idx, bIdx, 'down')} disabled={bIdx === bullets.length - 1} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 disabled:opacity-30" aria-label="Move bullet down"><ArrowDown size={16} /></button>
                                                             <div className="relative">
-                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setBulletMenu(bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx ? null : { roleIdx: idx, bulletIdx: bIdx }); setEditingBullet(null); }} className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 touch-manipulation" aria-label="Actions"><MoreVertical size={18} /></button>
+                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setBulletMenu(bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx ? null : { roleIdx: idx, bulletIdx: bIdx }); setEditingBullet(null); }} className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-600" aria-label="Actions"><MoreVertical size={18} /></button>
                                                                 {bulletMenu?.roleIdx === idx && bulletMenu?.bulletIdx === bIdx && (
                                                                     <div className="absolute right-0 top-full mt-1 py-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[140px]">
-                                                                        <button type="button" onClick={() => { setEditingBullet({ roleIdx: idx, bulletIdx: bIdx }); setBulletMenu(null); }} className="w-full px-4 py-2.5 text-left text-[13px] text-gray-900 flex items-center gap-2 hover:bg-gray-50"><Pencil size={14} /> Edit</button>
-                                                                        <button type="button" onClick={() => setBulletMenu(null)} className="w-full px-4 py-2.5 text-left text-[13px] text-gray-900 flex items-center gap-2 hover:bg-gray-50"><Sparkles size={14} /> Improve</button>
-                                                                        <button type="button" onClick={() => deleteBullet(idx, bIdx)} className="w-full px-4 py-2.5 text-left text-[13px] text-red-600 flex items-center gap-2 hover:bg-gray-50"><Trash2 size={14} /> Delete</button>
+                                                                        <button type="button" onClick={() => { setEditingBullet({ roleIdx: idx, bulletIdx: bIdx }); setBulletMenu(null); }} className="w-full min-h-[44px] px-4 py-3 text-left text-[14px] text-gray-900 flex items-center gap-2 hover:bg-gray-50"><Pencil size={14} /> Edit</button>
+                                                                        <button type="button" onClick={() => setBulletMenu(null)} className="w-full min-h-[44px] px-4 py-3 text-left text-[14px] text-gray-900 flex items-center gap-2 hover:bg-gray-50"><Sparkles size={14} /> Improve</button>
+                                                                        <button type="button" onClick={() => deleteBullet(idx, bIdx)} className="w-full min-h-[44px] px-4 py-3 text-left text-[14px] text-red-600 flex items-center gap-2 hover:bg-gray-50"><Trash2 size={14} /> Delete</button>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -416,7 +416,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                                 </div>
                                             ))}
                                         </div>
-                                        <button type="button" onClick={() => addBullet(idx)} className="mt-3 w-full min-h-[44px] rounded-xl border-2 border-dashed border-gray-300 text-gray-500 text-[13px] font-bold flex items-center justify-center gap-2 touch-manipulation">
+                                        <button type="button" onClick={() => addBullet(idx)} className="mt-3 w-full min-h-[48px] rounded-xl border-2 border-dashed border-gray-300 text-gray-500 text-[14px] font-semibold flex items-center justify-center gap-2">
                                             <Plus size={18} /> Add bullet
                                         </button>
                                     </div>
@@ -455,7 +455,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
 
         return (
             <SectionWrapper>
-                <button onClick={addItem} className="w-full h-18 sm:h-20 mb-10 rounded-[2rem] bg-white text-black flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] font-black uppercase tracking-[0.2em] text-[13px] sm:text-[14px]">
+                <button type="button" onClick={addItem} className="mobile-app-cta w-full min-h-[52px] mb-8 rounded-[14px] bg-white text-gray-900 border-2 border-gray-200 flex items-center justify-center gap-3 font-bold text-[15px]">
                     <div className="w-8 h-8 rounded-xl bg-gray-800 text-white flex items-center justify-center">
                         <Plus size={20} strokeWidth={4} />
                     </div>
@@ -469,7 +469,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                 <span className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">Project 0{items.length - idx}</span>
                                 <button
                                     onClick={() => deleteItem(idx)}
-                                    className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all shadow"
+                                    className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all"
                                 >
                                     <Trash2 size={18} strokeWidth={2.5} />
                                 </button>
@@ -496,7 +496,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
 
         return (
             <SectionWrapper>
-                <button onClick={addItem} className="w-full h-18 sm:h-20 mb-10 rounded-[2rem] bg-white text-black flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] font-black uppercase tracking-[0.2em] text-[13px] sm:text-[14px]">
+                <button type="button" onClick={addItem} className="mobile-app-cta w-full min-h-[52px] mb-8 rounded-[14px] bg-white text-gray-900 border-2 border-gray-200 flex items-center justify-center gap-3 font-bold text-[15px]">
                     <div className="w-8 h-8 rounded-xl bg-gray-800 text-white flex items-center justify-center">
                         <Plus size={20} strokeWidth={4} />
                     </div>
@@ -510,7 +510,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                 <span className="text-[10px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-[0.25em]">Academic 0{items.length - idx}</span>
                                 <button
                                     onClick={() => deleteItem(idx)}
-                                    className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all shadow"
+                                    className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all"
                                 >
                                     <Trash2 size={18} strokeWidth={2.5} />
                                 </button>
@@ -537,7 +537,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
 
         return (
             <SectionWrapper>
-                <button onClick={addItem} className="w-full h-18 sm:h-20 mb-10 rounded-[2rem] bg-white text-black flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] font-black uppercase tracking-[0.2em] text-[13px] sm:text-[14px]">
+                <button type="button" onClick={addItem} className="mobile-app-cta w-full min-h-[52px] mb-8 rounded-[14px] bg-white text-gray-900 border-2 border-gray-200 flex items-center justify-center gap-3 font-bold text-[15px]">
                     <div className="w-8 h-8 rounded-xl bg-gray-800 text-white flex items-center justify-center">
                         <Plus size={20} strokeWidth={4} />
                     </div>
@@ -551,7 +551,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                 <span className="text-[10px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-[0.25em]">Award 0{items.length - idx}</span>
                                 <button
                                     onClick={() => deleteItem(idx)}
-                                    className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all shadow"
+                                    className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all"
                                 >
                                     <Trash2 size={18} strokeWidth={2.5} />
                                 </button>

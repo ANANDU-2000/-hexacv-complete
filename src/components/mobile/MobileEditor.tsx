@@ -170,7 +170,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
             )}
 
             {currentView === 'section-editor' && currentSectionId === 'target-jd' && (
-                <div className="flex-1 flex flex-col h-full min-h-0 bg-gray-50 relative overflow-hidden">
+                <div className="mobile-app flex-1 flex flex-col h-full min-h-0 bg-gray-50 relative overflow-hidden">
                     <MobileHeader
                         title="TARGET ROLE"
                         onBack={navigateToDashboard}
@@ -181,7 +181,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                     <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 pt-24 pb-60 scrollbar-hide">
                         {/* Role Selection Card - Master Refinement */}
                         <div className="mb-10 relative pt-4">
-                            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+                            <div className="mobile-app-card rounded-[14px] p-5 border border-gray-200/80">
                                 <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-600 mb-4 block px-1">Target Job Role</label>
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white text-black flex items-center justify-center shrink-0 shadow-lg">
@@ -213,22 +213,23 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                             )}
                         </div>
 
-                        {/* Experience & Market Grid */}
-                        <div className="space-y-12">
+                        {/* Experience & Market Grid — compact to reduce scroll */}
+                        <div className="space-y-6">
                             {/* Experience Level */}
                             <div>
-                                <div className="flex items-center gap-4 mb-6 px-2">
-                                    <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
-                                        <Briefcase size={20} className="text-white" strokeWidth={2.5} />
+                                <div className="flex items-center gap-2 mb-3 px-1">
+                                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                        <Briefcase size={16} className="text-gray-600" strokeWidth={2.5} />
                                     </div>
-                                    <h2 className="text-[11px] font-black tracking-[0.25em] uppercase text-slate-400">Experience Level</h2>
+                                    <h2 className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Experience Level</h2>
                                 </div>
-                                <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                     {[
                                         { id: 'fresher', label: 'Fresher', sub: '0-1 yrs' },
-                                        { id: 'early', label: 'Early Career', sub: '1-3 Yrs' },
-                                        { id: 'mid', label: 'Professional', sub: '3-5 Yrs' },
-                                        { id: 'senior', label: 'Expert', sub: '6+ Yrs' }
+                                        { id: '1-3', label: 'Early Career', sub: '1-3 Yrs' },
+                                        { id: '3-5', label: 'Professional', sub: '3-5 Yrs' },
+                                        { id: '5-8', label: 'Expert', sub: '5-8 Yrs' },
+                                        { id: '8+', label: 'Lead', sub: '8+ Yrs' }
                                     ].map((lvl) => {
                                         const isSelected = data.basics.experienceLevel === lvl.id;
                                         return (
@@ -236,7 +237,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                                                 key={lvl.id}
                                                 // @ts-ignore - We know these IDs match the type
                                                 onClick={() => updateData({ basics: { ...data.basics, experienceLevel: lvl.id as any } })}
-                                                className={`p-5 min-[400px]:p-6 rounded-[2rem] border-2 text-left transition-all active:scale-[0.95] flex flex-col justify-between h-32 ${isSelected
+                                                className={`p-3 sm:p-4 rounded-xl border-2 text-left transition-all active:scale-[0.95] flex flex-col justify-between min-h-[72px] ${isSelected
                                                     ? 'bg-white border-gray-300 shadow-md'
                                                     : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                                     }`}
@@ -256,15 +257,15 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                                 </div>
                             </div>
 
-                            {/* Target Market - Master Refinement */}
-                            <div className="pb-10">
-                                <div className="flex items-center gap-4 mb-6 px-2">
-                                    <div className="w-10 h-10 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                        <Globe size={20} className="text-gray-700" strokeWidth={2.5} />
+                            {/* Target Market */}
+                            <div className="pb-4">
+                                <div className="flex items-center gap-2 mb-3 px-1">
+                                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                        <Globe size={16} className="text-gray-600" strokeWidth={2.5} />
                                     </div>
-                                    <h2 className="text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase text-gray-600">Target Market</h2>
+                                    <h2 className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Target Market</h2>
                                 </div>
-                                <div className="grid grid-cols-1 gap-4">
+                                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                     {[
                                         { id: 'india', label: 'India', sub: 'Domestic Market', icon: 'IN' },
                                         { id: 'us', label: 'USA', sub: 'International (US)', icon: 'US' },
@@ -277,7 +278,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                                                 key={m.id}
                                                 // @ts-ignore
                                                 onClick={() => updateData({ basics: { ...data.basics, targetMarket: m.id as any } })}
-                                                className={`p-5 min-[400px]:p-6 rounded-[2.5rem] border-2 text-left transition-all active:scale-[0.98] flex items-center justify-between ${isSelected
+                                                className={`p-3 sm:p-4 rounded-xl border-2 text-left transition-all active:scale-[0.98] flex items-center justify-between gap-3 ${isSelected
                                                     ? 'bg-white border-gray-300 shadow-md'
                                                     : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                                     }`}
@@ -302,19 +303,19 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                                 </div>
                             </div>
 
-                            {/* Job Description - Master Refinement */}
-                            <div className="pb-10">
-                                <div className="flex items-center gap-4 mb-6 px-2">
-                                    <div className="w-10 h-10 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                        <FileText size={20} className="text-gray-700" strokeWidth={2.5} />
+                            {/* Job Description (Optional) */}
+                            <div className="pb-4">
+                                <div className="flex items-center gap-2 mb-3 px-1">
+                                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                        <FileText size={16} className="text-gray-600" strokeWidth={2.5} />
                                     </div>
-                                    <h2 className="text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase text-gray-600">Job Description <span className="opacity-70 text-gray-500 ml-1">(Optional)</span></h2>
+                                    <h2 className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Job Description <span className="text-gray-400 font-normal">(optional)</span></h2>
                                 </div>
-                                <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm overflow-hidden">
+                                <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm overflow-hidden">
                                     <textarea
                                         value={data.jobDescription || ''}
                                         onChange={(e) => updateData({ jobDescription: e.target.value })}
-                                        className="w-full bg-transparent border-none text-[15px] sm:text-[16px] font-medium text-gray-900 placeholder:text-gray-400 focus:ring-0 p-0 min-h-[180px] sm:min-h-[250px] resize-none leading-relaxed"
+                                        className="w-full bg-transparent border-none text-[14px] font-medium text-gray-900 placeholder:text-gray-400 focus:ring-0 p-0 min-h-[120px] sm:min-h-[160px] resize-none leading-relaxed"
                                         placeholder="Paste the job description here for AI optimization..."
                                     />
                                 </div>
@@ -322,14 +323,13 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                         </div>
                     </div>
 
-                    {/* Sticky Bottom CTA - Master Safety */}
-                    <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-white/95 backdrop-blur border-t border-gray-200 safe-area-bottom z-[200]">
+                    <div className="mobile-app-sticky fixed bottom-0 left-0 right-0 p-4 z-[200]">
                         <button
                             onClick={navigateToDashboard}
                             disabled={!data.basics.targetRole?.trim() || !data.basics.experienceLevel || !data.basics.targetMarket}
-                            className={`w-full h-15 sm:h-18 rounded-[2rem] font-black text-[15px] sm:text-[16px] uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-4 shadow-2xl ${data.basics.targetRole?.trim() && data.basics.experienceLevel && data.basics.targetMarket
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-200'
+                            className={`mobile-app-cta w-full min-h-[52px] rounded-[14px] font-bold text-[16px] transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${data.basics.targetRole?.trim() && data.basics.experienceLevel && data.basics.targetMarket
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                 }`}
                         >
                             <Sparkles size={24} strokeWidth={3} className="sm:scale-110" />

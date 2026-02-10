@@ -93,22 +93,21 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
 
     // Layout Wrapper - one primary CTA per screen
     const SectionWrapper = ({ children, isDoneEnabled = true }: any) => (
-        <div className="h-full bg-gray-50 flex flex-col relative overflow-hidden">
+        <div className="mobile-app h-full bg-gray-50 flex flex-col relative overflow-hidden">
             <MobileHeader title={getSectionTitle()} onBack={onBack} showNext={false} variant="light" />
 
-            <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 pt-24 pb-60 scrollbar-hide relative z-10 text-gray-900">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 pt-20 pb-56 scrollbar-hide relative z-10 text-gray-900">
                 {children}
             </div>
 
-            {/* Sticky bottom: one primary CTA — Save & Preview or Save */}
-            <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-white/95 backdrop-blur border-t border-gray-200 safe-area-bottom z-[200]">
+            <div className="mobile-app-sticky fixed bottom-0 left-0 right-0 p-4 z-[200]">
                 <button
                     onClick={handleStickyCta}
                     disabled={!isDoneEnabled}
-                    className="w-full min-h-[52px] sm:min-h-[56px] rounded-2xl bg-blue-600 text-white font-bold text-[15px] sm:text-[16px] transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:bg-gray-200 disabled:text-gray-500 shadow-md touch-manipulation"
+                    className="mobile-app-cta w-full min-h-[52px] rounded-[14px] bg-blue-600 text-white font-bold text-[16px] flex items-center justify-center gap-3 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={stickyLabel}
                 >
-                    <CheckCircle2 size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />
+                    <CheckCircle2 size={22} strokeWidth={3} aria-hidden />
                     <span>{stickyLabel}</span>
                 </button>
             </div>

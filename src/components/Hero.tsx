@@ -2,7 +2,8 @@
 
 import { useState, useRef } from "react";
 import { Upload, Check, X, Zap, ShieldCheck } from "lucide-react";
-import { TestimonialsSlider } from "./TestimonialsSlider";
+import { FeedbackStrip } from "./FeedbackStrip";
+import { SiteFooter } from "./SiteFooter";
 
 interface HeroProps {
     onStart: () => void;
@@ -209,8 +210,8 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                     </div>
                 </div>
 
-                {/* RIGHT PANEL - 50% */}
-                <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 pt-24 overflow-hidden">
+                {/* RIGHT PANEL - 50% - extra top padding so resume preview clears nav */}
+                <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 pt-40 overflow-hidden">
                     {/* Resume Preview - Large & Crystal Clear */}
                     <div className="relative w-full max-w-2xl">
                         {/* Resume Shadow */}
@@ -243,8 +244,14 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                 </div>
             </div>
 
-            {/* Footer space - removed fake testimonials */}
-            <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-slate-50 to-transparent"></div>
+            {/* Real feedback — horizontal strip below hero */}
+            <div className="w-full hidden lg:block">
+                <FeedbackStrip />
+            </div>
+            {/* Legal footer for PayU verification: name, address, pricing */}
+            <div className="w-full hidden lg:block">
+                <SiteFooter />
+            </div>
 
             {/* Mobile View (Redesigned) */}
             <div className="lg:hidden fixed inset-0 flex flex-col bg-white overflow-y-auto pt-0 pb-6 selection:bg-gray-900 selection:text-white">
@@ -357,9 +364,14 @@ export function Hero({ onStart, onUpload, showFeedbackSuccess }: HeroProps) {
                     </div>
                 </div>
 
-                {/* Testimonials Section */}
-                <div id="testimonials" className="w-full">
-                    <TestimonialsSlider />
+                {/* Real feedback — horizontal strip below hero */}
+                <div id="feedback" className="w-full">
+                    <FeedbackStrip />
+                </div>
+
+                {/* Legal footer for PayU: name, address, pricing */}
+                <div className="w-full lg:hidden mt-6">
+                    <SiteFooter compact />
                 </div>
             </div>
         </section>

@@ -46,37 +46,36 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
     const progress = Math.round((completedCount / resumeSections.length) * 100);
 
     return (
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50 text-gray-900">
-            {/* Context Header Area */}
-            <div className="px-5 sm:px-6 pt-20 pb-8">
-                <div className="flex items-center justify-between mb-8 px-1">
+        <div className="mobile-app flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50 text-gray-900">
+            {/* Context Header Area — compact to reduce scroll */}
+            <div className="px-4 sm:px-5 pt-16 pb-4">
+                <div className="flex items-center justify-between mb-4 px-1">
                     <div className="min-w-0">
-                        <h2 className="text-[24px] sm:text-[28px] font-bold tracking-tight leading-tight mb-1 truncate text-gray-900">
+                        <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight leading-tight mb-0.5 truncate text-gray-900">
                             RESUME BUILDER
                         </h2>
-                        <p className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-[0.3em]">Vertical Flow Interface</p>
+                        <p className="text-[8px] sm:text-[9px] font-semibold text-gray-500 uppercase tracking-widest">Vertical flow</p>
                     </div>
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <Sparkles size={24} className="text-gray-600 animate-pulse" />
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <Sparkles size={20} className="text-gray-600" />
                     </div>
                 </div>
 
                 {/* Target Role Setup Card - "Step 0" / Context */}
                 <button
                     onClick={() => onNavigateToSection('target-jd')}
-                    className={`w-full p-6 rounded-2xl transition-all border-2 flex items-center gap-5 group relative overflow-hidden ${isContextReady
-                        ? 'bg-white border-gray-200 shadow-sm'
-                        : 'bg-white border-gray-200 border-dashed'
+                    className={`mobile-app-card w-full p-4 rounded-[14px] transition-all flex items-center gap-3 group relative overflow-hidden ${isContextReady
+                        ? 'border border-gray-200/80'
+                        : 'border-2 border-dashed border-gray-300 bg-gray-50/50'
                         }`}
                 >
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isContextReady ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${isContextReady ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'
                         }`}>
-                        <Target size={28} strokeWidth={2.5} />
+                        <Target size={22} strokeWidth={2.5} />
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                        <p className={`text-[9px] font-semibold uppercase tracking-[0.2em] mb-1 ${isContextReady ? 'text-gray-500' : 'text-gray-500'
-                            }`}>Resume Context</p>
-                        <h3 className={`text-[17px] sm:text-[18px] font-bold tracking-tight leading-tight truncate ${isContextReady ? 'text-gray-900' : 'text-gray-600'
+                        <p className="text-[8px] font-semibold uppercase tracking-wider mb-0.5 text-gray-500">Context</p>
+                        <h3 className={`text-[14px] sm:text-[15px] font-bold tracking-tight leading-tight truncate ${isContextReady ? 'text-gray-900' : 'text-gray-600'
                             }`}>
                             {data.basics.targetRole || 'Define Target Role'}
                         </h3>
@@ -93,11 +92,11 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </button>
             </div>
 
-            {/* Sections Flow List */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-4 pb-64 scrollbar-hide relative">
-                <div className="absolute left-[3.15rem] sm:left-[3.25rem] top-12 bottom-56 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-transparent" />
+            {/* Sections Flow List — compact spacing */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 py-2 pb-56 scrollbar-hide relative">
+                <div className="absolute left-[2.5rem] sm:left-[2.75rem] top-8 bottom-48 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-transparent" />
 
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-2.5 sm:space-y-3">
                     {resumeSections.map((section, index) => {
                         const isNextStep = index === resumeSections.findIndex(s => !s.complete);
                         const isDone = section.complete;
@@ -107,15 +106,15 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                             <button
                                 key={section.id}
                                 onClick={() => onNavigateToSection(section.id)}
-                                className={`w-full min-h-[56px] py-4 px-5 sm:px-6 rounded-2xl flex items-center justify-between gap-3 transition-all active:scale-[0.98] border-2 relative z-10 touch-manipulation ${isDone
-                                    ? 'bg-white border-gray-200 shadow-sm'
+                                className={`mobile-app-card w-full min-h-[48px] py-3 px-4 sm:px-5 rounded-[14px] flex items-center justify-between gap-2 transition-all active:scale-[0.98] border border-gray-200/80 relative z-10 touch-manipulation ${isDone
+                                    ? 'bg-white'
                                     : isNextStep
-                                        ? 'bg-white border-gray-300 shadow-md'
-                                        : 'bg-white/80 border-gray-100 opacity-90'
+                                        ? 'bg-white ring-1 ring-gray-300/80'
+                                        : 'bg-white/90'
                                     }`}
                                 aria-label={`${section.label}${hasWarning ? ', ATS issue' : ''}. ${isDone ? 'Complete' : 'Edit'}`}
                             >
-                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-[14px] sm:text-[15px] transition-all flex-shrink-0 ${isDone
+                                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-[13px] sm:text-[14px] transition-all flex-shrink-0 ${isDone
                                     ? 'bg-green-500 text-white'
                                     : isNextStep
                                         ? 'bg-gray-900 text-white'
@@ -145,7 +144,7 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                     })}
                 </div>
 
-                <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                <div className="mobile-app-card mt-8 p-5 rounded-[14px]">
                     <div className="flex items-center justify-between mb-4 px-1">
                         <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-600">Completion Status</span>
                         <span className="text-[18px] sm:text-[20px] font-bold text-gray-900">{progress}%</span>
@@ -159,10 +158,10 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </div>
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 p-5 sm:p-6 bg-white/95 backdrop-blur border-t border-gray-200 safe-area-bottom z-50">
+            <div className="mobile-app-sticky fixed bottom-0 left-0 right-0 p-4 z-50">
                 <button
                     onClick={onContinue}
-                    className="w-full min-h-[52px] sm:min-h-[56px] rounded-2xl bg-blue-600 text-white font-bold text-[16px] sm:text-[17px] transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-md touch-manipulation"
+                    className="mobile-app-cta w-full min-h-[52px] rounded-[14px] bg-blue-600 text-white font-bold text-[16px] flex items-center justify-center gap-3 touch-manipulation"
                     aria-label="Preview resume"
                 >
                     <Eye size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />

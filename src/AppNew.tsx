@@ -340,6 +340,7 @@ export default function AppNew() {
                             <PreviewPage
                                 data={resume}
                                 onBack={() => navigate('/editor')}
+                                onGoHome={() => navigate('/')}
                             />
                         </Suspense>
                     } />

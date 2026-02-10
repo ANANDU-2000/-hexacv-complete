@@ -198,7 +198,7 @@
   color: #444;
 }
 
-/* Mobile preview: PDF-viewer style — full-width page, A4 proportion, no zoom */
+/* Mobile preview (legacy): used when single-page viewport is not active */
 .mobile-preview-doc {
   width: 92vw;
   max-width: 420px;
@@ -214,4 +214,9 @@
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
+}
+
+/* Mobile PDF-viewer: one page at a time, scaled to fit width (no scroll, Prev/Next) */
+.mobile-pdf-viewport .page {
+  margin-bottom: 24px;
 }

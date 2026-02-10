@@ -252,7 +252,7 @@ export default function AppNew() {
     };
 
     // Handle PDF file upload
-    const handleFileUpload = async (file: File) => {
+    const handleFileUpload = async (file: File, context?: RoleContext) => {
         setProcessing(true);
         try {
             const pdfjsLib = (window as any).pdfjsLib;
@@ -270,7 +270,19 @@ export default function AppNew() {
             }
 
             const result = await parseResumeWithAI(extractedText);
-            setResume(mapParsedToResumeData(result.resume));
+            const parsedData = mapParsedToResumeData(result.resume);
+
+            // Merge context from Hero input if provided (overrides parsed data)
+            if (context) {
+                if (context.roleTitle) parsedData.basics.targetRole = context.roleTitle;
+                if (context.experienceLevel) parsedData.basics.experienceLevel = context.experienceLevel as any;
+                if (context.market) parsedData.basics.targetMarket = context.market as any;
+                if (context.jdText) parsedData.jobDescription = context.jdText;
+                // Ensure role context is set too
+                setRoleContext(context);
+            }
+
+            setResume(parsedData);
 
             setTimeout(() => {
                 navigate('/editor');

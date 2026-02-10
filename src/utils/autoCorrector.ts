@@ -29,7 +29,7 @@ const COMMON_TYPOS: Record<string, string> = {
     'node js': 'Node.js',
     'vuejs': 'Vue.js',
     'vue js': 'Vue.js',
-    
+
     // Common words
     'resume': 'resume',
     'cv': 'CV',
@@ -41,7 +41,7 @@ const COMMON_TYPOS: Record<string, string> = {
     'aws': 'AWS',
     'azure': 'Azure',
     'gcp': 'GCP',
-    
+
     // Experience levels
     'fresher': 'Fresher',
     'junior': 'Junior',
@@ -57,7 +57,7 @@ export function autoCorrect(text: string): Correction | null {
     if (!text || text.trim().length < 2) return null;
 
     const lowerText = text.toLowerCase().trim();
-    
+
     // Check for exact matches
     if (COMMON_TYPOS[lowerText]) {
         return {
@@ -92,7 +92,7 @@ export function autoCorrect(text: string): Correction | null {
                 .replace(/\s+/g, '')
                 .replace(/@gmail\.com/g, '@gmail.com')
                 .replace(/@yahoo\.com/g, '@yahoo.com');
-            
+
             if (emailRegex.test(fixed) && fixed !== text) {
                 return {
                     original: text,
@@ -142,7 +142,7 @@ export function autoCorrectWithSuggestions(text: string): {
     applied: boolean;
 } {
     const correction = autoCorrect(text);
-    
+
     if (correction && correction.confidence > 0.7) {
         return {
             corrected: correction.corrected,
@@ -157,3 +157,38 @@ export function autoCorrectWithSuggestions(text: string): {
         applied: false
     };
 }
+
+/**
+ * Clean text for display (fixes common tokenization errors)
+ */
+export function cleanResumeText(text: string): string {
+    if (!text) return text;
+    let current = text;
+
+    const patterns = [
+        { from: /Java Script/gi, to: 'JavaScript' },
+        { from: /Tensor Flow/gi, to: 'TensorFlow' },
+        { from: /Mongo DB/gi, to: 'MongoDB' },
+        { from: /Git Hub/gi, to: 'GitHub' },
+        { from: /Postgre SQL/gi, to: 'PostgreSQL' },
+        { from: /Open AI/gi, to: 'OpenAI' },
+        { from: /Lang Chain/gi, to: 'LangChain' },
+        { from: /Fast API/gi, to: 'FastAPI' },
+        { from: /Num Py/gi, to: 'NumPy' },
+        { from: /S 3/gi, to: 'S3' },
+        { from: /EC 2/gi, to: 'EC2' },
+        { from: /F 1\//gi, to: 'F1/' }, // Specific for score
+        { from: /React \. js/gi, to: 'React.js' },
+        { from: /Node \. js/gi, to: 'Node.js' },
+        { from: /Vue \. js/gi, to: 'Vue.js' },
+        { from: /Micro Services/gi, to: 'Microservices' },
+        { from: /Sci Kit/gi, to: 'Scikit' },
+    ];
+
+    patterns.forEach(p => {
+        current = current.replace(p.from, p.to);
+    });
+
+    return current;
+}
+

@@ -5,10 +5,11 @@ import { Upload, Check, X, Zap, ShieldCheck, ChevronDown } from "lucide-react";
 import { FeedbackStrip } from "./FeedbackStrip";
 import { SiteFooter } from "./SiteFooter";
 import type { RoleContext, ExperienceLevel, TargetMarket } from "../core/resumeIntelligence";
+import { getRoleSuggestions } from "../constants/roles";
 
 interface HeroProps {
     onStart: () => void;
-    onUpload: (file: File) => void;
+    onUpload: (file: File, context?: RoleContext) => void;
     onRoleStart?: (ctx: RoleContext, mode: 'upload' | 'scratch') => void;
     showFeedbackSuccess?: boolean;
 }
@@ -17,12 +18,17 @@ interface HeroProps {
 type HeroUploadState = 'idle' | 'dragging' | 'uploading' | 'success' | 'error';
 
 // ===== ROLE CARD (right side) =====
-function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, mode: 'upload' | 'scratch') => void; onUpload: (file: File) => void }) {
+function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, mode: 'upload' | 'scratch') => void; onUpload: (file: File, context?: RoleContext) => void }) {
     const [role, setRole] = useState('');
     const [level, setLevel] = useState<ExperienceLevel>('fresher');
     const [market, setMarket] = useState<TargetMarket>('india');
     const [jd, setJd] = useState('');
     const [jdOpen, setJdOpen] = useState(false);
+
+    // Suggestion state
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
     const fileRef = useRef<HTMLInputElement>(null);
 
     const ctx: RoleContext = { roleTitle: role, experienceLevel: level, market, jdText: jd, year: 2026 };
@@ -30,7 +36,24 @@ function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, m
 
     const handleUpload = (file: File) => {
         onRoleStart(ctx, 'upload');
-        onUpload(file);
+        onUpload(file, ctx);
+    };
+
+    // Suggestion logic
+    const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setRole(val);
+        if (val.length > 2) {
+            setSuggestions(getRoleSuggestions(val));
+            setShowSuggestions(true);
+        } else {
+            setShowSuggestions(false);
+        }
+    };
+
+    const selectRole = (r: string) => {
+        setRole(r);
+        setShowSuggestions(false);
     };
 
     return (
@@ -40,12 +63,32 @@ function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, m
 
             {/* Target Role */}
             <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider mb-1 block">Target Role</label>
-            <input
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                placeholder="e.g. Generative AI Engineer"
-                className="w-full h-11 px-3 border border-gray-200 rounded-lg text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none mb-4"
-            />
+            <div className="relative mb-4">
+                <input
+                    value={role}
+                    onChange={handleRoleChange}
+                    onFocus={() => { if (role.length > 2) setShowSuggestions(true); }}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    placeholder="e.g. Generative AI Engineer"
+                    className="w-full h-11 px-3 border border-gray-200 rounded-lg text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none"
+                    autoComplete="off"
+                />
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute top-12 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
+                        {suggestions.map((s, i) => (
+                            <div
+                                key={i}
+                                onMouseDown={() => selectRole(s)}
+                                className="px-4 py-2.5 text-sm text-gray-700 hover:bg-slate-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors"
+                            >
+                                {s}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Experience Level */}
             <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider mb-1.5 block">Experience</label>

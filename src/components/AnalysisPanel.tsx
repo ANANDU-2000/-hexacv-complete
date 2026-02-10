@@ -82,7 +82,12 @@ function AlertCard({
   );
 }
 
+// analysis: AnalysisResult | null
+// onAction: ...
+// loading: boolean
 export function AnalysisPanel({ analysis, onAction, loading = false }: AnalysisPanelProps) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
   if (loading) {
     return (
       <div className="p-4">
@@ -120,73 +125,88 @@ export function AnalysisPanel({ analysis, onAction, loading = false }: AnalysisP
     <div className="p-4 overflow-y-auto">
       {/* Summary strip */}
       <div className="mb-4 p-3 bg-white border border-gray-200 rounded-lg">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[13px] font-bold text-gray-900">Resume Analysis</span>
+        <div
+          className="flex items-center justify-between mb-2 cursor-pointer select-none"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] font-bold text-gray-900">Resume Analysis</span>
+            <ChevronRight size={16} className={`text-gray-400 transition-transform ${!isCollapsed ? 'rotate-90' : ''}`} />
+          </div>
           {atsMatch.score > 0 && (
-            <span className={`text-[12px] font-bold px-2 py-0.5 rounded-full ${
-              atsMatch.score >= 70 ? 'bg-emerald-100 text-emerald-700' :
-              atsMatch.score >= 40 ? 'bg-amber-100 text-amber-700' :
-              'bg-red-100 text-red-700'
-            }`}>
+            <span className={`text-[12px] font-bold px-2 py-0.5 rounded-full ${atsMatch.score >= 70 ? 'bg-emerald-100 text-emerald-700' :
+                atsMatch.score >= 40 ? 'bg-amber-100 text-amber-700' :
+                  'bg-red-100 text-red-700'
+              }`}>
               ATS: {atsMatch.score}%
             </span>
           )}
         </div>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <div>
-            <p className="text-[16px] font-bold text-emerald-600">{stats.verifiedSkills}</p>
-            <p className="text-[9px] text-gray-500 uppercase font-semibold">Verified</p>
+
+        {/* Toggleable Details */}
+        {!isCollapsed && (
+          <div className="mt-3">
+            <div className="grid grid-cols-4 gap-2 text-center border-t border-gray-100 pt-3">
+              <div>
+                <p className="text-[16px] font-bold text-emerald-600">{stats.verifiedSkills}</p>
+                <p className="text-[9px] text-gray-500 uppercase font-semibold">Verified</p>
+              </div>
+              <div>
+                <p className="text-[16px] font-bold text-amber-600">{stats.partialSkills}</p>
+                <p className="text-[9px] text-gray-500 uppercase font-semibold">Partial</p>
+              </div>
+              <div>
+                <p className="text-[16px] font-bold text-red-600">{stats.unverifiedSkills}</p>
+                <p className="text-[9px] text-gray-500 uppercase font-semibold">Unverified</p>
+              </div>
+              <div>
+                <p className="text-[16px] font-bold text-blue-600">{stats.missingForJd}</p>
+                <p className="text-[9px] text-gray-500 uppercase font-semibold">Missing</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-[16px] font-bold text-amber-600">{stats.partialSkills}</p>
-            <p className="text-[9px] text-gray-500 uppercase font-semibold">Partial</p>
-          </div>
-          <div>
-            <p className="text-[16px] font-bold text-red-600">{stats.unverifiedSkills}</p>
-            <p className="text-[9px] text-gray-500 uppercase font-semibold">Unverified</p>
-          </div>
-          <div>
-            <p className="text-[16px] font-bold text-blue-600">{stats.missingForJd}</p>
-            <p className="text-[9px] text-gray-500 uppercase font-semibold">Missing</p>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Blocking banner */}
-      {hasRedAlerts && (
-        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-          <XCircle size={18} className="text-red-500 shrink-0" />
-          <p className="text-[12px] font-semibold text-red-800">
-            {stats.redAlerts} issue{stats.redAlerts > 1 ? 's' : ''} must be resolved before generating your optimized resume.
-          </p>
-        </div>
-      )}
+      {!isCollapsed && (
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          {/* Blocking banner */}
+          {hasRedAlerts && (
+            <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+              <XCircle size={18} className="text-red-500 shrink-0" />
+              <p className="text-[12px] font-semibold text-red-800">
+                {stats.redAlerts} issue{stats.redAlerts > 1 ? 's' : ''} must be resolved before generating your optimized resume.
+              </p>
+            </div>
+          )}
 
-      {/* Alerts */}
-      {alerts.length === 0 ? (
-        <div className="text-center py-8">
-          <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-gray-700">All clear. Your resume looks good.</p>
-        </div>
-      ) : (
-        <div>
-          {alerts.map((alert) => (
-            <AlertCard key={alert.id} alert={alert} onAction={onAction} />
-          ))}
-        </div>
-      )}
+          {/* Alerts */}
+          {alerts.length === 0 ? (
+            <div className="text-center py-8">
+              <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700">All clear. Your resume looks good.</p>
+            </div>
+          ) : (
+            <div>
+              {alerts.map((alert) => (
+                <AlertCard key={alert.id} alert={alert} onAction={onAction} />
+              ))}
+            </div>
+          )}
 
-      {/* Missing JD keywords */}
-      {atsMatch.missingKeywords.length > 0 && (
-        <div className="mt-4 p-3 bg-white border border-gray-200 rounded-lg">
-          <p className="text-[12px] font-bold text-gray-900 mb-2">Missing JD keywords</p>
-          <div className="flex flex-wrap gap-1.5">
-            {atsMatch.missingKeywords.slice(0, 15).map((kw, i) => (
-              <span key={i} className="text-[11px] px-2 py-1 bg-gray-100 text-gray-600 rounded-md border border-gray-200">
-                {kw}
-              </span>
-            ))}
-          </div>
+          {/* Missing JD keywords */}
+          {atsMatch.missingKeywords.length > 0 && (
+            <div className="mt-4 p-3 bg-white border border-gray-200 rounded-lg">
+              <p className="text-[12px] font-bold text-gray-900 mb-2">Missing JD keywords</p>
+              <div className="flex flex-wrap gap-1.5">
+                {atsMatch.missingKeywords.slice(0, 15).map((kw, i) => (
+                  <span key={i} className="text-[11px] px-2 py-1 bg-gray-100 text-gray-600 rounded-md border border-gray-200">
+                    {kw}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

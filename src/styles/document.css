@@ -188,7 +188,7 @@
 
 /* Skills: bold category labels, ATS-friendly grouped items */
 .doc-skills-category {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   page-break-inside: avoid;
 }
 

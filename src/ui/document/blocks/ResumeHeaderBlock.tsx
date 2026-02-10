@@ -37,11 +37,17 @@ export function ResumeHeaderBlock({ data }: ResumeHeaderBlockProps) {
   if (data.linkedin) parts.push(link(data.linkedin));
   if (data.github) parts.push(link(data.github));
 
+  const targetRole = (data.title || '').trim();
   return (
     <header className="doc-section doc-header doc-header-with-photo">
       <div className="doc-header-main">
+        {targetRole ? (
+          <div className="doc-header-target-role">
+            <span className="doc-header-target-role-label">Target Role:</span>{' '}
+            <span className="doc-header-target-role-value">{escape(targetRole)}</span>
+          </div>
+        ) : null}
         <div className="doc-header-name">{escape(data.name || 'Your Name')}</div>
-        {data.title ? <div className="doc-header-title">{escape(data.title)}</div> : null}
         <div className="doc-header-contact">
           {parts.reduce<React.ReactNode[]>((acc, p, i) => (acc.length ? [...acc, <span key={`s-${i}`}> · </span>, p] : [p]), [])}
         </div>

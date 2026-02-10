@@ -3,8 +3,8 @@
 // NO login required, NO backend
 
 import React, { useState, useEffect } from 'react';
-import { getLocalStats, clearLocalAnalytics } from '../analytics/googleAnalytics';
-import { BarChart3, Download, FileText, Users, Sparkles, Trash2, ArrowLeft } from 'lucide-react';
+import { getLocalStats, getPaymentConversionRate, clearLocalAnalytics } from '../analytics/googleAnalytics';
+import { BarChart3, Download, FileText, Users, Sparkles, Trash2, ArrowLeft, CreditCard, TrendingUp, XCircle } from 'lucide-react';
 
 interface AnalyticsViewProps {
   onClose: () => void;
@@ -15,12 +15,17 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose }) => {
     totalResumes: 0,
     totalDownloads: 0,
     totalSessions: 0,
-    keywordExtractions: 0
+    keywordExtractions: 0,
+    paymentInitiated: 0,
+    paymentCompleted: 0,
+    paymentFailed: 0,
   });
 
   useEffect(() => {
     setStats(getLocalStats());
   }, []);
+
+  const conversionRate = getPaymentConversionRate();
 
   const handleClearData = () => {
     if (window.confirm('Clear all local analytics data? This cannot be undone.')) {
@@ -29,7 +34,10 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose }) => {
         totalResumes: 0,
         totalDownloads: 0,
         totalSessions: 0,
-        keywordExtractions: 0
+        keywordExtractions: 0,
+        paymentInitiated: 0,
+        paymentCompleted: 0,
+        paymentFailed: 0,
       });
     }
   };
@@ -86,6 +94,43 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose }) => {
             value={stats.keywordExtractions}
             bgColor="bg-amber-50"
           />
+        </div>
+
+        {/* Conversion: Payment funnel */}
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <CreditCard className="text-slate-600" size={20} />
+            Payment conversion
+          </h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              icon={<CreditCard className="text-slate-500" />}
+              label="Pay clicked"
+              value={stats.paymentInitiated}
+              bgColor="bg-slate-50"
+            />
+            <StatCard
+              icon={<TrendingUp className="text-emerald-500" />}
+              label="Payments completed"
+              value={stats.paymentCompleted}
+              bgColor="bg-emerald-50"
+            />
+            <StatCard
+              icon={<XCircle className="text-red-500" />}
+              label="Payments failed"
+              value={stats.paymentFailed}
+              bgColor="bg-red-50"
+            />
+            <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-center">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Conversion rate</p>
+              <p className="text-2xl font-black text-slate-900">
+                {conversionRate != null ? `${Math.round(conversionRate * 100)}%` : '—'}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                {stats.paymentInitiated === 0 ? 'No pay clicks yet' : 'Completed ÷ Pay clicked'}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Info Box */}

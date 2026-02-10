@@ -100,7 +100,7 @@ export function DocumentPreview({
         }}
       >
         {pageAssignments.map((pageBlocks, pageIndex) => (
-          <Page key={pageIndex}>
+          <Page key={pageIndex} isLast={pageIndex === pageAssignments.length - 1}>
             {pageBlocks.map((block, i) => (
               <React.Fragment key={i}>{renderBlock(block)}</React.Fragment>
             ))}

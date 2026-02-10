@@ -46,8 +46,11 @@ export const SoftLockModal: React.FC<SoftLockModalProps> = ({
             </li>
           ))}
         </ul>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 mb-2">
           Secure PayU payment. No login required. Unlock is confirmed only after payment success.
+        </p>
+        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
+          <strong>Tip:</strong> Use a valid UPI ID (e.g. yourname@paytm or yourname@ybl). Don&apos;t use Back or Refresh during payment — your resume is saved if you return.
         </p>
         {error && (
           <p className="text-sm text-red-600 mb-4" role="alert">

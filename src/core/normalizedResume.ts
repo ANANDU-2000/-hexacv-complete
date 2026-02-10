@@ -75,6 +75,50 @@ export function emptyNormalizedResume(): NormalizedResume {
 }
 
 // ---------------------------------------------------------------------------
+// ATS-friendly skill categorization: group flat list into bold categories
+// ---------------------------------------------------------------------------
+
+const SKILL_CATEGORY_KEYWORDS: Record<string, string[]> = {
+  'Programming Languages': ['python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'ruby', 'go', 'golang', 'rust', 'kotlin', 'swift', 'r ', 'sql', 'scala', 'php', 'html', 'css'],
+  'ML & AI': ['machine learning', 'ml', 'deep learning', 'nlp', 'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'scikit', 'openai', 'langchain', 'rag', 'llm', 'computer vision', 'neural', 'transformers', 'hugging face', 'gen ai', 'generative ai'],
+  'Frameworks & Libraries': ['react', 'node', 'django', 'flask', 'fastapi', 'spring', 'angular', 'vue', 'next', 'express', 'nest', 'jquery', 'bootstrap', 'tailwind'],
+  'Tools & Platforms': ['git', 'github', 'docker', 'kubernetes', 'aws', 'azure', 'gcp', 'jenkins', 'ci/cd', 'linux', 'jira', 'confluence', 'tableau', 'power bi', 'figma', 'postman', 'vs code', 'pandas', 'numpy'],
+  'Databases': ['sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'elasticsearch', 'dynamodb', 'firebase'],
+};
+
+function categorizeSkill(s: string): string {
+  const lower = s.toLowerCase().trim();
+  for (const [category, keywords] of Object.entries(SKILL_CATEGORY_KEYWORDS)) {
+    if (keywords.some((k) => lower.includes(k) || k.includes(lower))) return category;
+  }
+  return 'Other Skills';
+}
+
+function groupSkillsIntoCategories(skillStrings: string[]): NormalizedSkillCategory[] {
+  const raw = skillStrings.filter(Boolean).map((s) => String(s).trim());
+  if (raw.length === 0) return [];
+  const byCategory = new Map<string, string[]>();
+  for (const s of raw) {
+    const cat = categorizeSkill(s);
+    if (!byCategory.has(cat)) byCategory.set(cat, []);
+    const list = byCategory.get(cat)!;
+    if (!list.includes(s)) list.push(s);
+  }
+  const order = ['Programming Languages', 'ML & AI', 'Frameworks & Libraries', 'Tools & Platforms', 'Databases', 'Other Skills'];
+  const result: NormalizedSkillCategory[] = [];
+  for (const cat of order) {
+    const items = byCategory.get(cat);
+    if (items && items.length > 0) result.push({ category: cat, items });
+  }
+  const rest = [...byCategory.keys()].filter((c) => !order.includes(c));
+  for (const cat of rest) {
+    const items = byCategory.get(cat);
+    if (items && items.length > 0) result.push({ category: cat, items });
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // Mappers: ResumeData <-> NormalizedResume (editor can stay on ResumeData;
 // renderer and ATS use NormalizedResume)
 // ---------------------------------------------------------------------------
@@ -94,7 +138,7 @@ export function resumeDataToNormalized(data: ResumeData): NormalizedResume {
   };
 
   const skills: NormalizedSkillCategory[] = Array.isArray(data.skills) && data.skills.length > 0
-    ? [{ category: 'Skills', items: data.skills.filter(Boolean).map(String) }]
+    ? groupSkillsIntoCategories(data.skills.filter(Boolean).map(String))
     : [];
 
   const experience: NormalizedExperience[] = (data.experience ?? []).map((e: Experience) => ({

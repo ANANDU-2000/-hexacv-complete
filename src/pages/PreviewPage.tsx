@@ -12,6 +12,7 @@ import { getSessionId } from '../api-service';
 import { checkUnlockStatus } from '../core/payment/checkUnlock';
 import { createOrderAndPay } from '../core/payment/createOrder';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { trackPDFDownloaded, trackPaymentInitiated, trackPaymentCompleted, trackPaymentFailed, trackFunnelStep } from '../analytics/googleAnalytics';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, FileDown, ArrowLeft, Sparkles } from 'lucide-react';
 
 const FREE_TEMPLATE_ID = AVAILABLE_TEMPLATES[0]?.id ?? 'template1free';
@@ -106,6 +107,11 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
   const isFreeTemplate = selectedTemplateId === FREE_TEMPLATE_ID;
   const isLocked = !isFreeTemplate && !unlocked;
 
+  // Conversion funnel: user reached preview (step 4)
+  useEffect(() => {
+    trackFunnelStep({ step: 4, step_name: 'select_template', action: 'enter' });
+  }, []);
+
   const sessionId = getSessionId();
 
   // Unlock status (single source of truth from backend)
@@ -150,6 +156,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
 
     if (payment === 'failure') {
       setPaymentBanner('failed');
+      trackPaymentFailed({ template_id: selectedTemplateId, amount: 49, currency: 'INR', error: 'user_cancelled_or_failed' });
       clearParam();
       return;
     }
@@ -167,6 +174,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
               setUnlocked(true);
               setUnlockChecked(true);
               setPaymentBanner('verified');
+              trackPaymentCompleted({ template_id: selectedTemplateId, amount: 49, currency: 'INR' });
             } else if (pollAttempts.current < POLL_MAX_ATTEMPTS) {
               setTimeout(poll, POLL_INTERVAL_MS);
             } else {
@@ -192,6 +200,13 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
       const el = documentContentRef.current;
       if (el) {
         printDocumentPreview(el);
+        trackPDFDownloaded({
+          template_id: selectedTemplateId,
+          has_photo: !!(data.photoUrl ?? data.basics?.photoUrl),
+          page_count: documentPageCount,
+          word_count: undefined,
+        });
+        trackFunnelStep({ step: 5, step_name: 'download_pdf', action: 'complete' });
         setShowDownloadFeedbackModal(true);
       } else {
         alert('Preview not ready. Wait a moment and try again.');
@@ -202,7 +217,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
     } finally {
       setDownloading(false);
     }
-  }, [isLocked]);
+  }, [isLocked, selectedTemplateId, data.photoUrl, data.basics?.photoUrl, documentPageCount]);
 
   const handleUnlockClick = useCallback(() => {
     setSoftLockOpen(true);
@@ -216,6 +231,13 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
       setPaymentError('Please add your email in the editor so we can send your receipt.');
       return;
     }
+    // Save draft before redirect so Back/refresh doesn't lose resume
+    try {
+      localStorage.setItem(`hexacv_draft_${sessionId}`, JSON.stringify(data));
+    } catch {
+      // ignore quota errors
+    }
+    trackPaymentInitiated({ template_id: selectedTemplateId, amount: 49, currency: 'INR' });
     setPayLoading(true);
     try {
       const result = await createOrderAndPay(
@@ -227,6 +249,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
       );
       if (!result.success) {
         const msg = result.message || 'Payment not available. Check your connection or try again.';
+        trackPaymentFailed({ template_id: selectedTemplateId, amount: 49, currency: 'INR', error: msg });
         const isUnavailable = /temporarily|unavailable|5xx|server error/i.test(msg);
         setPaymentError(isUnavailable ? 'Payment temporarily unavailable. Try again later.' : msg);
       }
@@ -234,7 +257,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
     } finally {
       setPayLoading(false);
     }
-  }, [sessionId, selectedTemplateId, data.basics?.email, data.basics?.phone]);
+  }, [sessionId, selectedTemplateId, data, data.basics?.email, data.basics?.phone]);
 
   const dismissPaymentBanner = useCallback(() => setPaymentBanner(null), []);
 

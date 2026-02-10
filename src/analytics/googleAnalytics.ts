@@ -471,6 +471,9 @@ export const getLocalStats = (): {
   totalSessions: number;
   keywordExtractions: number;
   avgTimeOnPage: number;
+  paymentInitiated: number;
+  paymentCompleted: number;
+  paymentFailed: number;
 } => {
   try {
     const events: AnalyticsEvent[] = JSON.parse(
@@ -484,6 +487,10 @@ export const getLocalStats = (): {
       ? timeEvents.reduce((sum, e) => sum + (e.metadata?.duration_seconds || 0), 0) / timeEvents.length
       : 0;
 
+    const paymentInitiated = events.filter(e => e.event === 'payment_initiated').length;
+    const paymentCompleted = events.filter(e => e.event === 'payment_completed').length;
+    const paymentFailed = events.filter(e => e.event === 'payment_failed').length;
+
     return {
       totalResumes: events.filter(e => 
         e.event === 'resume_started' || e.event === 'resume_uploaded'
@@ -495,7 +502,10 @@ export const getLocalStats = (): {
       keywordExtractions: events.filter(e => 
         e.event === 'jd_keywords_extracted' || e.event === 'keyword_extraction'
       ).length,
-      avgTimeOnPage: Math.round(avgTime)
+      avgTimeOnPage: Math.round(avgTime),
+      paymentInitiated,
+      paymentCompleted,
+      paymentFailed,
     };
   } catch (e) {
     return {
@@ -503,9 +513,21 @@ export const getLocalStats = (): {
       totalDownloads: 0,
       totalSessions: 0,
       keywordExtractions: 0,
-      avgTimeOnPage: 0
+      avgTimeOnPage: 0,
+      paymentInitiated: 0,
+      paymentCompleted: 0,
+      paymentFailed: 0,
     };
   }
+};
+
+/**
+ * Conversion rate: payment completed / payment initiated (0–1 or null if no initiated).
+ */
+export const getPaymentConversionRate = (): number | null => {
+  const { paymentInitiated, paymentCompleted } = getLocalStats();
+  if (paymentInitiated === 0) return null;
+  return paymentCompleted / paymentInitiated;
 };
 
 /**

@@ -42,19 +42,19 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
         return titles[sectionId] || 'EDITOR';
     };
 
-    // Premium Input Component with Icon & High Contrast - Fluid & Responsive
+    // Premium Input Component with Icon - Optmized for Readability
     const InputField = ({ label, value, onChange, placeholder, type = "text", optional = false, icon: Icon }: any) => (
-        <div className="mb-5 sm:mb-6 w-full group">
-            <div className="flex items-center justify-between mb-2 px-1">
-                <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.15em] text-gray-600 group-focus-within:text-gray-900 transition-colors">
+        <div className="mb-4 w-full group">
+            <div className="flex items-center justify-between mb-1.5 px-0.5">
+                <label className="text-[13px] font-medium text-gray-700 group-focus-within:text-blue-600 transition-colors">
                     {label}
                 </label>
-                {optional && <span className="text-[8px] sm:text-[9px] font-semibold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">Optional</span>}
+                {optional && <span className="text-[11px] text-gray-400 font-normal">Optional</span>}
             </div>
             <div className="relative">
                 {Icon && (
-                    <div className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-700 transition-colors pointer-events-none">
-                        <Icon size={18} strokeWidth={2.5} className="sm:scale-110" />
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors pointer-events-none">
+                        <Icon size={18} strokeWidth={2} />
                     </div>
                 )}
                 <input
@@ -62,24 +62,24 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                     value={value || ''}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className={`w-full h-12 sm:h-14 bg-white border border-gray-200 rounded-xl sm:rounded-2xl text-[15px] sm:text-[16px] font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all ${Icon ? 'pl-12 sm:pl-14 pr-4 sm:pr-6' : 'px-4 sm:px-6'}`}
+                    className={`w-full h-11 bg-white border border-gray-300 rounded-[10px] text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all ${Icon ? 'pl-10 pr-3' : 'px-3'}`}
                 />
             </div>
         </div>
     );
 
     const TextAreaField = ({ label, value, onChange, placeholder, rows = 3, icon: Icon }: any) => (
-        <div className="mb-5 sm:mb-6 w-full group">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 px-1">
-                {Icon && <Icon size={14} className="text-gray-400 group-focus-within:text-gray-700 transition-colors sm:scale-110" strokeWidth={3} />}
-                <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.15em] text-gray-600 group-focus-within:text-gray-900 transition-colors">{label}</label>
+        <div className="mb-4 w-full group">
+            <div className="flex items-center gap-2 mb-1.5 px-0.5">
+                {Icon && <Icon size={14} className="text-gray-400 group-focus-within:text-blue-600 transition-colors" strokeWidth={2} />}
+                <label className="text-[13px] font-medium text-gray-700 group-focus-within:text-blue-600 transition-colors">{label}</label>
             </div>
             <textarea
                 value={value || ''}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 rows={rows}
-                className="w-full px-4 py-4 sm:px-5 sm:py-5 bg-white border border-gray-200 rounded-xl sm:rounded-2xl text-[15px] sm:text-[16px] font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none leading-relaxed"
+                className="w-full px-3 py-3 bg-white border border-gray-300 rounded-[10px] text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-none leading-relaxed"
             />
         </div>
     );
@@ -406,23 +406,23 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                     <span>Add New Project</span>
                 </button>
 
-                <div className="space-y-12 pb-10">
+                <div className="space-y-4 pb-10">
                     {items.map((item, idx) => (
-                        <div key={item.id} className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm relative group overflow-hidden">
-                            <div className="absolute top-0 left-0 right-0 h-14 sm:h-16 bg-white/5 border-b border-white/10 flex items-center justify-between px-6 sm:px-8">
-                                <span className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">Project 0{items.length - idx}</span>
+                        <div key={item.id} className="bg-white border border-gray-200 rounded-[14px] p-4 shadow-sm relative group overflow-hidden">
+                            <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                                <span className="text-[12px] font-bold text-gray-500">Project {items.length - idx}</span>
                                 <button
                                     onClick={() => deleteItem(idx)}
-                                    className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all"
+                                    className="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"
                                 >
-                                    <Trash2 size={18} strokeWidth={2.5} />
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
 
-                            <div className="pt-12 sm:pt-14 space-y-4">
-                                <InputField label="Project Name" icon={FileText} value={item.name} onChange={(v: string) => updateItem(idx, 'name', v)} placeholder="E-commerce Engine" />
-                                <TextAreaField label="Tech Stack" icon={Plus} value={(item.tech || []).join(', ')} onChange={(v: string) => updateItem(idx, 'tech', v)} placeholder="React, Node.js, Stripe" rows={2} />
-                                <TextAreaField label="Description" icon={Sparkles} value={item.description} onChange={(v: string) => updateItem(idx, 'description', v)} placeholder="Describe your contribution and the impact..." rows={6} />
+                            <div className="space-y-2">
+                                <InputField label="Project Name" icon={FileText} value={item.name} onChange={(v: string) => updateItem(idx, 'name', v)} placeholder="e.g. E-commerce Platform" />
+                                <TextAreaField label="Tech Stack" icon={Plus} value={(item.tech || []).join(', ')} onChange={(v: string) => updateItem(idx, 'tech', v)} placeholder="React, Node.js..." rows={1} />
+                                <TextAreaField label="Description" icon={Sparkles} value={item.description} onChange={(v: string) => updateItem(idx, 'description', v)} placeholder="What did you build and achieve?" rows={4} />
                             </div>
                         </div>
                     ))}
@@ -447,23 +447,23 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                     <span>Add Education</span>
                 </button>
 
-                <div className="space-y-12 pb-10">
+                <div className="space-y-4 pb-10">
                     {items.map((item, idx) => (
-                        <div key={item.id} className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm relative group overflow-hidden">
-                            <div className="absolute top-0 left-0 right-0 h-14 sm:h-16 bg-gray-50 border-b border-gray-200 flex items-center justify-between px-6 sm:px-8">
-                                <span className="text-[10px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-[0.25em]">Academic 0{items.length - idx}</span>
+                        <div key={item.id} className="bg-white border border-gray-200 rounded-[14px] p-4 shadow-sm relative group overflow-hidden">
+                            <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                                <span className="text-[12px] font-bold text-gray-500">Education {items.length - idx}</span>
                                 <button
                                     onClick={() => deleteItem(idx)}
-                                    className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all"
+                                    className="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"
                                 >
-                                    <Trash2 size={18} strokeWidth={2.5} />
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
 
-                            <div className="pt-12 sm:pt-14 space-y-4">
-                                <InputField label="Degree / Course" icon={GraduationCap} value={item.degree} onChange={(v: string) => updateItem(idx, 'degree', v)} placeholder="B.Tech in AI" />
-                                <InputField label="Institution" icon={Globe} value={item.institution} onChange={(v: string) => updateItem(idx, 'institution', v)} placeholder="IIT Madras" />
-                                <InputField label="Graduation Year" icon={Calendar} value={item.graduationDate} onChange={(v: string) => updateItem(idx, 'graduationDate', v)} placeholder="2024" />
+                            <div className="space-y-2">
+                                <InputField label="Degree / Course" icon={GraduationCap} value={item.degree} onChange={(v: string) => updateItem(idx, 'degree', v)} placeholder="e.g. B.Tech Computer Science" />
+                                <InputField label="Institution" icon={Globe} value={item.institution} onChange={(v: string) => updateItem(idx, 'institution', v)} placeholder="e.g. IIT Madras" />
+                                <InputField label="Graduation Year" icon={Calendar} value={item.graduationDate} onChange={(v: string) => updateItem(idx, 'graduationDate', v)} placeholder="e.g. 2024" />
                             </div>
                         </div>
                     ))}
@@ -488,27 +488,27 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                     <span>Add Milestone</span>
                 </button>
 
-                <div className="space-y-12 pb-10">
+                <div className="space-y-4 pb-10">
                     {items.map((item, idx) => (
-                        <div key={item.id} className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm relative group overflow-hidden">
-                            <div className="absolute top-0 left-0 right-0 h-14 sm:h-16 bg-gray-50 border-b border-gray-200 flex items-center justify-between px-6 sm:px-8">
-                                <span className="text-[10px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-[0.25em]">Award 0{items.length - idx}</span>
+                        <div key={item.id} className="bg-white border border-gray-200 rounded-[14px] p-4 shadow-sm relative group overflow-hidden">
+                            <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                                <span className="text-[12px] font-bold text-gray-500">Milestone {items.length - idx}</span>
                                 <button
                                     onClick={() => deleteItem(idx)}
-                                    className="min-w-[44px] min-h-[44px] rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center active:bg-red-500 active:text-white active:border-red-500 transition-all"
+                                    className="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"
                                 >
-                                    <Trash2 size={18} strokeWidth={2.5} />
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
 
-                            <div className="pt-12 sm:pt-14 space-y-4">
+                            <div className="space-y-2">
                                 <TextAreaField
                                     label="Description"
                                     icon={Award}
                                     value={item.description}
                                     onChange={(v: string) => updateItem(idx, v)}
-                                    placeholder="e.g. Winner of Global Hackathon 2023..."
-                                    rows={5}
+                                    placeholder="e.g. Won 1st place in National Hackathon..."
+                                    rows={4}
                                 />
                             </div>
                         </div>
@@ -517,6 +517,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
             </SectionWrapper>
         );
     }
+
 
     return (
         <SectionWrapper>

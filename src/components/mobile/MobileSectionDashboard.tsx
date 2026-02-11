@@ -124,7 +124,7 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                                 </div>
 
                                 <div className="flex-1 text-left px-3 min-w-0">
-                                    <h3 className={`text-[15px] sm:text-[17px] font-bold uppercase tracking-[0.12em] transition-all truncate ${isNextStep ? 'text-gray-900' : 'text-gray-800'}`}>
+                                    <h3 className={`text-[16px] sm:text-[18px] font-bold tracking-tight transition-all truncate ${isNextStep ? 'text-gray-900' : 'text-gray-800'}`}>
                                         {section.label}
                                     </h3>
                                 </div>

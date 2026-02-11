@@ -69,12 +69,12 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
     const [atsScore, setAtsScore] = useState<number | null>(null);
     const [atsMissing, setAtsMissing] = useState<string[]>([]);
 
-    // Resume Intelligence (mobile)
-    const [mobileAnalysis, setMobileAnalysis] = useState<import('../../core/resumeIntelligence').AnalysisResult | null>(null);
-    const [showAlertWizard, setShowAlertWizard] = useState(false);
-    const [alertWizardIdx, setAlertWizardIdx] = useState(0);
+    // Resume Intelligence (mobile) - Wizard removed as requested
+    // const [mobileAnalysis, setMobileAnalysis] = useState<import('../../core/resumeIntelligence').AnalysisResult | null>(null);
+    // const [showAlertWizard, setShowAlertWizard] = useState(false);
+    // const [alertWizardIdx, setAlertWizardIdx] = useState(0);
 
-    useEffect(() => {
+    /* useEffect(() => {
         if (!roleContext) return;
         import('../../core/resumeIntelligence').then(({ analyzeResume }) => {
             const result = analyzeResume(data, roleContext, data.jobDescription);
@@ -85,7 +85,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                 setAlertWizardIdx(0);
             }
         });
-    }, [data, roleContext]);
+    }, [data, roleContext]); */
 
     const resumeText = useMemo(() => resumeToText(data), [data]);
     const jdText = data.jobDescription?.trim() ?? '';
@@ -159,22 +159,9 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
     return (
         <div className="flex flex-col h-[100dvh] bg-gray-50 relative font-sans overflow-hidden">
             {/* Dashboard View - Master Shell Fix */}
-            {/* Mobile Alert Wizard — shown before dashboard when roleContext has red alerts */}
-            {showAlertWizard && mobileAnalysis && (
-                <MobileAlertWizard
-                    alerts={mobileAnalysis.alerts}
-                    currentIndex={alertWizardIdx}
-                    onAction={(alertId: string, actionId: string, payload?: Record<string, unknown>) => {
-                        if (actionId === 'remove_skill' && payload?.skill) {
-                            onChange({ ...data, skills: data.skills.filter((s: string) => s.toLowerCase() !== String(payload.skill).toLowerCase()) });
-                        }
-                    }}
-                    onNext={() => setAlertWizardIdx((i: number) => i + 1)}
-                    onDone={() => { setShowAlertWizard(false); setAlertWizardIdx(0); }}
-                />
-            )}
+            {/* Mobile Alert Wizard removed */}
 
-            {currentView === 'dashboard' && !showAlertWizard && (
+            {currentView === 'dashboard' && (
                 <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
                     {/* Role context bar (mobile) */}
                     {roleContext && (

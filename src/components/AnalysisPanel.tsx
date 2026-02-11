@@ -86,7 +86,7 @@ function AlertCard({
 // onAction: ...
 // loading: boolean
 export function AnalysisPanel({ analysis, onAction, loading = false }: AnalysisPanelProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(true);
 
   if (loading) {
     return (
@@ -135,8 +135,8 @@ export function AnalysisPanel({ analysis, onAction, loading = false }: AnalysisP
           </div>
           {atsMatch.score > 0 && (
             <span className={`text-[12px] font-bold px-2 py-0.5 rounded-full ${atsMatch.score >= 70 ? 'bg-emerald-100 text-emerald-700' :
-                atsMatch.score >= 40 ? 'bg-amber-100 text-amber-700' :
-                  'bg-red-100 text-red-700'
+              atsMatch.score >= 40 ? 'bg-amber-100 text-amber-700' :
+                'bg-red-100 text-red-700'
               }`}>
               ATS: {atsMatch.score}%
             </span>

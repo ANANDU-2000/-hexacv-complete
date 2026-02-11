@@ -18,7 +18,7 @@ interface HeroProps {
 type HeroUploadState = 'idle' | 'dragging' | 'uploading' | 'success' | 'error';
 
 // ===== ROLE CARD (right side) =====
-function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, mode: 'upload' | 'scratch') => void; onUpload: (file: File, context?: RoleContext) => void }) {
+function RoleCard({ onRoleStart, onUpload, viewId }: { onRoleStart: (ctx: RoleContext, mode: 'upload' | 'scratch') => void; onUpload: (file: File, context?: RoleContext) => void; viewId: string }) {
     const [role, setRole] = useState('');
     const [level, setLevel] = useState<ExperienceLevel>('fresher');
     const [market, setMarket] = useState<TargetMarket>('india');
@@ -55,6 +55,8 @@ function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, m
         setRole(r);
         setShowSuggestions(false);
     };
+
+    const uploadId = `role-card-upload-${viewId}`;
 
     return (
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mx-auto lg:mx-0">
@@ -148,7 +150,7 @@ function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, m
 
             {/* CTAs */}
             <div className="space-y-2 mt-4">
-                <label htmlFor="role-card-upload" className="block w-full cursor-pointer">
+                <label htmlFor={uploadId} className="block w-full cursor-pointer">
                     <div className={`w-full min-h-[48px] rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 transition-all ${canProceed ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98]' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
                         <Upload size={18} />
                         Upload & analyze my resume
@@ -156,7 +158,7 @@ function RoleCard({ onRoleStart, onUpload }: { onRoleStart: (ctx: RoleContext, m
                 </label>
                 <input
                     ref={fileRef}
-                    id="role-card-upload"
+                    id={uploadId}
                     type="file"
                     accept="application/pdf"
                     className="hidden"
@@ -379,7 +381,7 @@ export function Hero({ onStart, onUpload, onRoleStart, showFeedbackSuccess }: He
                 {/* RIGHT PANEL - Role Card (premium card feel) */}
                 <div className="hidden lg:flex w-1/2 h-full bg-gradient-to-br from-slate-50 to-slate-100 relative items-center justify-center p-8 overflow-hidden">
                     {onRoleStart ? (
-                        <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} />
+                        <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} viewId="desktop" />
                     ) : (
                         /* Fallback: old image if onRoleStart not provided */
                         <div className="relative w-full max-w-2xl">
@@ -457,7 +459,7 @@ export function Hero({ onStart, onUpload, onRoleStart, showFeedbackSuccess }: He
                     {/* 2. Role Card (mobile) — same as desktop but in mobile view */}
                     <div className="w-full px-4 pb-8">
                         {onRoleStart ? (
-                            <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} />
+                            <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} viewId="mobile" />
                         ) : (
                             <div className="w-full max-w-[360px] space-y-4 px-2 mx-auto">
                                 <label htmlFor="pdf-upload-mobile" className="block w-full cursor-pointer">

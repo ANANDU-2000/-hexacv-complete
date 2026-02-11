@@ -21,6 +21,7 @@ export interface NormalizedSkillCategory {
 }
 
 export interface NormalizedExperience {
+  id?: string;
   role: string;
   company: string;
   location?: string;
@@ -30,12 +31,14 @@ export interface NormalizedExperience {
 }
 
 export interface NormalizedProject {
+  id?: string;
   title: string;
   bullets: string[];
   tech?: string[];
 }
 
 export interface NormalizedEducation {
+  id?: string;
   degree: string;
   institute: string;
   year: string;
@@ -142,6 +145,7 @@ export function resumeDataToNormalized(data: ResumeData): NormalizedResume {
     : [];
 
   const experience: NormalizedExperience[] = (data.experience ?? []).map((e: Experience) => ({
+    id: e.id,
     role: e.position ?? '',
     company: e.company ?? '',
     startDate: e.startDate ?? '',
@@ -150,6 +154,7 @@ export function resumeDataToNormalized(data: ResumeData): NormalizedResume {
   }));
 
   const projects: NormalizedProject[] = (data.projects ?? []).map((p: Project) => ({
+    id: p.id,
     title: p.name ?? '',
     bullets: [
       ...(p.description ? [p.description] : []),
@@ -159,6 +164,7 @@ export function resumeDataToNormalized(data: ResumeData): NormalizedResume {
   }));
 
   const education: NormalizedEducation[] = (data.education ?? []).map((e: Education) => ({
+    id: e.id,
     degree: [e.degree, e.field].filter(Boolean).join(', ') || '',
     institute: e.institution ?? '',
     year: e.graduationDate ?? '',
@@ -196,7 +202,7 @@ export function normalizedToResumeData(
     summary: n.summary,
     skills: n.skills.flatMap((s) => s.items),
     experience: n.experience.map((e, i) => ({
-      id: (prev?.experience?.[i] as Experience)?.id ?? `exp-${i}`,
+      id: e.id ?? (prev?.experience?.[i] as Experience)?.id ?? `exp-${i}`,
       position: e.role,
       company: e.company,
       startDate: e.startDate,
@@ -204,14 +210,14 @@ export function normalizedToResumeData(
       highlights: e.bullets,
     })),
     projects: n.projects.map((p, i) => ({
-      id: (prev?.projects?.[i] as Project)?.id ?? `proj-${i}`,
+      id: p.id ?? (prev?.projects?.[i] as Project)?.id ?? `proj-${i}`,
       name: p.title,
       description: p.bullets[0] ?? '',
       highlights: p.bullets.slice(1),
       tech: p.tech,
     })),
     education: n.education.map((e, i) => ({
-      id: (prev?.education?.[i] as Education)?.id ?? `edu-${i}`,
+      id: e.id ?? (prev?.education?.[i] as Education)?.id ?? `edu-${i}`,
       degree: e.degree,
       institution: e.institute,
       field: '',

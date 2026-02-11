@@ -26,6 +26,7 @@ export interface ParsedResume {
     phone: string;
     linkedin: string;
     github: string;
+    targetRole: string;
     profile: string;
     skills: { category: string; items: string[] }[];
     experience: {
@@ -74,14 +75,15 @@ RESUME:
 ${cleanedText.slice(0, 12000)}
 
 Return JSON:
-{"name":"","email":"","phone":"","linkedin":"","github":"","profile":"COPY COMPLETE SUMMARY - EVERY SINGLE SENTENCE","skills":[{"category":"","items":[]}],"experience":[{"role":"","company":"","startDate":"","endDate":"","bullets":["COPY ALL BULLETS EXACTLY - MINIMUM 5 PER JOB"]}],"education":[{"degree":"","institution":"","year":""}],"projects":[{"name":"","description":"","tech":[]}]}
+{"name":"","email":"","phone":"","linkedin":"","github":"","targetRole":"CURRENT OR TARGET JOB TITLE","profile":"COPY COMPLETE SUMMARY - EVERY SINGLE SENTENCE","skills":[{"category":"","items":[]}],"experience":[{"role":"","company":"","startDate":"","endDate":"","bullets":["COPY ALL BULLETS EXACTLY - MINIMUM 5 PER JOB"]}],"education":[{"degree":"","institution":"","year":""}],"projects":[{"name":"","description":"","tech":[]}]}
 
 MANDATORY RULES:
 1. COPY every word of summary - if 100 words, output 100 words
 2. COPY ALL bullet points - if 8 bullets, output 8 bullets
 3. NEVER shorten, summarize, or paraphrase
 4. Use "Present" for current jobs
-5. Return valid JSON only.`;
+5. Extract the most professional title/role as "targetRole"
+6. Return valid JSON only.`;
 
     const response = await fetch(GROQ_API_URL, {
         method: 'POST',
@@ -112,6 +114,7 @@ MANDATORY RULES:
     if (validated.name) extractedFields.push('Name'); else missingFields.push('Name');
     if (validated.email) extractedFields.push('Email'); else missingFields.push('Email');
     if (validated.phone) extractedFields.push('Phone'); else missingFields.push('Phone');
+    if (validated.targetRole) extractedFields.push('Target Role'); else missingFields.push('Target Role');
     if (validated.skills.length > 0) extractedFields.push('Skills'); else missingFields.push('Skills');
     if (validated.experience.length > 0) extractedFields.push('Experience'); else missingFields.push('Experience');
     if (validated.education.length > 0) extractedFields.push('Education'); else missingFields.push('Education');
@@ -150,9 +153,9 @@ export async function parseResumeWithAI(rawText: string): Promise<ExtractionResu
 RESUME TEXT:
 ${cleanedText.slice(0, 20000)}
 
-Extract and return JSON. { "name":"", "email":"", "phone":"", "linkedin":"", "github":"", "profile":"", "skills":[], "experience":[], "education":[], "projects":[] }
+Extract and return JSON. { "name":"", "email":"", "phone":"", "linkedin":"", "github":"", "targetRole":"", "profile":"", "skills":[], "experience":[], "education":[], "projects":[] }
 
-MANDATORY: COPY profile/summary and bullets exactly as written. Return ONLY valid JSON.`;
+MANDATORY: COPY profile/summary and bullets exactly as written. Extract current/target job title as "targetRole". Return ONLY valid JSON.`;
 
     try {
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
@@ -179,7 +182,7 @@ MANDATORY: COPY profile/summary and bullets exactly as written. Return ONLY vali
         return {
             resume: validated,
             confidence: 80, // Approximate
-            extractedFields: ['Name', 'Email', 'Experience', 'Education', 'Skills'],
+            extractedFields: ['Name', 'Email', 'Experience', 'Education', 'Skills', 'Target Role'],
             missingFields: []
         };
     } catch (e) {
@@ -197,6 +200,7 @@ function validateParsedResume(parsed: any): ParsedResume {
         phone: clean(parsed.phone),
         linkedin: clean(parsed.linkedin),
         github: clean(parsed.github),
+        targetRole: clean(parsed.targetRole || parsed.role || parsed.jobTitle),
         profile: clean(parsed.profile),
         skills: Array.isArray(parsed.skills) ? parsed.skills.map((s: any) => ({
             category: clean(s.category) || 'General',
@@ -235,6 +239,7 @@ function fallbackParse(text: string): ExtractionResult {
             phone,
             linkedin: '',
             github: '',
+            targetRole: '',
             profile: '',
             skills: [],
             experience: [],

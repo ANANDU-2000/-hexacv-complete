@@ -24,7 +24,20 @@ function textContainsSkill(text: string, skill: string): boolean {
   const s = norm(skill);
   if (!s || s.length < 2) return false;
   // Direct substring match (good enough for skills like "Python", "React", "AWS")
-  return t.includes(s);
+  if (t.includes(s)) return true;
+
+  // Handle common variations
+  // 1. "React.js" -> match "React"
+  if ((s.endsWith('.js') || s.endsWith('js')) && s.length > 4) {
+    const base = s.replace(/\.?js$/, '');
+    if (t.includes(base)) return true;
+  }
+
+  // 2. "Node.js" -> "Node" (risky common word, but in resume context likely fine? check boundaries?)
+  // Better: check for "Node" followed by space or punctuation if possible, but norm removes punctuation.
+  // Let's stick to safe ones or just rely on the user to fix their skill name if strict.
+
+  return false;
 }
 
 /** Extract the sentence containing the skill from a block of text */

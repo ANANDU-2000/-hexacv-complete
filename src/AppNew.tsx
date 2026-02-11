@@ -16,6 +16,7 @@ import { trackEvent } from './analytics/googleAnalytics';
 import { initAccessibility } from './utils/accessibility';
 import { useDraftPersistence } from './hooks/useDraftPersistence';
 import type { RoleContext } from './core/resumeIntelligence';
+import { suggestSkillsForRole, rewriteExperienceForRole, rewriteSummaryForRole } from './core/rewrite/freeRewrite';
 
 // ============== LAZY LOADED COMPONENTS ==============
 // Core editor components - lazy load for faster initial page load
@@ -213,7 +214,7 @@ export default function AppNew() {
             id: Math.random().toString(36).substr(2, 9),
             basics: {
                 fullName: parsed.name || '',
-                targetRole: parsed.jobTitle || parsed.role || '',
+                targetRole: parsed.targetRole || (parsed.experience && parsed.experience.length > 0 ? parsed.experience[0].role : '') || '',
                 email: parsed.email || '',
                 phone: parsed.phone || '',
                 location: parsed.address || parsed.location || '',
@@ -280,6 +281,49 @@ export default function AppNew() {
                 if (context.jdText) parsedData.jobDescription = context.jdText;
                 // Ensure role context is set too
                 setRoleContext(context);
+            }
+
+            // Auto-fix skills based on target role
+            // Auto-fix skills AND experience based on target role
+            const targetRole = parsedData.basics.targetRole;
+            if (targetRole) {
+                const experienceText = [
+                    ...(parsedData.experience || []).map(e => `${e.position} at ${e.company}: ${e.highlights.join(' ')}`),
+                    ...(parsedData.projects || []).map(p => `${p.name}: ${p.description}`)
+                ].join('\n');
+
+                try {
+                    const simpleExps = (parsedData.experience || []).map(e => ({
+                        company: e.company,
+                        position: e.position,
+                        highlights: e.highlights
+                    }));
+
+                    const [skillsResult, expResult, summaryResult] = await Promise.all([
+                        suggestSkillsForRole(parsedData.skills, experienceText, targetRole),
+                        rewriteExperienceForRole(simpleExps, targetRole),
+                        rewriteSummaryForRole(parsedData.summary, experienceText, parsedData.skills, targetRole)
+                    ]);
+
+                    if (skillsResult.suggested && skillsResult.suggested.length > 0) {
+                        parsedData.skills = skillsResult.suggested;
+                    }
+
+                    if (expResult && expResult.length > 0) {
+                        // Merge back rewritten highlights
+                        parsedData.experience.forEach((e, i) => {
+                            if (expResult[i]) {
+                                e.highlights = expResult[i].highlights;
+                            }
+                        });
+                    }
+
+                    if (summaryResult) {
+                        parsedData.summary = summaryResult;
+                    }
+                } catch (e) {
+                    console.error("Auto-fix failed", e);
+                }
             }
 
             setResume(parsedData);

@@ -22,11 +22,11 @@ export function renderBlock(block: DocumentBlock): React.ReactNode {
     case 'skillsCategory':
       return <SkillsCategoryBlock key={`skill-${block.data.category}`} data={block.data} />;
     case 'experience':
-      return <ExperienceItemBlock key={`exp-${block.data.company}-${block.data.role}`} data={block.data} />;
+      return <ExperienceItemBlock key={block.data.id || `exp-${block.data.company}-${block.data.role}`} data={block.data} />;
     case 'project':
-      return <ProjectItemBlock key={`proj-${block.data.title}`} data={block.data} />;
+      return <ProjectItemBlock key={block.data.id || `proj-${block.data.title}`} data={block.data} />;
     case 'education':
-      return <EducationItemBlock key={`edu-${block.data.institute}`} data={block.data} />;
+      return <EducationItemBlock key={block.data.id || `edu-${block.data.institute}`} data={block.data} />;
     default:
       return null;
   }

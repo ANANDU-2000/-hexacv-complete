@@ -8,7 +8,8 @@ import {
     ArrowRight,
     ChevronLeft,
     ShieldCheck,
-    Zap
+    Zap,
+    Target
 } from 'lucide-react';
 
 interface Props {
@@ -18,6 +19,14 @@ interface Props {
 
 export default function MobileFreeToolsPage({ onNavigate, onBack }: Props) {
     const tools = [
+        {
+            id: 'ats-score-checker',
+            name: 'ATS Score Checker',
+            icon: Target,
+            description: 'Get an instant ATS compatibility score. Upload PDF and check match %.',
+            route: '/ats-score-checker',
+            gradient: 'from-blue-600 to-cyan-500',
+        },
         {
             id: 'ats-keyword',
             name: 'ATS Keyword Extractor',

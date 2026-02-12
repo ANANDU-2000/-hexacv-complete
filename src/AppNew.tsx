@@ -44,6 +44,7 @@ const ResumeKeywordChecker = lazy(() => import('./tools/ResumeKeywordChecker'));
 const ResumeBulletImprover = lazy(() => import('./tools/ResumeBulletImprover'));
 const JobDescriptionAnalyzer = lazy(() => import('./tools/JobDescriptionAnalyzer'));
 const ResumeSectionChecker = lazy(() => import('./tools/ResumeSectionChecker'));
+const ATSScoreChecker = lazy(() => import('./tools/ATSScoreChecker'));
 
 // Mobile Free Tools - lazy load
 const MobileFreeToolsPage = lazy(() => import('./components/mobile/tools/MobileFreeToolsPage'));
@@ -52,6 +53,7 @@ const MobileResumeKeywordChecker = lazy(() => import('./components/mobile/tools/
 const MobileResumeBulletImprover = lazy(() => import('./components/mobile/tools/MobileResumeBulletImprover'));
 const MobileJobDescriptionAnalyzer = lazy(() => import('./components/mobile/tools/MobileJobDescriptionAnalyzer'));
 const MobileResumeSectionChecker = lazy(() => import('./components/mobile/tools/MobileResumeSectionChecker'));
+const MobileATSScoreChecker = lazy(() => import('./components/mobile/tools/MobileATSScoreChecker'));
 
 // Legal / PayU-required pages
 const PricingPage = lazy(() => import('./pages/legal/PricingPage').then(m => ({ default: m.PricingPage })));
@@ -461,6 +463,13 @@ export default function AppNew() {
                     <Route path="/resume-bullet-improver" element={<Suspense fallback={<LoadingSpinner />}><ResumeBulletImprover onNavigateHome={() => navigate('/')} /></Suspense>} />
                     <Route path="/job-description-analyzer" element={<Suspense fallback={<LoadingSpinner />}><JobDescriptionAnalyzer onNavigateHome={() => navigate('/')} /></Suspense>} />
                     <Route path="/resume-section-checker" element={<Suspense fallback={<LoadingSpinner />}><ResumeSectionChecker onNavigateHome={() => navigate('/')} /></Suspense>} />
+                    <Route path="/ats-score-checker" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ?
+                                <MobileATSScoreChecker onBack={() => navigate('/free-tools')} /> :
+                                <ATSScoreChecker onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
 
                     <Route path="/free-tools" element={
                         <Suspense fallback={<LoadingSpinner />}>

@@ -54,6 +54,7 @@ export interface ATSScoreResult {
     found?: KeywordMatch[]; // For compatibility
     overused: string[];
     totalKeywords: number;
+    suggestions?: string[];
 }
 
 export function scoreATS(resumeText: string, jdKeywords: ExtractedKeywords): ATSScoreResult {
@@ -105,35 +106,100 @@ function hasContactInfo(lower: string): boolean {
     return false;
 }
 
+// Helper to count occurrences
+function countMatches(text: string, regex: RegExp): number {
+    return (text.match(regex) || []).length;
+}
+
 export function checkResumeStructure(text: string): SectionCheckResult {
     const lower = text.toLowerCase();
-    const sections: { name: string; keywords: string[]; present?: (t: string) => boolean }[] = [
-        { name: 'Contact Information', keywords: ['email', 'phone', 'address', 'linkedin', 'github'], present: hasContactInfo },
-        { name: 'Professional Summary', keywords: ['summary', 'profile', 'objective', 'about'] },
-        { name: 'Experience', keywords: ['experience', 'work history', 'employment', 'roles'] },
-        { name: 'Education', keywords: ['education', 'university', 'college', 'degree', 'certification'] },
-        { name: 'Skills', keywords: ['skills', 'technologies', 'technical', 'tools'] },
-        { name: 'Projects', keywords: ['projects', 'portfolio'] }
+    const suggestions: string[] = [];
+    let score = 0;
+
+    // 1. Section Presence (40 points)
+    const sections: { name: string; keywords: string[]; points: number; present?: (t: string) => boolean }[] = [
+        { name: 'Contact Information', keywords: [], points: 5, present: hasContactInfo },
+        { name: 'Professional Summary', keywords: ['summary', 'profile', 'objective', 'about me'], points: 5 },
+        { name: 'Experience', keywords: ['experience', 'work history', 'employment', 'roles'], points: 10 },
+        { name: 'Education', keywords: ['education', 'university', 'college', 'degree', 'certification'], points: 10 },
+        { name: 'Skills', keywords: ['skills', 'technologies', 'technical', 'tools'], points: 5 },
+        { name: 'Projects', keywords: ['projects', 'portfolio'], points: 5 }
     ];
 
     const results = sections.map(s => {
-        const present = s.present ? s.present(lower) : s.keywords.some(k => lower.includes(k));
+        const isPresent = s.present
+            ? s.present(lower)
+            : s.keywords.some(k => new RegExp(`\\b${k}\\b`, 'i').test(lower)); // Use regex for stricter word boundary match
+
+        if (isPresent) score += s.points;
         return {
             section: s.name,
-            present,
-            warning: present ? undefined : `Missing ${s.name} section or keywords.`
+            present: isPresent,
+            warning: isPresent ? undefined : `Missing ${s.name} section.`
         };
     });
 
-    const presentCount = results.filter(r => r.present).length;
-    const score = Math.round((presentCount / sections.length) * 100);
+    // 2. Content Quality (60 points)
+
+    // A. Contact Details (10 points)
+    // We already checked presence, but let's be stricter about valid email/phone
+    const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text);
+    const hasPhone = /(\+\d{1,3}[-.]?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}/.test(text);
+    if (hasEmail) score += 5; else suggestions.push('Resume likely missing a valid email address.');
+    if (hasPhone) score += 5; else suggestions.push('Resume likely missing a phone number.');
+
+    // B. Experience Content (Dates) (10 points)
+    // Check for years like 20xx or 19xx, or months
+    const dateCount = countMatches(text, /\b(20\d{2}|19\d{2}|present|current)\b/gi);
+    if (dateCount >= 2) score += 10;
+    else suggestions.push('Could not detect clear dates in Experience section. Use standard formats (e.g., "Jan 2023 - Present").');
+
+    // C. Action Verbs (10 points)
+    const actionVerbs = [
+        'managed', 'created', 'developed', 'led', 'designed', 'implemented', 'orchestrated',
+        'engineered', 'built', 'analyzed', 'optimized', 'reduced', 'increased', 'generated',
+        'initiated', 'launched', 'delivered', 'collaborated', 'spearheaded', 'resolved'
+    ];
+    const verbCount = actionVerbs.reduce((acc, verb) => acc + (lower.includes(verb) ? 1 : 0), 0);
+    if (verbCount >= 5) score += 10;
+    else if (verbCount >= 2) score += 5;
+    else suggestions.push(`Found only ${verbCount} strong action verbs. Use words like "Developed", "Optimized", "Led".`);
+
+    // D. Quantifiable Results (10 points)
+    // Look for %, $, numbers associated with improvements
+    const metricsCount = countMatches(text, /(\d+%|\$\d+|\d+\s*\+?)/g);
+    if (metricsCount >= 3) score += 10;
+    else if (metricsCount >= 1) score += 5;
+    else suggestions.push('Add quantifiable metrics (e.g., "Increased sales by 20%", "Reduced load time by 2s").');
+
+    // E. Formatting / Bullet Points (10 points)
+    // Check for common bullet characters
+    const bulletCount = countMatches(text, /[\•\-\*]\s/g);
+    if (bulletCount >= 5) score += 10;
+    else suggestions.push('Use bullet points to display experience and skills for better readability.');
+
+    // F. Skill Density (10 points)
+    // We assume the caller might have extracted keywords, but we can do a quick check here too or rely on the caller.
+    // Since we don't have the extracted keywords passed in here easily without changing signature, let's do a rough check.
+    // Actually, let's simply check for a reasonable length of text in the "Skills" area if we could, 
+    // but simpler is to check for common tech terms if it's a tech resume, or just length.
+    // For now, let's assume if "Skills" section is present, we give 5 points, and add 5 more if we find common separators like commas or pipes
+    if (results.find(r => r.section === 'Skills')?.present) {
+        if ((text.match(/,/g) || []).length > 5 || (text.match(/\|/g) || []).length > 2) {
+            score += 10; // Good list structure
+        } else {
+            score += 5; // Section exists but maybe sparse
+            suggestions.push('Ensure your Skills section lists specific tools and technologies.');
+        }
+    }
 
     const warnings: string[] = results.filter(r => !r.present).map(r => r.warning || '');
-    const suggestions: string[] = [];
-    if (score < 100) suggestions.push('Try adding missing sections to improve ATS parsing.');
+
+    // Cap score at 100 just in case
+    score = Math.min(100, score);
 
     return {
-        sections: results,
+        sections: results, // Map back to original simple structure if needed
         score,
         warnings,
         suggestions

@@ -15,7 +15,8 @@ import {
     Globe,
     ArrowLeft,
     ExternalLink,
-    Maximize2
+    Maximize2,
+    Target
 } from 'lucide-react';
 
 interface FreeToolsPageProps {
@@ -25,6 +26,17 @@ interface FreeToolsPageProps {
 
 export default function FreeToolsPage({ onNavigate, onBack }: FreeToolsPageProps) {
     const tools = [
+        {
+            id: 'ats-score-checker',
+            name: 'ATS Score Checker',
+            icon: Target,
+            description: 'Get an instant ATS compatibility score. Upload your PDF resume and a job description to see exactly where you stand and what keywords you are missing.',
+            features: ['Match Percentage', 'PDF Analysis', 'Keyword Gap Analysis'],
+            route: '/ats-score-checker',
+            badge: 'New',
+            gradient: 'from-blue-600 to-cyan-500',
+            iconColor: 'text-white'
+        },
         {
             id: 'ats-keyword',
             name: 'ATS Keyword Extractor',

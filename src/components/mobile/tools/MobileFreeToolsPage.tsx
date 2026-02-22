@@ -32,7 +32,7 @@ export default function MobileFreeToolsPage({ onNavigate, onBack }: Props) {
             name: 'ATS Keyword Extractor',
             icon: Search,
             description: 'Extract high-priority keywords from any job description.',
-            route: '#/free-ats-keyword-extractor',
+            route: '/free-ats-keyword-extractor',
             gradient: 'from-blue-600 to-indigo-600',
         },
         {
@@ -40,7 +40,7 @@ export default function MobileFreeToolsPage({ onNavigate, onBack }: Props) {
             name: 'Resume Keyword Checker',
             icon: FileText,
             description: 'Compare your resume against job keywords instantly.',
-            route: '#/resume-keyword-checker',
+            route: '/resume-keyword-checker',
             gradient: 'from-emerald-500 to-teal-600',
         },
         {
@@ -48,7 +48,7 @@ export default function MobileFreeToolsPage({ onNavigate, onBack }: Props) {
             name: 'Bullet Point Improver',
             icon: Sparkles,
             description: 'Refine passive phrasing into high-impact bullet points.',
-            route: '#/resume-bullet-improver',
+            route: '/resume-bullet-improver',
             gradient: 'from-amber-500 to-orange-600',
         },
         {
@@ -56,7 +56,7 @@ export default function MobileFreeToolsPage({ onNavigate, onBack }: Props) {
             name: 'JD Analyzer',
             icon: Briefcase,
             description: 'Strategic analysis of role requirements and tech stacks.',
-            route: '#/job-description-analyzer',
+            route: '/job-description-analyzer',
             gradient: 'from-purple-600 to-violet-600',
         },
         {
@@ -64,7 +64,7 @@ export default function MobileFreeToolsPage({ onNavigate, onBack }: Props) {
             name: 'Section Checker',
             icon: List,
             description: 'Ensure your resume has all critical industry sections.',
-            route: '#/resume-section-checker',
+            route: '/resume-section-checker',
             gradient: 'from-rose-500 to-pink-600',
         }
     ];

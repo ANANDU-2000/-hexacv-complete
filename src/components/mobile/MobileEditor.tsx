@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { ResumeData, TabId } from '../../types';
 import { ChevronRight, ChevronLeft, Plus, X, Eye, Sparkles, Target, User, Briefcase, Code, GraduationCap, Trophy, Camera, CheckCircle2, Globe, FileText, Laptop } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
+import { DocumentPreview } from '../../ui/document';
+import { resumeDataToNormalized } from '../../core/normalizedResume';
 
 import { refineResumeSummary, refineExperienceHighlights } from '../../core/ats/refinement';
 import { resumeToText } from '../../core/ats/resumeToText';
@@ -89,6 +91,11 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
 
     const resumeText = useMemo(() => resumeToText(data), [data]);
     const jdText = data.jobDescription?.trim() ?? '';
+
+    useEffect(() => {
+        if (showPreview) document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = ''; };
+    }, [showPreview]);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -192,9 +199,9 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                         onImproveClick={() => setAtsModalOpen(true)}
                     />
 
-                    {/* Validation Error Toast - Premium Style */}
+                    {/* Validation Error Toast - above sticky CTA to avoid overlap */}
                     {validationErrors.length > 0 && (
-                        <div className="fixed bottom-32 left-6 right-6 z-[200] animate-in slide-in-from-bottom-10 duration-500 ease-out">
+                        <div className="fixed bottom-24 left-6 right-6 z-[300] animate-in slide-in-from-bottom-10 duration-500 ease-out">
                             <div className="bg-white/90 backdrop-blur-2xl text-black p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-2 border-white flex items-start gap-5">
                                 <div className="mt-1 flex-shrink-0">
                                     <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center">
@@ -337,8 +344,108 @@ const MobileEditor: React.FC<MobileEditorProps> = ({ data, onChange, onNext, onB
                 score={atsScore}
                 missingKeywords={atsMissing}
             />
+
+            {/* Floating preview FAB - peek at resume while building */}
+            {currentView === 'dashboard' && (
+                <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className="fixed bottom-28 right-4 z-[150] w-12 h-12 rounded-full bg-gray-900 text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+                    aria-label="Preview resume"
+                >
+                    <Eye size={22} strokeWidth={2.5} />
+                </button>
+            )}
+
+            {/* Preview bottom sheet */}
+            {showPreview && (
+                <>
+                    <div
+                        role="presentation"
+                        className="fixed inset-0 bg-black/50 z-[250] animate-in fade-in duration-200"
+                        onClick={() => setShowPreview(false)}
+                        aria-hidden="true"
+                    />
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Resume preview"
+                        className="fixed inset-x-0 bottom-0 top-[15%] z-[251] bg-white rounded-t-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300"
+                    >
+                        <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                            <span className="text-base font-semibold text-gray-900">Preview</span>
+                            <button
+                                type="button"
+                                onClick={() => setShowPreview(false)}
+                                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100"
+                                aria-label="Close preview"
+                            >
+                                <X size={22} />
+                            </button>
+                        </div>
+                        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+                            <PreviewSheetContent data={data} onNext={onNext} />
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
+
+const A4_PX_WIDTH = 794;
+
+/** Inline preview for the floating sheet - scaled to fit */
+function PreviewSheetContent({ data, onNext }: { data: ResumeData; onNext: () => void }) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState(0.45);
+    const normalizedResume = useMemo(() => resumeDataToNormalized(data), [
+        data.basics?.fullName,
+        data.basics?.targetRole,
+        data.basics?.email,
+        data.summary,
+        JSON.stringify(data.experience ?? []),
+        JSON.stringify(data.education ?? []),
+        JSON.stringify(data.projects ?? []),
+        JSON.stringify(data.skills ?? []),
+    ]);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const update = () => {
+            const w = el.clientWidth || 320;
+            setScale(Math.min(1, Math.max(0.35, (w - 24) / A4_PX_WIDTH)));
+        };
+        update();
+        const ro = new ResizeObserver(update);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
+
+    return (
+        <div ref={containerRef} className="w-full">
+            <div
+                style={{
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top center',
+                    margin: '0 auto',
+                    width: 794,
+                }}
+            >
+                <DocumentPreview resume={normalizedResume} options={{ tier: 'free' }} />
+            </div>
+            <div className="mt-4 flex justify-center">
+                <button
+                    type="button"
+                    onClick={onNext}
+                    className="mobile-app-cta min-h-[48px] px-6 rounded-xl font-bold text-[15px]"
+                >
+                    Full Preview & Download
+                </button>
+            </div>
+        </div>
+    );
+}
 
 export default MobileEditor;

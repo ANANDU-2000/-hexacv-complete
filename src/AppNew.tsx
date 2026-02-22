@@ -12,6 +12,7 @@ import { ResumeData } from './types';
 
 import { Hero } from './components/Hero';
 import { MobileOptimizationEngine } from './components/mobile/MobileOptimizationEngine';
+import { useIsMobile } from './hooks/useIsMobile';
 import { trackEvent } from './analytics/googleAnalytics';
 import { initAccessibility } from './utils/accessibility';
 import { useDraftPersistence } from './hooks/useDraftPersistence';
@@ -107,7 +108,8 @@ export default function AppNew() {
     const navigate = useNavigate();
     const location = useLocation();
     const [processing, setProcessing] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
+    const [parseError, setParseError] = useState<string | null>(null);
+    const isMobile = useIsMobile();
     const [feedbackSent, setFeedbackSent] = useState(false);
     const [validationErrors, setValidationErrors] = useState<string[]>([]);
     const [scrolled, setScrolled] = useState(false);
@@ -190,14 +192,6 @@ export default function AppNew() {
         const handleScroll = () => setScrolled(window.scrollY > 10);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    // Track mobile status
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     // Initialize accessibility and analytics
@@ -338,7 +332,7 @@ export default function AppNew() {
             }, 500);
         } catch (err) {
             console.error('Parse error:', err);
-            alert('Failed to parse resume. Please try again or build from scratch.');
+            setParseError('Failed to parse resume. Please try again or build from scratch.');
             setProcessing(false);
         }
     };
@@ -346,6 +340,15 @@ export default function AppNew() {
     return (
         <MobileOptimizationEngine isAdmin={false}>
             <div className="min-h-screen bg-[#F8F9FB] flex flex-col font-sans selection:bg-black selection:text-white">
+                {parseError && (
+                    <div
+                        role="alert"
+                        className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-[9997] px-4 py-3 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg shadow-lg flex items-center justify-between gap-3"
+                    >
+                        <span className="text-sm font-medium">{parseError}</span>
+                        <button type="button" onClick={() => setParseError(null)} className="text-amber-700 hover:text-amber-900 shrink-0" aria-label="Dismiss">×</button>
+                    </div>
+                )}
                 {processing && (
                     <div className="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center">
                         <div className="text-center px-6 max-w-lg">
@@ -458,11 +461,26 @@ export default function AppNew() {
                                 <ATSKeywordExtractor onNavigateHome={() => navigate('/')} />}
                         </Suspense>
                     } />
-                    {/* ... other tools ... */}
-                    <Route path="/resume-keyword-checker" element={<Suspense fallback={<LoadingSpinner />}><ResumeKeywordChecker onNavigateHome={() => navigate('/')} /></Suspense>} />
-                    <Route path="/resume-bullet-improver" element={<Suspense fallback={<LoadingSpinner />}><ResumeBulletImprover onNavigateHome={() => navigate('/')} /></Suspense>} />
-                    <Route path="/job-description-analyzer" element={<Suspense fallback={<LoadingSpinner />}><JobDescriptionAnalyzer onNavigateHome={() => navigate('/')} /></Suspense>} />
-                    <Route path="/resume-section-checker" element={<Suspense fallback={<LoadingSpinner />}><ResumeSectionChecker onNavigateHome={() => navigate('/')} /></Suspense>} />
+                    <Route path="/resume-keyword-checker" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ? <MobileResumeKeywordChecker onBack={() => navigate('/free-tools')} /> : <ResumeKeywordChecker onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/resume-bullet-improver" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ? <MobileResumeBulletImprover onBack={() => navigate('/free-tools')} /> : <ResumeBulletImprover onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/job-description-analyzer" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ? <MobileJobDescriptionAnalyzer onBack={() => navigate('/free-tools')} /> : <JobDescriptionAnalyzer onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
+                    <Route path="/resume-section-checker" element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            {isMobile ? <MobileResumeSectionChecker onBack={() => navigate('/free-tools')} /> : <ResumeSectionChecker onNavigateHome={() => navigate('/')} />}
+                        </Suspense>
+                    } />
                     <Route path="/ats-score-checker" element={
                         <Suspense fallback={<LoadingSpinner />}>
                             {isMobile ?

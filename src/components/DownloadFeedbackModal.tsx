@@ -48,7 +48,7 @@ export const DownloadFeedbackModal: React.FC<DownloadFeedbackModalProps> = ({
   return (
     <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-[360px] p-5 sm:p-6 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-full sm:max-w-[360px] p-5 sm:p-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] max-h-[90vh] overflow-y-auto touch-scroll"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -66,7 +66,7 @@ export const DownloadFeedbackModal: React.FC<DownloadFeedbackModalProps> = ({
               key={star}
               type="button"
               onClick={() => setRating(star)}
-              className="p-0.5 focus:outline-none min-w-[36px] min-h-[36px] flex items-center justify-center"
+              className="p-0.5 focus:outline-none min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
               aria-label={`${star} star`}
             >
               <span className={`text-2xl ${star <= rating ? 'text-amber-400' : 'text-gray-200'}`}>★</span>

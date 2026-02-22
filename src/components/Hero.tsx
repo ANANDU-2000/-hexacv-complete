@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Upload, Check, X, Zap, ShieldCheck, ChevronDown } from "lucide-react";
 import { FeedbackStrip } from "./FeedbackStrip";
 import { SiteFooter } from "./SiteFooter";
+import { MobileNavBar } from "./MobileNavBar";
 import type { RoleContext, ExperienceLevel, TargetMarket } from "../core/resumeIntelligence";
 import { getRoleSuggestions } from "../constants/roles";
 
@@ -59,7 +60,7 @@ function RoleCard({ onRoleStart, onUpload, viewId }: { onRoleStart: (ctx: RoleCo
     const uploadId = `role-card-upload-${viewId}`;
 
     return (
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mx-auto lg:mx-0">
+        <div className="w-full max-w-md min-w-0 bg-white rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-6 mx-auto lg:mx-0">
             <h2 className="text-lg font-bold text-gray-900 mb-1">Start your ATS resume</h2>
             <p className="text-xs text-gray-500 mb-5">Tell us your target and we'll analyze your fit.</p>
 
@@ -72,18 +73,18 @@ function RoleCard({ onRoleStart, onUpload, viewId }: { onRoleStart: (ctx: RoleCo
                     onFocus={() => { if (role.length > 2) setShowSuggestions(true); }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     placeholder="e.g. Generative AI Engineer"
-                    className="w-full h-11 px-3 border border-gray-200 rounded-lg text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none"
+                    className="w-full min-w-0 h-11 min-h-[44px] px-3 border border-gray-200 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none"
                     autoComplete="off"
                 />
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && suggestions.length > 0 && (
-                    <div className="absolute top-12 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
+                    <div className="absolute top-12 left-0 right-0 w-full max-w-full bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto touch-scroll">
                         {suggestions.map((s, i) => (
                             <div
                                 key={i}
                                 onMouseDown={() => selectRole(s)}
-                                className="px-4 py-2.5 text-sm text-gray-700 hover:bg-slate-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors"
+                                className="px-4 py-2.5 min-h-[44px] flex items-center text-sm text-gray-700 hover:bg-slate-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors"
                             >
                                 {s}
                             </div>
@@ -143,7 +144,7 @@ function RoleCard({ onRoleStart, onUpload, viewId }: { onRoleStart: (ctx: RoleCo
                     value={jd}
                     onChange={(e) => setJd(e.target.value)}
                     placeholder="Paste job description for better analysis…"
-                    className="w-full min-h-[80px] px-3 py-2 border border-gray-200 rounded-lg text-[14px] text-gray-900 placeholder:text-gray-400 resize-none focus:border-blue-500 outline-none mb-4"
+                    className="w-full min-w-0 min-h-[80px] px-3 py-2 border border-gray-200 rounded-lg text-base text-gray-900 placeholder:text-gray-400 resize-none focus:border-blue-500 outline-none mb-4"
                     rows={4}
                 />
             )}
@@ -403,29 +404,8 @@ export function Hero({ onStart, onUpload, onRoleStart, showFeedbackSuccess }: He
             </div>
 
             {/* Mobile View (Redesigned) */}
-            <div className="lg:hidden fixed inset-0 flex flex-col bg-white overflow-y-auto pt-0 pb-6 selection:bg-gray-900 selection:text-white">
-                {/* Ultra-Premium Mobile Navbar */}
-                <div className="w-full h-16 px-4 flex items-center justify-between bg-white/95 backdrop-blur-md border-b border-slate-100/60 sticky top-0 z-[100]">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 bg-slate-900 rounded-[11px] flex items-center justify-center p-2 shadow-lg shadow-slate-200">
-                            <img src="/logo.svg" alt="HexaCV" className="w-full h-full brightness-0 invert" />
-                        </div>
-                        <div className="flex flex-col -space-y-1">
-                            <span className="text-[14px] font-black text-slate-900 tracking-tight">HEXACV</span>
-                            <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest leading-none">AI Suite</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => window.location.href = '/free-tools'}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-full active:scale-95 transition-all shadow-md"
-                        >
-                            <Zap size={12} className="text-blue-400 fill-blue-400" />
-                            <span className="text-[10px] font-black uppercase tracking-wider">Free Tools</span>
-                        </button>
-                    </div>
-                </div>
+            <div className="lg:hidden fixed inset-0 flex flex-col bg-white overflow-x-hidden overflow-y-auto pt-0 pb-6 selection:bg-gray-900 selection:text-white">
+                <MobileNavBar />
 
                 <style>{`
                     @keyframes float {
@@ -445,13 +425,13 @@ export function Hero({ onStart, onUpload, onRoleStart, showFeedbackSuccess }: He
                     }
                 `}</style>
 
-                <div className="flex-shrink-0 w-full flex flex-col items-center">
+                <div className="flex-shrink-0 w-full flex flex-col items-center max-w-full overflow-x-hidden">
                     {/* 1. Main Hero Content (Swapped to Top) */}
-                    <div className="text-center space-y-4 pt-10 pb-4 px-8">
+                    <div className="text-center space-y-4 pt-10 pb-4 px-4 sm:px-6 md:px-8 w-full max-w-full">
                         <h1 className="text-[34px] font-black text-[#111111] leading-[1.1] tracking-tight">
                             Free ATS Resume Builder - No Login Required
                         </h1>
-                        <p className="text-[#6B7280] text-[16px] font-medium leading-[1.5] max-w-[280px] mx-auto">
+                        <p className="text-[#6B7280] text-[16px] font-medium leading-[1.5] max-w-[280px] mx-auto w-full">
                             Match job description keywords. Get more callbacks. No signup.
                         </p>
                     </div>
@@ -461,7 +441,7 @@ export function Hero({ onStart, onUpload, onRoleStart, showFeedbackSuccess }: He
                         {onRoleStart ? (
                             <RoleCard onRoleStart={onRoleStart} onUpload={onUpload} viewId="mobile" />
                         ) : (
-                            <div className="w-full max-w-[360px] space-y-4 px-2 mx-auto">
+                            <div className="w-full max-w-full sm:max-w-[360px] space-y-4 px-2 sm:px-4 mx-auto">
                                 <label htmlFor="pdf-upload-mobile" className="block w-full cursor-pointer">
                                     <div className="w-full bg-[#0F172A] text-white min-h-[56px] h-[56px] rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.97]">
                                         <Upload size={20} strokeWidth={2.5} />

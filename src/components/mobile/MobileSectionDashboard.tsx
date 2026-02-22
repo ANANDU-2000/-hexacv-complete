@@ -47,8 +47,8 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
 
     return (
         <div className="mobile-app flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50 text-gray-900">
-            {/* Context Header Area — compact to reduce scroll */}
-            <div className="px-4 sm:px-5 pt-16 pb-4">
+            {/* Context Header Area — compact to reduce scroll, pt clears fixed header */}
+            <div className="px-4 sm:px-5 pt-16 sm:pt-16 pb-4">
                 <div className="flex items-center justify-between mb-4 px-1">
                     <div className="min-w-0">
                         <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight leading-tight mb-0.5 truncate text-gray-900">
@@ -96,7 +96,7 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
             <div className="mobile-app-scroll flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 py-2 pb-56 scrollbar-hide relative">
                 <div className="absolute left-[2.5rem] sm:left-[2.75rem] top-8 bottom-48 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-transparent" />
 
-                <div className="space-y-2.5 sm:space-y-3">
+                <div className="space-y-3 sm:space-y-3.5">
                     {resumeSections.map((section, index) => {
                         const isNextStep = index === resumeSections.findIndex(s => !s.complete);
                         const isDone = section.complete;
@@ -158,10 +158,10 @@ export default function MobileSectionDashboard({ data, onNavigateToSection, onCo
                 </div>
             </div>
 
-            <div className="mobile-app-sticky fixed bottom-0 left-0 right-0 p-4 z-50">
+            <div className="mobile-app-sticky fixed bottom-0 left-0 right-0 p-4 z-[100]">
                 <button
                     onClick={onContinue}
-                    className="mobile-app-cta w-full min-h-[52px] rounded-[14px] bg-blue-600 text-white font-bold text-[16px] flex items-center justify-center gap-3 touch-manipulation"
+                    className="mobile-app-cta w-full min-h-[52px] rounded-[14px] bg-blue-600 text-white font-bold text-[16px] flex items-center justify-center gap-3 touch-manipulation shadow-lg shadow-blue-600/25 active:scale-[0.98]"
                     aria-label="Preview resume"
                 >
                     <Eye size={24} strokeWidth={3} className="sm:scale-110" aria-hidden />

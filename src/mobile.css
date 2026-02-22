@@ -148,6 +148,13 @@
         -webkit-font-smoothing: antialiased;
     }
 
+    /* Smooth touch scrolling for mobile scroll areas */
+    .touch-scroll,
+    .mobile-app-scroll,
+    .scrollbar-hide {
+        -webkit-overflow-scrolling: touch !important;
+    }
+
     /* iOS Glass Utility */
     .btn-glass {
         background: rgba(255, 255, 255, 0.6) !important;
@@ -395,6 +402,94 @@
         background: #111827;
         color: #fff;
         border-color: #111827;
+    }
+
+    /* ===== FORM UX: force full-width stacked on mobile (no 2-col grids) ===== */
+    .mobile-app .ux-field-gap .grid,
+    .mobile-app .ux-section .grid.grid-cols-2,
+    .mobile-app form .grid.grid-cols-2 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: var(--space-3) !important;
+    }
+    .mobile-app .ux-field-gap input,
+    .mobile-app .ux-section input {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* ===== FORM UX: validation, disabled, full-width ===== */
+    .mobile-app input[type="text"],
+    .mobile-app input[type="email"],
+    .mobile-app input[type="tel"],
+    .mobile-app input[type="url"],
+    .mobile-app input[type="number"],
+    .mobile-app input[type="date"],
+    .mobile-app input[type="search"],
+    .mobile-app textarea,
+    .mobile-app select {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        min-height: 44px !important;
+        font-size: 16px !important;
+        box-sizing: border-box !important;
+    }
+    .mobile-app input:disabled,
+    .mobile-app textarea:disabled,
+    .mobile-app select:disabled,
+    .mobile-app button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .mobile-app .input-error,
+    .mobile-app input.error,
+    .mobile-app input.invalid {
+        border-color: #ef4444 !important;
+        background-color: #fef2f2 !important;
+    }
+    .mobile-app .field-error,
+    .mobile-app .validation-message.error {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+}
+
+/* ===============================================
+   MOBILE DESIGN CONSISTENCY
+   Standard padding (px-4), cards, buttons, typography
+   =============================================== */
+@media (max-width: 768px) {
+    /* Consistent page padding - 16px sides */
+    .mobile-app .page-content {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    /* Uniform card radius and shadow depth */
+    .mobile-app-card {
+        border-radius: 14px;
+        box-shadow: var(--shadow-ios-md);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Consistent touch targets and radius for primary buttons */
+    .mobile-app .mobile-app-cta {
+        min-height: 52px;
+        border-radius: var(--radius-ios-lg);
+        transition: all 0.2s ease;
+    }
+
+    /* Section separation - 24px between major blocks */
+    .mobile-app .ux-section {
+        gap: var(--space-6);
+    }
+
+    /* Scratch preview - scrollable, fit-to-width */
+    .mobile-pdf-viewport {
+        -webkit-overflow-scrolling: touch;
     }
 }
 

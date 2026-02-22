@@ -62,7 +62,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                     value={value || ''}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className={`w-full h-11 bg-white border border-gray-300 rounded-[10px] text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all ${Icon ? 'pl-10 pr-3' : 'px-3'}`}
+                    className={`w-full min-w-0 h-11 min-h-[44px] bg-white border border-gray-300 rounded-[10px] text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all ${Icon ? 'pl-10 pr-3' : 'px-3'}`}
                 />
             </div>
         </div>
@@ -79,7 +79,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 rows={rows}
-                className="w-full px-3 py-3 bg-white border border-gray-300 rounded-[10px] text-[15px] text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-none leading-relaxed"
+                className="w-full min-w-0 min-h-[72px] px-3 py-3 bg-white border border-gray-300 rounded-[10px] text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-none leading-relaxed"
             />
         </div>
     );
@@ -140,22 +140,22 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                         <input className="ux-input w-full" value={data.basics.targetRole || ''} onChange={(e) => onChange({ basics: { ...data.basics, targetRole: e.target.value } })} placeholder="e.g. Senior Engineer" />
                     </div>
 
-                    {/* Contact — 2-col */}
+                    {/* Contact — full-width stacked on mobile */}
                     <div className="ux-field-gap flex flex-col">
                         <p className="text-[13px] font-medium text-[#111827] ux-label-gap">Contact</p>
-                        <div className="grid grid-cols-2 gap-3">
-                            <input className="ux-input w-full" value={data.basics.email || ''} onChange={(e) => onChange({ basics: { ...data.basics, email: e.target.value } })} placeholder="Email" type="email" />
-                            <input className="ux-input w-full" value={data.basics.phone || ''} onChange={(e) => onChange({ basics: { ...data.basics, phone: e.target.value } })} placeholder="Phone" type="tel" />
-                            <input className="ux-input w-full col-span-2" value={data.basics.location || ''} onChange={(e) => onChange({ basics: { ...data.basics, location: e.target.value } })} placeholder="Location" />
+                        <div className="flex flex-col gap-3">
+                            <input className="ux-input w-full min-w-0" value={data.basics.email || ''} onChange={(e) => onChange({ basics: { ...data.basics, email: e.target.value } })} placeholder="Email" type="email" />
+                            <input className="ux-input w-full min-w-0" value={data.basics.phone || ''} onChange={(e) => onChange({ basics: { ...data.basics, phone: e.target.value } })} placeholder="Phone" type="tel" />
+                            <input className="ux-input w-full min-w-0" value={data.basics.location || ''} onChange={(e) => onChange({ basics: { ...data.basics, location: e.target.value } })} placeholder="Location" />
                         </div>
                     </div>
 
-                    {/* Links */}
+                    {/* Links — full-width stacked on mobile (prevents URL truncation) */}
                     <div className="ux-field-gap flex flex-col">
                         <p className="text-[13px] font-medium text-[#111827] ux-label-gap">Links</p>
-                        <div className="grid grid-cols-2 gap-3">
-                            <input className="ux-input w-full" value={data.basics.linkedin || ''} onChange={(e) => onChange({ basics: { ...data.basics, linkedin: e.target.value } })} placeholder="LinkedIn" />
-                            <input className="ux-input w-full" value={data.basics.github || ''} onChange={(e) => onChange({ basics: { ...data.basics, github: e.target.value } })} placeholder="GitHub" />
+                        <div className="flex flex-col gap-3">
+                            <input className="ux-input w-full min-w-0" value={data.basics.linkedin || ''} onChange={(e) => onChange({ basics: { ...data.basics, linkedin: e.target.value } })} placeholder="https://linkedin.com/in/yourprofile" />
+                            <input className="ux-input w-full min-w-0" value={data.basics.github || ''} onChange={(e) => onChange({ basics: { ...data.basics, github: e.target.value } })} placeholder="https://github.com/username" />
                         </div>
                     </div>
 
@@ -339,9 +339,9 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                             <input className="ux-input w-full" placeholder="Position" value={item.position || ''} onChange={(e) => updateItem(idx, 'position', e.target.value)} />
                                             <input className="ux-input w-full" placeholder="Company" value={item.company || ''} onChange={(e) => updateItem(idx, 'company', e.target.value)} />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3 ux-field-gap">
-                                            <input className="ux-input w-full" placeholder="Start Date" value={item.startDate || ''} onChange={(e) => updateItem(idx, 'startDate', e.target.value)} />
-                                            <input className="ux-input w-full" placeholder="End Date" value={item.endDate || ''} onChange={(e) => updateItem(idx, 'endDate', e.target.value)} />
+                                        <div className="flex flex-col gap-3 ux-field-gap">
+                                            <input className="ux-input w-full min-w-0" placeholder="Start Date" value={item.startDate || ''} onChange={(e) => updateItem(idx, 'startDate', e.target.value)} />
+                                            <input className="ux-input w-full min-w-0" placeholder="End Date" value={item.endDate || ''} onChange={(e) => updateItem(idx, 'endDate', e.target.value)} />
                                         </div>
                                         <p className="text-[13px] font-medium text-[#6B7280] ux-label-gap">Bullets</p>
                                         <div className="space-y-2">
@@ -353,7 +353,7 @@ export default function MobileSectionEditor({ sectionId, data, onChange, onBack,
                                                         value={bullet}
                                                         onChange={(e) => setBullet(idx, bIdx, e.target.value)}
                                                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBulletAt(idx, bIdx); } }}
-                                                        className="flex-1 min-w-0 ux-input min-h-[44px] text-[14px] max-w-[90%]"
+                                                        className="flex-1 min-w-0 ux-input min-h-[44px] text-[14px]"
                                                         placeholder="Bullet point (Enter = new)"
                                                     />
                                                     <button type="button" onClick={() => deleteBullet(idx, bIdx)} className="flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#6B7280] active:text-red-600" aria-label="Delete"><Trash2 size={16} /></button>

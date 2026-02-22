@@ -48,6 +48,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
   const [currentPage, setCurrentPage] = useState(1);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const documentContentRef = useRef<HTMLDivElement>(null);
+  const mobileViewportRef = useRef<HTMLDivElement>(null);
   const pollAttempts = useRef(0);
 
   const isMobile = useIsMobile();
@@ -63,6 +64,19 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
 
   const [documentPageCount, setDocumentPageCount] = useState(1);
   const totalPages = documentPageCount;
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const normalizedResume = useMemo(() => resumeDataToNormalized(data), [
+    data.basics?.fullName,
+    data.basics?.targetRole,
+    data.basics?.email,
+    data.basics?.phone,
+    data.summary,
+    JSON.stringify(data.experience ?? []),
+    JSON.stringify(data.education ?? []),
+    JSON.stringify(data.projects ?? []),
+    JSON.stringify(data.skills ?? []),
+    data.photoUrl,
+  ]);
 
   useEffect(() => {
     const el = previewContainerRef.current;
@@ -101,7 +115,6 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
   const mobileZoomRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const pinchStartRef = useRef<{ scale: number; dist: number } | null>(null);
-  const mobileViewportRef = useRef<HTMLDivElement>(null);
   const [mobileViewportWidth, setMobileViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 360);
 
   const isFreeTemplate = selectedTemplateId === FREE_TEMPLATE_ID;
@@ -209,11 +222,11 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
         trackFunnelStep({ step: 5, step_name: 'download_pdf', action: 'complete' });
         setShowDownloadFeedbackModal(true);
       } else {
-        alert('Preview not ready. Wait a moment and try again.');
+        setToastMessage('Preview not ready. Wait a moment and try again.');
       }
     } catch (e) {
       console.error('Download failed', e);
-      alert('Download failed. Try again.');
+      setToastMessage('Download failed. Try again.');
     } finally {
       setDownloading(false);
     }
@@ -294,6 +307,16 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
 
   return (
     <div className="flex h-screen bg-gray-100 font-sans flex-col">
+      {/* Non-blocking toast for errors */}
+      {toastMessage && (
+        <div
+          role="alert"
+          className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-[300] px-4 py-3 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg shadow-lg flex items-center justify-between gap-3"
+        >
+          <span className="text-sm font-medium">{toastMessage}</span>
+          <button type="button" onClick={() => setToastMessage(null)} className="text-amber-700 hover:text-amber-900 shrink-0" aria-label="Dismiss">×</button>
+        </div>
+      )}
       {/* Payment return banner: who paid must see verified; who failed must see message */}
       {paymentBanner && (
         <div
@@ -326,8 +349,8 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
       )}
 
       {isMobile ? (
-        /* Mobile: PDF-browser style — one page at a time, fit to viewport */
-        <div ref={mobileViewportRef} className="mobile-app flex-1 flex flex-col min-h-0 bg-gray-100">
+        /* Mobile: scrollable full document, fit to width, natural scroll UX */
+        <div ref={mobileViewportRef} className="mobile-app flex-1 flex flex-col min-h-0 bg-gray-100 overflow-x-hidden">
           <header className="mobile-app-header shrink-0 flex items-center justify-between gap-2 px-4 min-h-[56px] safe-area-top">
             <button
               type="button"
@@ -342,6 +365,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
               type="button"
               onClick={handleDownload}
               disabled={downloading || isLocked}
+              aria-busy={downloading}
               className="mobile-app-cta min-h-[44px] px-4 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold text-[14px] disabled:opacity-50"
             >
               <FileDown size={18} />
@@ -349,83 +373,55 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
             </button>
           </header>
 
-          <main className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-hidden px-2 py-2">
-            {/* Single-page viewport: A4 scaled to fit width (PDF-browser style, no scroll) */}
-            {(() => {
-              const pad = 16 * 2;
-              const w = Math.max(200, mobileViewportWidth - pad);
-              const scale = w / A4_PX_WIDTH;
-              const pageHeightPx = A4_PX_HEIGHT * scale;
-              return (
-                <div
-                  className="mobile-pdf-viewport"
-                  style={{
-                    width: w,
-                    height: pageHeightPx,
-                    maxHeight: '100%',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    margin: '0 auto',
-                    background: '#fff',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
-                    borderRadius: 4,
-                  }}
-                >
+          <main className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
+            {/* Scrollable preview: full document, fit to width */}
+            <div
+              className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto px-3 sm:px-4 py-4 touch-pan-y"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              {(() => {
+                const pad = 16 * 2;
+                const w = Math.max(260, Math.min(mobileViewportWidth - pad, A4_PX_WIDTH));
+                const scale = w / A4_PX_WIDTH;
+                const totalHeight = (A4_PX_HEIGHT * totalPages + Math.max(0, totalPages - 1) * A4_PAGE_MARGIN) * scale;
+                return (
                   <div
+                    className="mobile-pdf-viewport w-full max-w-full mx-auto"
                     style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: A4_PX_WIDTH,
-                      minHeight: A4_PX_HEIGHT * totalPages + (totalPages - 1) * A4_PAGE_MARGIN,
-                      transform: `scale(${scale}) translateY(${-(currentPage - 1) * (A4_PX_HEIGHT + A4_PAGE_MARGIN)}px)`,
-                      transformOrigin: 'top left',
+                      width: w,
+                      minHeight: Math.max(400, totalHeight || 500),
+                      background: '#fff',
+                      boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+                      borderRadius: 8,
+                      overflow: 'hidden',
                     }}
                   >
-                    <DocumentPreview
-                      resume={resumeDataToNormalized(data)}
-                      options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
-                      scale={1}
-                      contentRef={documentContentRef}
-                      onPagesRendered={setDocumentPageCount}
-                    />
+                    <div
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                        width: A4_PX_WIDTH,
+                        margin: '0 auto',
+                      }}
+                    >
+                      <DocumentPreview
+                        resume={normalizedResume}
+                        options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
+                        scale={1}
+                        contentRef={documentContentRef}
+                        onPagesRendered={setDocumentPageCount}
+                      />
+                    </div>
                   </div>
-                </div>
-              );
-            })()}
+                );
+              })()}
+            </div>
           </main>
 
-          <footer className="mobile-app-sticky shrink-0 flex items-center justify-between gap-2 py-3 px-4 safe-area-bottom">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              {totalPages > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage <= 1}
-                    className="mobile-app-btn-secondary flex items-center justify-center disabled:opacity-40"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft size={22} />
-                  </button>
-                  <span className="text-sm font-semibold text-gray-600 shrink-0">
-                    {currentPage} / {totalPages}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage >= totalPages}
-                    className="mobile-app-btn-secondary flex items-center justify-center disabled:opacity-40"
-                    aria-label="Next page"
-                  >
-                    <ChevronRight size={22} />
-                  </button>
-                </>
-              )}
-              {totalPages <= 1 && (
-                <span className="text-sm text-gray-500">Page 1</span>
-              )}
-            </div>
+          <footer className="mobile-app-sticky shrink-0 flex items-center justify-between gap-2 py-3 px-4 safe-area-bottom border-t border-gray-200 bg-white">
+            <span className="text-sm text-gray-600">
+              {totalPages > 0 ? `${totalPages} page${totalPages !== 1 ? 's' : ''}` : 'Preview'}
+            </span>
             {isLocked && unlockChecked && (
               <button
                 type="button"
@@ -435,14 +431,15 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
                 Get keyword-matched wording — ₹49
               </button>
             )}
+            {!isLocked || !unlockChecked ? <div className="flex-1" /> : null}
           </footer>
         </div>
       ) : (
       <div className="flex flex-1 min-h-0">
-      <aside className="w-full sm:w-72 lg:w-[25%] lg:min-w-[200px] lg:max-w-[280px] bg-white border-r flex flex-col flex-shrink-0">
+      <aside className="w-full sm:w-72 md:w-80 lg:w-[25%] lg:min-w-[200px] lg:max-w-[280px] min-w-0 bg-white border-r flex flex-col flex-shrink-0">
         <div className="p-4 border-b flex items-center justify-between">
           <button type="button" onClick={onBack} className="text-sm font-medium text-gray-600 hover:text-gray-900" aria-label="Back to editor">← Back</button>
-          <button type="button" onClick={handleDownload} disabled={downloading || isLocked} className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">{downloading ? 'Generating…' : 'Download PDF'}</button>
+          <button type="button" onClick={handleDownload} disabled={downloading || isLocked} aria-busy={downloading} className="px-4 py-2 bg-blue-600 text-white rounded font-medium text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">{downloading ? 'Generating…' : 'Download PDF'}</button>
         </div>
         <div className="p-4 overflow-y-auto flex-1">
           <h2 className="text-lg font-bold mb-4 text-gray-800">Choose Template</h2>
@@ -508,7 +505,7 @@ export const PreviewPage: React.FC<PreviewPageProps> = ({ data, onBack, onGoHome
               }}
             >
               <DocumentPreview
-                resume={resumeDataToNormalized(data)}
+                resume={normalizedResume}
                 options={{ tier: isLocked ? 'free' : unlocked ? 'paid' : 'free' }}
                 scale={1}
                 contentRef={documentContentRef}

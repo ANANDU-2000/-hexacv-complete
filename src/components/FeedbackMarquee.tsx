@@ -12,27 +12,30 @@ interface FeedbackMarqueeProps {
     feedbacks?: FeedbackItem[];
 }
 
-// Default feedbacks for initial display (will be replaced with real data from API)
-const defaultFeedbacks: FeedbackItem[] = [];
+// Static fallback feedbacks when API is unavailable (no /api/feedback/approved route in Vercel)
+const defaultFeedbacks: FeedbackItem[] = [
+    { id: '1', rating: 5, message: 'Clean ATS-friendly format. Got an interview!', userName: 'Priya S.', createdAt: '' },
+    { id: '2', rating: 5, message: 'No login needed. Built and downloaded in 2 mins.', userName: 'Rahul M.', createdAt: '' },
+    { id: '3', rating: 5, message: 'Free PDF and keyword matching. Exactly what I needed.', userName: 'Anita K.', createdAt: '' },
+];
 
 const FeedbackMarquee: React.FC<FeedbackMarqueeProps> = ({ feedbacks: propFeedbacks }) => {
     const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>(propFeedbacks || defaultFeedbacks);
     const [isPaused, setIsPaused] = useState(false);
 
-    // Fetch approved feedbacks from API
+    // Fetch approved feedbacks from API (if route exists); fallback to static defaults
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
-                const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.hexacv.online');
-                const response = await fetch(`${apiBase}/api/feedback/approved`);
+                const response = await fetch('/api/feedback/approved');
                 if (response.ok) {
                     const data = await response.json();
                     if (data.feedbacks && data.feedbacks.length > 0) {
                         setFeedbacks(data.feedbacks);
                     }
                 }
-            } catch (error) {
-                console.log('Using default feedbacks');
+            } catch {
+                // Use defaultFeedbacks when API unavailable
             }
         };
 

@@ -37,6 +37,7 @@ export function DocumentPreview({
   useLayoutEffect(() => {
     if (blocks.length === 0) {
       setHeights([]);
+      onPagesRendered?.(0);
       return;
     }
     const refs = blockRefs.current;
@@ -46,9 +47,10 @@ export function DocumentPreview({
     }
     const measured = refs.map((el) => (el ? el.offsetHeight : 0));
     setHeights(measured);
-  }, [blocks.length, blocks]);
+  }, [blocks.length, blocks, onPagesRendered]);
 
   const pageAssignments = useMemo(() => {
+    if (blocks.length === 0) return [];
     if (heights === null || heights.length !== blocks.length) return [blocks];
     return assignBlocksToPages(blocks, heights);
   }, [blocks, heights]);
@@ -58,9 +60,23 @@ export function DocumentPreview({
   }, [pageAssignments.length, onPagesRendered]);
 
   const tier = options.tier ?? 'free';
+  const isMeasuring = blocks.length > 0 && heights === null;
+
+  if (blocks.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center" style={{ fontFamily: 'Inter, Calibri, Arial, sans-serif', minHeight: 200 }}>
+        <p className="text-gray-500 text-sm">Add content to see preview</p>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ fontFamily: 'Inter, Calibri, Arial, sans-serif' }}>
+    <div style={{ fontFamily: 'Inter, Calibri, Arial, sans-serif', minHeight: isMeasuring ? 300 : undefined }} className="relative">
+      {isMeasuring && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80 text-gray-500 text-sm z-10 min-h-[300px]" aria-live="polite">
+          Rendering…
+        </div>
+      )}
       {/* Hidden measure container: same width as page content so layout is accurate */}
       <div
         aria-hidden="true"

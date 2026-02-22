@@ -76,6 +76,18 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
   }, [fitScale]);
 
   const resumeText = useMemo(() => resumeToText(data), [data]);
+  const normalizedResume = useMemo(() => resumeDataToNormalized(data), [
+    data.basics?.fullName,
+    data.basics?.targetRole,
+    data.basics?.email,
+    data.basics?.phone,
+    data.summary,
+    JSON.stringify(data.experience ?? []),
+    JSON.stringify(data.education ?? []),
+    JSON.stringify(data.projects ?? []),
+    JSON.stringify(data.skills ?? []),
+    data.photoUrl,
+  ]);
   const jdText = data.jobDescription?.trim() ?? '';
 
   // Resume Intelligence analysis
@@ -168,13 +180,13 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
       )}
       <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Left column 40%: Editor with single-open accordion */}
-        <aside className="w-full lg:w-[40%] lg:max-w-[40%] flex flex-col overflow-hidden border-r border-gray-200 bg-white">
+        <aside className="w-full md:w-[40%] md:max-w-[40%] flex flex-col overflow-hidden border-r border-gray-200 bg-white">
           <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
             <ResumeEditor data={data} onChange={onChange} />
           </div>
         </aside>
-        {/* Right column 60%: ATS (collapsible) + Live preview - full resume with zoom */}
-        <main className="hidden lg:flex flex-1 flex-col overflow-hidden bg-gray-100 min-w-0">
+        {/* Right column 60%: ATS (collapsible) + Live preview - full resume with zoom (visible from 768px+) */}
+        <main className="hidden md:flex flex-1 flex-col overflow-hidden bg-gray-100 min-w-0">
           {/* Resume Intelligence Panel — replaces old ATS-only feedback */}
           <div className="shrink-0 max-h-[50%] overflow-y-auto border-b border-gray-200 bg-white">
             {roleContext ? (
@@ -229,7 +241,7 @@ export const EditorPage: React.FC<EditorPageProps> = ({ data, onChange, onNext, 
                   }}
                 >
                   <DocumentPreview
-                    resume={resumeDataToNormalized(data)}
+                    resume={normalizedResume}
                     options={{ tier: 'free' }}
                     scale={1}
                     onPagesRendered={(pageCount) => setPreviewContentHeight(pageCount * A4_PX_HEIGHT)}
